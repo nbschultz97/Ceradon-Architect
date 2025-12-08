@@ -94,10 +94,10 @@ const workflowModules = [
 
 const demoStories = [
   {
-    name: 'Cold-weather recon lane',
+    name: 'Project WHITEFROST – alpine recon',
     entry: 'Mission-first',
     flow: 'Mission Architect → Node Architect → UxS Architect → Mesh Architect → KitSmith',
-    outputs: 'Mission phases with cold-weather sustainment, nodes with heaters, quad sorties, urban mesh, winter kits.',
+    outputs: 'Cold-weather printed quad, ridge relays, partner sustainment cache, and TAK-friendly exports.',
     links: {
       mission: 'https://nbschultz97.github.io/Mission-Architect/',
       tools: [
@@ -121,22 +121,6 @@ const demoStories = [
         'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html',
         'https://nbschultz97.github.io/Ceradon-UxS-Architect/web/',
         'https://nbschultz97.github.io/Ceradon-KitSmith/'
-      ]
-    }
-  },
-  {
-    name: 'Inventory-driven kit refresh',
-    entry: 'Inventory-first',
-    flow: 'Node Architect → UxS Architect → Mission Architect → KitSmith → Mesh Architect',
-    outputs: 'Start with inventory, approve platforms, capture mission framing, right-size sustainment, then check RF links.',
-    links: {
-      mission: 'https://nbschultz97.github.io/Mission-Architect/',
-      tools: [
-        'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html',
-        'https://nbschultz97.github.io/Ceradon-UxS-Architect/web/',
-        'https://nbschultz97.github.io/Mission-Architect/',
-        'https://nbschultz97.github.io/Ceradon-KitSmith/',
-        'https://nbschultz97.github.io/Ceradon-Mesh-Architect/'
       ]
     }
   }
@@ -336,8 +320,8 @@ function getNumeric(value, fallback = 0) {
 function buildFeasibilityItems(project) {
   const duration = getNumeric(project.meta?.durationHours, 0);
   const sustainment = getNumeric(project.sustainment?.sustainmentHours, 0);
-  const perPersonLoad = getNumeric(project.kits?.perOperatorLoadKg, 0);
-  const loadLimit = getNumeric(project.kits?.perOperatorLimitKg, 0);
+  const perPersonLoad = getNumeric(project.kitsSummary?.perOperatorLoadKg ?? project.kits?.perOperatorLoadKg, 0);
+  const loadLimit = getNumeric(project.kitsSummary?.perOperatorLimitKg ?? project.kits?.perOperatorLimitKg, 0);
   const relayCount = getNumeric(project.meshPlan?.relayCount, 0);
   const criticalLinks = getNumeric(project.meshPlan?.criticalLinks, 0);
 
@@ -413,20 +397,30 @@ function renderProjectStatus() {
   status.hidden = !projectStatusMessage;
 }
 
+function setProjectAlert(message, tone = 'info') {
+  const alertBox = document.getElementById('projectAlert');
+  if (!alertBox) return;
+  alertBox.textContent = message || '';
+  alertBox.className = `project-alert ${tone}`;
+  alertBox.hidden = !message;
+}
+
 function hydrateProjectForm() {
   const project = MissionProjectStore.loadMissionProject();
+  setProjectAlert('', 'info');
   MissionProjectStore.saveMissionProject(project);
   if (!projectStatusMessage && project.meta?.name) {
     projectStatusMessage = `Active project: ${project.meta.name}`;
   }
+  const env = Array.isArray(project.environment) ? project.environment[0] : project.meta?.environment;
   document.getElementById('missionName').value = project.meta?.name || '';
-  document.getElementById('altitudeBand').value = project.meta?.environment?.altitudeBand || '';
-  document.getElementById('temperatureBand').value = project.meta?.environment?.temperatureBand || '';
+  document.getElementById('altitudeBand').value = env?.altitudeBand || '';
+  document.getElementById('temperatureBand').value = env?.temperatureBand || '';
   document.getElementById('durationHours').value = project.meta?.durationHours || 24;
   document.getElementById('inventoryReference').value = project.meta?.inventoryReference || '';
   document.getElementById('sustainmentHours').value = project.sustainment?.sustainmentHours ?? '';
-  document.getElementById('perPersonLoad').value = project.kits?.perOperatorLoadKg ?? '';
-  document.getElementById('perPersonLimit').value = project.kits?.perOperatorLimitKg ?? '';
+  document.getElementById('perPersonLoad').value = project.kitsSummary?.perOperatorLoadKg ?? project.kits?.perOperatorLoadKg ?? '';
+  document.getElementById('perPersonLimit').value = project.kitsSummary?.perOperatorLimitKg ?? project.kits?.perOperatorLimitKg ?? '';
   document.getElementById('relayCount').value = project.meshPlan?.relayCount ?? '';
   document.getElementById('criticalLinks').value = project.meshPlan?.criticalLinks ?? '';
 
@@ -437,13 +431,25 @@ function hydrateProjectForm() {
 function syncProjectFromForm() {
   const project = MissionProjectStore.loadMissionProject();
   project.meta.name = document.getElementById('missionName').value;
-  project.meta.environment.altitudeBand = document.getElementById('altitudeBand').value;
-  project.meta.environment.temperatureBand = document.getElementById('temperatureBand').value;
+  const altitudeBand = document.getElementById('altitudeBand').value;
+  const temperatureBand = document.getElementById('temperatureBand').value;
+  const env = Array.isArray(project.environment) && project.environment.length ? project.environment[0] : {};
+  project.environment[0] = {
+    ...env,
+    id: env.id || 'env-main',
+    name: env.name || 'Baseline AO',
+    altitudeBand,
+    temperatureBand,
+    origin_tool: env.origin_tool || 'hub'
+  };
   project.meta.durationHours = getNumeric(document.getElementById('durationHours').value, project.meta.durationHours);
   project.meta.inventoryReference = document.getElementById('inventoryReference').value;
   project.sustainment.sustainmentHours = getNumeric(document.getElementById('sustainmentHours').value, project.sustainment.sustainmentHours);
-  project.kits.perOperatorLoadKg = getNumeric(document.getElementById('perPersonLoad').value, project.kits.perOperatorLoadKg);
-  project.kits.perOperatorLimitKg = getNumeric(document.getElementById('perPersonLimit').value, project.kits.perOperatorLimitKg);
+  project.kitsSummary = {
+    ...(project.kitsSummary || {}),
+    perOperatorLoadKg: getNumeric(document.getElementById('perPersonLoad').value, project.kitsSummary?.perOperatorLoadKg),
+    perOperatorLimitKg: getNumeric(document.getElementById('perPersonLimit').value, project.kitsSummary?.perOperatorLimitKg)
+  };
   project.meshPlan.relayCount = getNumeric(document.getElementById('relayCount').value, project.meshPlan.relayCount);
   project.meshPlan.criticalLinks = getNumeric(document.getElementById('criticalLinks').value, project.meshPlan.criticalLinks);
 
@@ -464,11 +470,26 @@ function bindProjectActions() {
   const exportBtn = document.getElementById('exportProject');
   const importBtn = document.getElementById('importProject');
   const importFile = document.getElementById('importProjectFile');
-  const demoBtn = document.getElementById('loadMongoliaDemo');
+  const demoBtn = document.getElementById('loadWhitefrostDemo');
+  const exportGeoBtn = document.getElementById('exportGeo');
+  const exportCoTBtn = document.getElementById('exportCoT');
 
   exportBtn?.addEventListener('click', (event) => {
     event.preventDefault();
     MissionProjectStore.exportMissionProject();
+    setProjectAlert('MissionProject exported.', 'info');
+  });
+
+  exportGeoBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    MissionProjectStore.exportGeoJSON();
+    setProjectAlert('GeoJSON export ready for TAK/overlays.', 'info');
+  });
+
+  exportCoTBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    MissionProjectStore.exportCoTStub();
+    setProjectAlert('CoT stub export saved.', 'info');
   });
 
   importBtn?.addEventListener('click', (event) => {
@@ -482,10 +503,11 @@ function bindProjectActions() {
     MissionProjectStore.importMissionProject(file)
       .then(() => {
         projectStatusMessage = `Imported project from ${file.name}`;
+        setProjectAlert('MissionProject imported successfully.', 'success');
         hydrateProjectForm();
       })
       .catch(() => {
-        alert('Unable to import project JSON. Please verify the file structure.');
+        setProjectAlert('Unable to import project JSON. Please verify the MissionProject schema.', 'alert');
       })
       .finally(() => {
         importFile.value = '';
@@ -496,10 +518,10 @@ function bindProjectActions() {
   demoBtn?.addEventListener('click', async (event) => {
     event.preventDefault();
     demoBtn.disabled = true;
-    demoBtn.textContent = 'Loading demo…';
+    demoBtn.textContent = 'Loading WHITEFROST…';
 
     try {
-      const response = await fetch('data/mongolia_demo_project.json');
+      const response = await fetch('data/whitefrost_demo_project.json');
       if (!response.ok) {
         throw new Error('Unable to fetch demo project');
       }
@@ -509,13 +531,14 @@ function bindProjectActions() {
       }
       MissionProjectStore.saveMissionProject(payload);
       projectStatusMessage = payload.meta?.name ? `${payload.meta.name} loaded.` : 'Demo project loaded.';
+      setProjectAlert('WHITEFROST demo loaded. Exports now match the shared schema.', 'success');
       hydrateProjectForm();
     } catch (error) {
       console.error(error);
-      alert('Unable to load the Mongolia demo project. Please try again.');
+      setProjectAlert('Unable to load the WHITEFROST demo project. Please try again.', 'alert');
     } finally {
       demoBtn.disabled = false;
-      demoBtn.textContent = 'Load Mongolia Demo Project';
+      demoBtn.textContent = 'Load WHITEFROST Demo';
       renderProjectStatus();
     }
   });

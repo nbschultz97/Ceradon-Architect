@@ -27,32 +27,15 @@ This repo is the front-door, static SPA hub for the Ceradon Architect tools, pub
 - A feasibility panel reads the stored project JSON and highlights sustainment coverage, kit weight margins, and comms relay redundancy.
 
 ## MissionProject schema and helpers
-- A shared schema (v1) lives in `assets/js/mission_project.js` and persists to `localStorage` under `ceradon_mission_project`. Tools can copy this helper module to stay consistent.
-- Core shape (abbreviated):
-
-```json
-{
-  "schemaVersion": 1,
-  "meta": {
-    "name": "Untitled mission",
-    "durationHours": 48,
-    "environment": { "altitudeBand": "0-1000m", "temperatureBand": "10-25C" },
-    "inventoryReference": "Pending catalog reference"
-  },
-  "nodes": [],
-  "platforms": [],
-  "meshPlan": { "nodes": [], "links": [], "relayCount": 0, "criticalLinks": 0, "geodata": { "locations": [], "area": null } },
-  "mission": { "tasks": [], "phases": [], "assignments": [] },
-  "kits": { "packages": [], "perOperatorLoads": [], "perOperatorLoadKg": 18, "perOperatorLimitKg": 22 },
-  "sustainment": { "sustainmentHours": 48, "batteryCounts": 0 }
-}
-```
+- MissionProject schema v2 lives in `assets/js/mission_project.js` and persists to `localStorage` under `ceradon_mission_project`. Full reference: `docs/mission_project_schema.md`.
+- Core shape: `meta`, `environment[]`, `nodes[]`, `platforms[]`, `mesh_links[]`, `kits[]`, `mission{tasks,phases,assignments}`, `constraints[]`, `sustainment`, `meshPlan` summary, `kitsSummary`. Every entity includes `origin_tool` for cross-tool provenance.
 
 - Helper API exposed globally as `MissionProjectStore`:
   - `createEmptyMissionProject()`, `loadMissionProject()`, `saveMissionProject(updatedProject)`
-  - `exportMissionProject(fileName)` / `importMissionProject(file)`
+  - `exportMissionProject(fileName)`, `exportGeoJSON()`, `exportCoTStub()` / `importMissionProject(file)`
   - `validateMissionProject()` and `migrateMissionProjectIfNeeded(project)` placeholders for forward compatibility
 - The workflow dashboard form writes directly to this object, so other repos can read the same structure without extra wiring.
+- WHITEFROST demo: `data/whitefrost_demo_project.json` provides the cold-weather scenario with TAK-ready exports.
 
 ## Tool deep links
 - Node Architect: <https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html>

@@ -1,0 +1,33 @@
+# ATAK / Tactical-App Exports
+
+The hub can export MissionProject data to two offline-friendly formats meant for TAK servers or small companion apps.
+
+## GeoJSON export
+- Trigger: **Export GeoJSON** button in the Mission Workflow panel or call `MissionProjectStore.exportGeoJSON()`.
+- Output: `FeatureCollection` containing `Point` features for nodes/platforms (when `geo.lat`/`geo.lon` are present) and `LineString` features for `mesh_links` with both endpoints resolved.
+- Properties per feature:
+  - `id`, `name`, `role`, `origin_tool`
+  - Nodes: `rf_band`, `power`, `battery`
+  - Platforms: `rf_bands`, `power`, `battery`, `type`
+  - Links: `from`, `to`, `band`, `throughputMbps`, `role`, `notes`
+- Clients can drop this straight into TAK as a GeoJSON overlay; missing coordinates are skipped instead of failing the export.
+
+## CoT-style JSON stub
+- Trigger: **Export CoT Stub** button or `MissionProjectStore.exportCoTStub()`.
+- Output: lightweight JSON shaped for quick ingestion by TAK adapters:
+```json
+{
+  "type": "cot-stub",
+  "schemaVersion": 2,
+  "mission": "Project WHITEFROST",
+  "units": [
+    { "type": "sensor", "id": "ridge-relay", "callsign": "Ridgeline relay", "role": "LOS relay", "lat": 46.1, "lon": 90.4, "hae": 2870, "origin_tool": "mesh" },
+    { "type": "platform", "id": "wf-quad-alpha", "callsign": "Printed quad", "role": "Cold-weather recon", "lat": 46.102, "lon": 90.405, "hae": 2785, "origin_tool": "uxs" }
+  ]
+}
+```
+- Units are emitted only when coordinates are present.
+- Adaptation tip: wrap each unit in your preferred CoT XML/JSON envelope (`a-f-G-U-C` or similar) while retaining the stable IDs.
+
+## Access control
+These exports do not bypass the access gate; the user must unlock the hub with the stack code before buttons appear. No external API calls are made during export.

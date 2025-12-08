@@ -463,10 +463,28 @@ h1, h2, h3, h4 {
 }
 
 .project-actions {
-  display: flex;
+  display: grid;
   gap: 10px;
-  flex-wrap: wrap;
   margin-top: 12px;
+}
+
+.project-alert {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(77, 163, 255, 0.12);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.project-alert.success { border-color: #2dd4bf; background: rgba(45, 212, 191, 0.12); }
+.project-alert.alert { border-color: #f87171; background: rgba(248, 113, 113, 0.12); }
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .feasibility-header {
