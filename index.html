@@ -252,22 +252,106 @@
     <section id="workflow" class="view" aria-label="Workflow view" hidden>
       <div class="section-header">
         <div>
-          <p class="eyebrow">Integrated planning loop</p>
-          <h2>Pick any entry point. Stay inside the loop.</h2>
-          <p class="lead">Mission-first, inventory-first, constraint-first, or RF-environment-first. Architect Stack keeps tools connected so phases, kits, meshes, and platforms stay in sync.</p>
-        </div>
-        <div class="loop-diagram" aria-hidden="true">
-          <div class="loop-node">Mission<br>Architect</div>
-          <div class="loop-node">Node<br>Architect</div>
-          <div class="loop-node">UxS<br>Architect</div>
-          <div class="loop-node">Mesh<br>Architect</div>
-          <div class="loop-node">KitSmith</div>
-          <svg class="loop-lines" viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
-            <circle cx="200" cy="200" r="140" />
-          </svg>
+          <p class="eyebrow">Mission Workflow</p>
+          <h2>One dashboard, four modules. Move missions without leaving the shell.</h2>
+          <p class="lead">Stay on a single page to embed platform, mesh, mission, and kit planners. Update module status, keep a shared mission project JSON in localStorage, and export/import as you go.</p>
         </div>
       </div>
-      <div class="workflow-grid" id="workflowModes" aria-live="polite"></div>
+
+      <div class="workflow-dashboard">
+        <aside class="module-sidebar" id="moduleSidebar" aria-label="Workflow module navigation"></aside>
+
+        <div class="workflow-main">
+          <div class="module-panel">
+            <div class="module-panel-header">
+              <div>
+                <p class="eyebrow" id="moduleCategory">Module</p>
+                <h3 id="moduleTitle">Platform Designer (Node + UxS)</h3>
+                <p class="small" id="moduleDescription"></p>
+              </div>
+              <div class="status-control">
+                <label for="moduleStatus">Status</label>
+                <select id="moduleStatus" aria-label="Module status selector">
+                  <option value="Not Started">Not Started</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Complete">Complete</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="module-links" id="moduleLinks"></div>
+            <div class="embed-container" id="moduleEmbed"></div>
+          </div>
+
+          <div class="project-layout">
+            <div class="card project-card">
+              <h3>Mission project</h3>
+              <p class="small">Edit the shared mission project JSON that every module reads and writes. Values persist locally under <code>ceradon_mission_project</code>.</p>
+
+              <form class="project-form" id="projectMetaForm">
+                <div class="form-grid">
+                  <label>Mission name
+                    <input type="text" id="missionName" name="missionName" autocomplete="off">
+                  </label>
+                  <label>Environment – altitude band
+                    <select id="altitudeBand" name="altitudeBand">
+                      <option value="0-1000m">0-1000m</option>
+                      <option value="1000-2500m">1000-2500m</option>
+                      <option value=">2500m">&gt;2500m</option>
+                    </select>
+                  </label>
+                  <label>Environment – temperature band
+                    <select id="temperatureBand" name="temperatureBand">
+                      <option value="10-25C">10-25°C</option>
+                      <option value="-10-10C">-10 to 10°C</option>
+                      <option value="25-40C">25-40°C</option>
+                    </select>
+                  </label>
+                  <label>Duration (hours)
+                    <select id="durationHours" name="durationHours">
+                      <option value="24">24</option>
+                      <option value="48">48</option>
+                      <option value="72">72</option>
+                    </select>
+                  </label>
+                  <label>Inventory catalog reference
+                    <input type="text" id="inventoryReference" name="inventoryReference" autocomplete="off">
+                  </label>
+                  <label>Planned sustainment hours
+                    <input type="number" id="sustainmentHours" name="sustainmentHours" min="0" step="1">
+                  </label>
+                  <label>Per-person kit load (kg)
+                    <input type="number" id="perPersonLoad" name="perPersonLoad" min="0" step="0.5">
+                  </label>
+                  <label>Per-person weight limit (kg)
+                    <input type="number" id="perPersonLimit" name="perPersonLimit" min="0" step="0.5">
+                  </label>
+                  <label>Comms relay count
+                    <input type="number" id="relayCount" name="relayCount" min="0" step="1">
+                  </label>
+                  <label>Critical links
+                    <input type="number" id="criticalLinks" name="criticalLinks" min="0" step="1">
+                  </label>
+                </div>
+              </form>
+
+              <div class="project-actions">
+                <button class="btn primary" id="exportProject">Export Project (.json)</button>
+                <button class="btn ghost" id="importProject">Import Project (.json)</button>
+                <input type="file" id="importProjectFile" accept="application/json" hidden>
+              </div>
+            </div>
+
+            <div class="card feasibility-card">
+              <div class="feasibility-header">
+                <h3>Mission Feasibility</h3>
+                <p class="small">Reads from the stored project JSON. Color cues flag sustainment, weight, and comms coverage gaps.</p>
+              </div>
+              <div class="feasibility-items" id="feasibilityItems"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="tools" class="view" aria-label="Tools view" hidden>
@@ -374,6 +458,7 @@
   </footer>
   </div>
 
+  <script src="assets/js/project.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
     (() => {

@@ -327,6 +327,171 @@ h1, h2, h3, h4 {
 .status.prototype { color: #fbbf24; border-color: #fbbf2433; }
 .status.planned { color: #f87171; border-color: #f8717133; }
 
+.workflow-dashboard {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .workflow-dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+.module-sidebar {
+  display: grid;
+  gap: 10px;
+}
+
+.module-nav-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+
+.module-nav-item:hover,
+.module-nav-item:focus-visible {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.module-nav-item.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(77, 163, 255, 0.2);
+}
+
+.module-nav-text {
+  display: grid;
+  gap: 4px;
+}
+
+.status-pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+}
+
+.status-pill.not-started { color: var(--muted); }
+.status-pill.in-progress { color: #fbbf24; border-color: #fbbf2433; }
+.status-pill.complete { color: #2dd4bf; border-color: #2dd4bf33; }
+
+.module-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.module-panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.status-control {
+  display: grid;
+  gap: 6px;
+}
+
+.status-control select {
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+
+.module-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+
+.module-panel .embed-container {
+  padding-top: 65%;
+  min-height: 320px;
+  border-radius: 12px;
+}
+
+.project-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.project-card,
+.feasibility-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.project-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.project-form input,
+.project-form select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+}
+
+.project-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.feasibility-header {
+  display: grid;
+  gap: 6px;
+}
+
+.feasibility-items {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.feasibility-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: var(--card);
+  border-left: 4px solid var(--border);
+}
+
+.feasibility-item.good { border-left-color: #2dd4bf; }
+.feasibility-item.warning { border-left-color: #fbbf24; }
+.feasibility-item.alert { border-left-color: #f87171; }
+
 .workflow-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

@@ -46,38 +46,47 @@ const toolData = [
   }
 ];
 
-const workflowModes = [
+const workflowModules = [
   {
-    name: 'Mission-first',
-    primary: ['Mission Architect'],
-    secondary: ['Node Architect', 'UxS Architect', 'Mesh Architect', 'KitSmith'],
-    description: 'Start with AO, phases, and constraints. Push node packages, platform pairings, meshes, and kits from mission exports.',
-    scenario: 'Recon-in-force across two phases with RF denied windows.',
-    action: { label: 'Open Mission Architect', link: 'https://nbschultz97.github.io/Mission-Architect/' }
+    id: 'platform',
+    name: 'Platform Designer (Node + UxS)',
+    category: 'Platform Designer',
+    description: 'Shape sensing nodes and pair them with UxS lift. Keep payload, power, and sortie timing together.',
+    iframe: 'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html',
+    links: [
+      { label: 'Open Node Architect', href: 'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html' },
+      { label: 'Open UxS Architect', href: 'https://nbschultz97.github.io/Ceradon-UxS-Architect/web/' }
+    ]
   },
   {
-    name: 'Inventory-first',
-    primary: ['Node Architect', 'UxS Architect'],
-    secondary: ['Mesh Architect', 'KitSmith', 'Mission Architect'],
-    description: 'Start from what you have on hand: payloads, radios, and platforms. Back-map to missions and sustainment.',
-    scenario: 'Inventory of five quads and mixed RF payloads, mapping to ISR tasks.',
-    action: { label: 'Highlight tools', link: '#/tools', highlight: ['Node Architect', 'UxS Architect'] }
+    id: 'mesh',
+    name: 'Mesh Planner',
+    category: 'Mesh Planner',
+    description: 'Plan relays, LOS/NLOS links, and coverage so critical links stay redundant.',
+    iframe: 'https://nbschultz97.github.io/Ceradon-Mesh-Architect/',
+    links: [
+      { label: 'Open Mesh Architect', href: 'https://nbschultz97.github.io/Ceradon-Mesh-Architect/' }
+    ]
   },
   {
-    name: 'Constraint-first',
-    primary: ['KitSmith'],
-    secondary: ['Mission Architect', 'Node Architect', 'UxS Architect', 'Mesh Architect'],
-    description: 'Lead with sustainment limits, team roles, and resupply cadence. Size missions and nodes to fit.',
-    scenario: '72-hour small team with cold weather sustainment and limited resupply.',
-    action: { label: 'Open KitSmith', link: 'https://nbschultz97.github.io/Ceradon-KitSmith/' }
+    id: 'mission',
+    name: 'Mission Planner',
+    category: 'Mission Planner',
+    description: 'Mission Architect drives phases, AO constraints, and exports that feed every downstream tool.',
+    iframe: 'https://nbschultz97.github.io/Mission-Architect/',
+    links: [
+      { label: 'Open Mission Architect', href: 'https://nbschultz97.github.io/Mission-Architect/' }
+    ]
   },
   {
-    name: 'RF-environment-first',
-    primary: ['Mesh Architect'],
-    secondary: ['Mission Architect', 'Node Architect', 'UxS Architect', 'KitSmith'],
-    description: 'Anchor on spectrum, terrain, and denial threats. Fit mission, platforms, and kits to viable RF paths.',
-    scenario: 'Dense urban block with limited LOS and heavy multipath.',
-    action: { label: 'Open Mesh Architect', link: 'https://nbschultz97.github.io/Ceradon-Mesh-Architect/' }
+    id: 'kitsmith',
+    name: 'KitSmith',
+    category: 'KitSmith',
+    description: 'Sustainment packaging, batteries, and per-person loads tied to mission phases.',
+    iframe: 'https://nbschultz97.github.io/Ceradon-KitSmith/',
+    links: [
+      { label: 'Open KitSmith', href: 'https://nbschultz97.github.io/Ceradon-KitSmith/' }
+    ]
   }
 ];
 
@@ -132,7 +141,11 @@ const demoStories = [
 ];
 
 const routes = ['home', 'workflow', 'tools', 'mission', 'demos', 'docs'];
+const MODULE_STATUS_KEY = 'ceradon_module_statuses';
+const moduleStatusOptions = ['Not Started', 'In Progress', 'Complete'];
 let highlightedTools = [];
+let moduleStatuses = {};
+let activeModuleId = workflowModules[0].id;
 
 function setActiveRoute(route) {
   const target = routes.includes(route) ? route : 'home';
@@ -154,6 +167,7 @@ function handleHashChange() {
 
 function buildTools() {
   const grid = document.getElementById('toolGrid');
+  if (!grid) return;
   grid.innerHTML = '';
 
   toolData.forEach(tool => {
@@ -174,42 +188,9 @@ function buildTools() {
   });
 }
 
-function buildWorkflows() {
-  const grid = document.getElementById('workflowModes');
-  grid.innerHTML = '';
-
-  workflowModes.forEach(mode => {
-    const card = document.createElement('div');
-    card.className = 'workflow-card';
-    card.innerHTML = `
-      <h3>${mode.name}</h3>
-      <p>${mode.description}</p>
-      <p class="small"><strong>Primary:</strong> ${mode.primary.join(', ')}</p>
-      <p class="small"><strong>Secondary:</strong> ${mode.secondary.join(', ')}</p>
-      <p class="small"><strong>Example:</strong> ${mode.scenario}</p>
-    `;
-    const action = document.createElement('a');
-    action.className = 'btn ghost';
-    action.textContent = mode.action.label;
-    action.href = mode.action.link;
-    if (!mode.action.link.startsWith('http')) {
-      action.addEventListener('click', (e) => {
-        e.preventDefault();
-        highlightedTools = mode.action.highlight || [];
-        buildTools();
-        window.location.hash = mode.action.link;
-      });
-    } else {
-      action.target = '_blank';
-      action.rel = 'noopener';
-    }
-    card.appendChild(action);
-    grid.appendChild(card);
-  });
-}
-
 function buildDemos() {
   const grid = document.getElementById('demoGrid');
+  if (!grid) return;
   grid.innerHTML = '';
 
   demoStories.forEach(demo => {
@@ -248,6 +229,261 @@ function buildDemos() {
   });
 }
 
+function loadModuleStatuses() {
+  const stored = localStorage.getItem(MODULE_STATUS_KEY);
+  if (!stored) return {};
+  try {
+    return JSON.parse(stored) || {};
+  } catch (error) {
+    console.warn('Unable to parse module statuses, resetting', error);
+    return {};
+  }
+}
+
+function saveModuleStatuses(statuses) {
+  moduleStatuses = { ...statuses };
+  localStorage.setItem(MODULE_STATUS_KEY, JSON.stringify(moduleStatuses));
+}
+
+function renderModuleNav() {
+  const sidebar = document.getElementById('moduleSidebar');
+  if (!sidebar) return;
+  sidebar.innerHTML = '';
+
+  workflowModules.forEach((module) => {
+    const status = moduleStatuses[module.id] || 'Not Started';
+    const button = document.createElement('button');
+    button.className = `module-nav-item ${activeModuleId === module.id ? 'active' : ''}`;
+    button.setAttribute('type', 'button');
+    button.innerHTML = `
+      <div class="module-nav-text">
+        <strong>${module.name}</strong>
+        <span class="small">${module.category}</span>
+      </div>
+      <span class="status-pill ${status.toLowerCase().replace(' ', '-') }">${status}</span>
+    `;
+    button.addEventListener('click', () => {
+      activeModuleId = module.id;
+      renderModuleContent();
+      renderModuleNav();
+    });
+    sidebar.appendChild(button);
+  });
+}
+
+function renderModuleContent() {
+  const module = workflowModules.find((item) => item.id === activeModuleId) || workflowModules[0];
+  if (!module) return;
+
+  const category = document.getElementById('moduleCategory');
+  const title = document.getElementById('moduleTitle');
+  const description = document.getElementById('moduleDescription');
+  const linksContainer = document.getElementById('moduleLinks');
+  const embedContainer = document.getElementById('moduleEmbed');
+  const statusSelect = document.getElementById('moduleStatus');
+
+  if (category) category.textContent = module.category;
+  if (title) title.textContent = module.name;
+  if (description) description.textContent = module.description;
+
+  if (linksContainer) {
+    linksContainer.innerHTML = '';
+    module.links.forEach(link => {
+      const anchor = document.createElement('a');
+      anchor.className = 'btn subtle';
+      anchor.textContent = link.label;
+      anchor.href = link.href;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener';
+      linksContainer.appendChild(anchor);
+    });
+  }
+
+  if (embedContainer) {
+    embedContainer.innerHTML = '';
+    const iframe = document.createElement('iframe');
+    iframe.title = module.name;
+    iframe.src = module.iframe;
+    iframe.loading = 'lazy';
+    embedContainer.appendChild(iframe);
+  }
+
+  if (statusSelect) {
+    statusSelect.innerHTML = '';
+    moduleStatusOptions.forEach(option => {
+      const opt = document.createElement('option');
+      opt.value = option;
+      opt.textContent = option;
+      statusSelect.appendChild(opt);
+    });
+    statusSelect.value = moduleStatuses[module.id] || 'Not Started';
+    statusSelect.onchange = (event) => {
+      const nextStatus = event.target.value;
+      saveModuleStatuses({ ...moduleStatuses, [module.id]: nextStatus });
+      renderModuleNav();
+    };
+  }
+}
+
+function getNumeric(value, fallback = 0) {
+  const numberValue = Number(value);
+  return Number.isFinite(numberValue) ? numberValue : fallback;
+}
+
+function buildFeasibilityItems(project) {
+  const duration = getNumeric(project.missionMeta?.durationHours, 0);
+  const sustainment = getNumeric(project.kitPlans?.sustainmentHours, 0);
+  const perPersonLoad = getNumeric(project.kitPlans?.perPersonLoadWeight, 0);
+  const loadLimit = getNumeric(project.kitPlans?.weightLimit, 0);
+  const relayCount = getNumeric(project.meshPlan?.relayCount, 0);
+  const criticalLinks = getNumeric(project.meshPlan?.criticalLinks, 0);
+
+  const sustainmentGap = sustainment - duration;
+  let sustainmentStatus = 'alert';
+  if (sustainmentGap >= 0) {
+    sustainmentStatus = 'good';
+  } else if (sustainmentGap >= -6) {
+    sustainmentStatus = 'warning';
+  }
+
+  const loadMargin = loadLimit - perPersonLoad;
+  let loadStatus = 'alert';
+  if (loadMargin >= 0) {
+    loadStatus = 'good';
+  } else if (loadMargin >= -2) {
+    loadStatus = 'warning';
+  }
+
+  const relayMargin = relayCount - criticalLinks;
+  let relayStatus = 'alert';
+  if (relayMargin >= 0) {
+    relayStatus = 'good';
+  } else if (relayMargin === -1) {
+    relayStatus = 'warning';
+  }
+
+  return [
+    {
+      title: 'Mission duration vs sustainment',
+      label: `${sustainment}h sustainment vs ${duration}h duration`,
+      detail: sustainmentGap >= 0 ? 'Sustainment covers the planned duration.' : 'Add sustainment hours or shorten phases.',
+      status: sustainmentStatus
+    },
+    {
+      title: 'Per-person kit weight',
+      label: `${perPersonLoad} kg load vs ${loadLimit} kg limit`,
+      detail: loadMargin >= 0 ? 'Load is within the configured per-person limit.' : 'Trim kit weight or increase allowable load.',
+      status: loadStatus
+    },
+    {
+      title: 'Relays vs critical links',
+      label: `${relayCount} relays vs ${criticalLinks} critical links`,
+      detail: relayMargin >= 0 ? 'Relays match or exceed critical links.' : 'Add redundancy to avoid single points of failure.',
+      status: relayStatus
+    }
+  ];
+}
+
+function renderFeasibility(project) {
+  const container = document.getElementById('feasibilityItems');
+  if (!container) return;
+  container.innerHTML = '';
+
+  buildFeasibilityItems(project).forEach(item => {
+    const row = document.createElement('div');
+    row.className = `feasibility-item ${item.status}`;
+    row.innerHTML = `
+      <div>
+        <p class="small">${item.title}</p>
+        <strong>${item.label}</strong>
+        <p class="small">${item.detail}</p>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function hydrateProjectForm() {
+  const project = MissionProjectStore.loadMissionProject();
+  MissionProjectStore.saveMissionProject(project);
+  document.getElementById('missionName').value = project.missionMeta?.name || '';
+  document.getElementById('altitudeBand').value = project.missionMeta?.environment?.altitudeBand || '';
+  document.getElementById('temperatureBand').value = project.missionMeta?.environment?.temperatureBand || '';
+  document.getElementById('durationHours').value = project.missionMeta?.durationHours || 24;
+  document.getElementById('inventoryReference').value = project.inventoryCatalog?.reference || '';
+  document.getElementById('sustainmentHours').value = project.kitPlans?.sustainmentHours ?? '';
+  document.getElementById('perPersonLoad').value = project.kitPlans?.perPersonLoadWeight ?? '';
+  document.getElementById('perPersonLimit').value = project.kitPlans?.weightLimit ?? '';
+  document.getElementById('relayCount').value = project.meshPlan?.relayCount ?? '';
+  document.getElementById('criticalLinks').value = project.meshPlan?.criticalLinks ?? '';
+
+  renderFeasibility(project);
+}
+
+function syncProjectFromForm() {
+  const project = MissionProjectStore.loadMissionProject();
+  project.missionMeta.name = document.getElementById('missionName').value;
+  project.missionMeta.environment.altitudeBand = document.getElementById('altitudeBand').value;
+  project.missionMeta.environment.temperatureBand = document.getElementById('temperatureBand').value;
+  project.missionMeta.durationHours = getNumeric(document.getElementById('durationHours').value, project.missionMeta.durationHours);
+  project.inventoryCatalog.reference = document.getElementById('inventoryReference').value;
+  project.kitPlans.sustainmentHours = getNumeric(document.getElementById('sustainmentHours').value, project.kitPlans.sustainmentHours);
+  project.kitPlans.perPersonLoadWeight = getNumeric(document.getElementById('perPersonLoad').value, project.kitPlans.perPersonLoadWeight);
+  project.kitPlans.weightLimit = getNumeric(document.getElementById('perPersonLimit').value, project.kitPlans.weightLimit);
+  project.meshPlan.relayCount = getNumeric(document.getElementById('relayCount').value, project.meshPlan.relayCount);
+  project.meshPlan.criticalLinks = getNumeric(document.getElementById('criticalLinks').value, project.meshPlan.criticalLinks);
+
+  const saved = MissionProjectStore.saveMissionProject(project);
+  renderFeasibility(saved);
+}
+
+function bindProjectForm() {
+  const form = document.getElementById('projectMetaForm');
+  if (!form) return;
+  form.addEventListener('input', syncProjectFromForm);
+  form.addEventListener('change', syncProjectFromForm);
+}
+
+function bindProjectActions() {
+  const exportBtn = document.getElementById('exportProject');
+  const importBtn = document.getElementById('importProject');
+  const importFile = document.getElementById('importProjectFile');
+
+  exportBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    MissionProjectStore.exportMissionProject();
+  });
+
+  importBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    importFile?.click();
+  });
+
+  importFile?.addEventListener('change', (event) => {
+    const [file] = event.target.files || [];
+    if (!file) return;
+    MissionProjectStore.importMissionProject(file)
+      .then(() => {
+        hydrateProjectForm();
+      })
+      .catch(() => {
+        alert('Unable to import project JSON. Please verify the file structure.');
+      })
+      .finally(() => {
+        importFile.value = '';
+      });
+  });
+}
+
+function initWorkflowDashboard() {
+  moduleStatuses = loadModuleStatuses();
+  renderModuleNav();
+  renderModuleContent();
+  hydrateProjectForm();
+  bindProjectForm();
+  bindProjectActions();
+}
+
 function initThemeToggle() {
   const toggle = document.getElementById('themeToggle');
   const saved = localStorage.getItem('ceradon-theme');
@@ -267,8 +503,8 @@ function initThemeToggle() {
 
 function initApp() {
   buildTools();
-  buildWorkflows();
   buildDemos();
+  initWorkflowDashboard();
   initThemeToggle();
   handleHashChange();
   window.addEventListener('hashchange', handleHashChange);
