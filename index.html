@@ -224,29 +224,6 @@
         </article>
       </div>
 
-      <section id="demo-request" class="demo-request">
-        <div class="demo-request-inner">
-          <h2>Request a demo code</h2>
-          <p>
-            Ceradon Systems provides controlled access to <strong>Ceradon Mission Architect</strong> for qualified organizations.
-            Request a demo code to explore the live planner and see how it fits your mission profiles.
-          </p>
-          <div class="demo-request-actions">
-            <a
-              id="demo-request-button"
-              class="btn primary demo-request-btn"
-              href="mailto:contact@ceradonsystems.com?subject=Demo%20code%20request%20%E2%80%93%20Ceradon%20Mission%20Architect&body=Hi%20Ceradon%20team,%0D%0A%0D%0AI%27d%20like%20to%20request%20a%20demo%20access%20code%20for%20Ceradon%20Mission%20Architect.%0D%0A%0D%0AOrganization:%20%0D%0AUse%20case:%20%0D%0ATimeline:%20%0D%0A%0D%0AThank%20you.">
-              Request a demo code
-            </a>
-
-            <p class="demo-request-email">
-              Or email us at
-              <a href="mailto:contact@ceradonsystems.com?subject=Demo%20code%20request%20%E2%80%93%20Ceradon%20Mission%20Architect">contact@ceradonsystems.com</a>
-              with your organization and use case.
-            </p>
-          </div>
-        </div>
-      </section>
     </section>
 
     <section id="workflow" class="view" aria-label="Workflow view" hidden>
@@ -336,11 +313,18 @@
               </form>
 
               <div class="project-actions">
-                <button class="btn primary" id="exportProject">Export Project (.json)</button>
-                <button class="btn ghost" id="importProject">Import Project (.json)</button>
-                <input type="file" id="importProjectFile" accept="application/json" hidden>
-                <button class="btn subtle" id="loadMongoliaDemo">Load Mongolia Demo Project</button>
-                <p class="small" id="projectStatus" aria-live="polite"></p>
+                <div class="project-alert" id="projectAlert" role="status" aria-live="polite" hidden></div>
+                <div class="action-row">
+                  <button class="btn primary" id="exportProject">Export MissionProject (.json)</button>
+                  <button class="btn ghost" id="importProject">Import MissionProject (.json)</button>
+                  <input type="file" id="importProjectFile" accept="application/json" hidden>
+                  <button class="btn subtle" id="exportGeo">Export GeoJSON</button>
+                  <button class="btn subtle" id="exportCoT">Export CoT Stub</button>
+                </div>
+                <div class="action-row">
+                  <button class="btn primary" id="loadWhitefrostDemo">Load WHITEFROST Demo</button>
+                  <p class="small" id="projectStatus" aria-live="polite"></p>
+                </div>
               </div>
             </div>
 
@@ -446,6 +430,11 @@
           <p>Architect Stack pairs with Ceradon products such as Vantage, Phantom-Scout, ATAK plugins, Telemetry Forge, and Tactical-App to close the loop between sensing, control, and sustainment.</p>
           <p>For more, visit <a href="https://ceradonsystems.com" target="_blank" rel="noopener">CeradonSystems.com</a>.</p>
           <p class="small">This site is static and GitHub Pages–ready. Edit theme tokens in <code>assets/css/styles.css</code>, update routes in <code>assets/js/app.js</code>, and add tools or demos via the data structures near the top of <code>app.js</code>.</p>
+        </div>
+        <div class="card">
+          <h3>MissionProject + TAK exports</h3>
+          <p>MissionProject JSON schema is documented in <a href="docs/mission_project_schema.md" target="_blank" rel="noopener">docs/mission_project_schema.md</a>. ATAK/Tactical-App export notes live in <a href="docs/atak_exports.md" target="_blank" rel="noopener">docs/atak_exports.md</a>.</p>
+          <p class="small">All entities are tagged with <code>origin_tool</code> to ease cross-Architect imports. Exports remain offline-first and require no external APIs.</p>
         </div>
       </div>
     </section>
