@@ -75,7 +75,8 @@ const workflowModules = [
     description: 'Mission Architect drives phases, AO constraints, and exports that feed every downstream tool.',
     iframe: 'https://nbschultz97.github.io/Mission-Architect/',
     links: [
-      { label: 'Open Mission Architect', href: 'https://nbschultz97.github.io/Mission-Architect/' }
+      { label: 'Open Mission Architect', href: 'https://nbschultz97.github.io/Mission-Architect/' },
+      { label: 'Mission Architect print view', href: 'https://nbschultz97.github.io/Mission-Architect/print.html' }
     ]
   },
   {
@@ -85,7 +86,8 @@ const workflowModules = [
     description: 'Sustainment packaging, batteries, and per-person loads tied to mission phases.',
     iframe: 'https://nbschultz97.github.io/Ceradon-KitSmith/',
     links: [
-      { label: 'Open KitSmith', href: 'https://nbschultz97.github.io/Ceradon-KitSmith/' }
+      { label: 'Open KitSmith', href: 'https://nbschultz97.github.io/Ceradon-KitSmith/' },
+      { label: 'KitSmith print view', href: 'https://nbschultz97.github.io/Ceradon-KitSmith/print.html' }
     ]
   }
 ];
@@ -146,6 +148,7 @@ const moduleStatusOptions = ['Not Started', 'In Progress', 'Complete'];
 let highlightedTools = [];
 let moduleStatuses = {};
 let activeModuleId = workflowModules[0].id;
+let projectStatusMessage = '';
 
 function setActiveRoute(route) {
   const target = routes.includes(route) ? route : 'home';
@@ -331,10 +334,10 @@ function getNumeric(value, fallback = 0) {
 }
 
 function buildFeasibilityItems(project) {
-  const duration = getNumeric(project.missionMeta?.durationHours, 0);
-  const sustainment = getNumeric(project.kitPlans?.sustainmentHours, 0);
-  const perPersonLoad = getNumeric(project.kitPlans?.perPersonLoadWeight, 0);
-  const loadLimit = getNumeric(project.kitPlans?.weightLimit, 0);
+  const duration = getNumeric(project.meta?.durationHours, 0);
+  const sustainment = getNumeric(project.sustainment?.sustainmentHours, 0);
+  const perPersonLoad = getNumeric(project.kits?.perOperatorLoadKg, 0);
+  const loadLimit = getNumeric(project.kits?.perOperatorLimitKg, 0);
   const relayCount = getNumeric(project.meshPlan?.relayCount, 0);
   const criticalLinks = getNumeric(project.meshPlan?.criticalLinks, 0);
 
@@ -403,38 +406,51 @@ function renderFeasibility(project) {
   });
 }
 
+function renderProjectStatus() {
+  const status = document.getElementById('projectStatus');
+  if (!status) return;
+  status.textContent = projectStatusMessage || '';
+  status.hidden = !projectStatusMessage;
+}
+
 function hydrateProjectForm() {
   const project = MissionProjectStore.loadMissionProject();
   MissionProjectStore.saveMissionProject(project);
-  document.getElementById('missionName').value = project.missionMeta?.name || '';
-  document.getElementById('altitudeBand').value = project.missionMeta?.environment?.altitudeBand || '';
-  document.getElementById('temperatureBand').value = project.missionMeta?.environment?.temperatureBand || '';
-  document.getElementById('durationHours').value = project.missionMeta?.durationHours || 24;
-  document.getElementById('inventoryReference').value = project.inventoryCatalog?.reference || '';
-  document.getElementById('sustainmentHours').value = project.kitPlans?.sustainmentHours ?? '';
-  document.getElementById('perPersonLoad').value = project.kitPlans?.perPersonLoadWeight ?? '';
-  document.getElementById('perPersonLimit').value = project.kitPlans?.weightLimit ?? '';
+  if (!projectStatusMessage && project.meta?.name) {
+    projectStatusMessage = `Active project: ${project.meta.name}`;
+  }
+  document.getElementById('missionName').value = project.meta?.name || '';
+  document.getElementById('altitudeBand').value = project.meta?.environment?.altitudeBand || '';
+  document.getElementById('temperatureBand').value = project.meta?.environment?.temperatureBand || '';
+  document.getElementById('durationHours').value = project.meta?.durationHours || 24;
+  document.getElementById('inventoryReference').value = project.meta?.inventoryReference || '';
+  document.getElementById('sustainmentHours').value = project.sustainment?.sustainmentHours ?? '';
+  document.getElementById('perPersonLoad').value = project.kits?.perOperatorLoadKg ?? '';
+  document.getElementById('perPersonLimit').value = project.kits?.perOperatorLimitKg ?? '';
   document.getElementById('relayCount').value = project.meshPlan?.relayCount ?? '';
   document.getElementById('criticalLinks').value = project.meshPlan?.criticalLinks ?? '';
 
   renderFeasibility(project);
+  renderProjectStatus();
 }
 
 function syncProjectFromForm() {
   const project = MissionProjectStore.loadMissionProject();
-  project.missionMeta.name = document.getElementById('missionName').value;
-  project.missionMeta.environment.altitudeBand = document.getElementById('altitudeBand').value;
-  project.missionMeta.environment.temperatureBand = document.getElementById('temperatureBand').value;
-  project.missionMeta.durationHours = getNumeric(document.getElementById('durationHours').value, project.missionMeta.durationHours);
-  project.inventoryCatalog.reference = document.getElementById('inventoryReference').value;
-  project.kitPlans.sustainmentHours = getNumeric(document.getElementById('sustainmentHours').value, project.kitPlans.sustainmentHours);
-  project.kitPlans.perPersonLoadWeight = getNumeric(document.getElementById('perPersonLoad').value, project.kitPlans.perPersonLoadWeight);
-  project.kitPlans.weightLimit = getNumeric(document.getElementById('perPersonLimit').value, project.kitPlans.weightLimit);
+  project.meta.name = document.getElementById('missionName').value;
+  project.meta.environment.altitudeBand = document.getElementById('altitudeBand').value;
+  project.meta.environment.temperatureBand = document.getElementById('temperatureBand').value;
+  project.meta.durationHours = getNumeric(document.getElementById('durationHours').value, project.meta.durationHours);
+  project.meta.inventoryReference = document.getElementById('inventoryReference').value;
+  project.sustainment.sustainmentHours = getNumeric(document.getElementById('sustainmentHours').value, project.sustainment.sustainmentHours);
+  project.kits.perOperatorLoadKg = getNumeric(document.getElementById('perPersonLoad').value, project.kits.perOperatorLoadKg);
+  project.kits.perOperatorLimitKg = getNumeric(document.getElementById('perPersonLimit').value, project.kits.perOperatorLimitKg);
   project.meshPlan.relayCount = getNumeric(document.getElementById('relayCount').value, project.meshPlan.relayCount);
   project.meshPlan.criticalLinks = getNumeric(document.getElementById('criticalLinks').value, project.meshPlan.criticalLinks);
 
   const saved = MissionProjectStore.saveMissionProject(project);
   renderFeasibility(saved);
+  projectStatusMessage = saved.meta?.name ? `Active project: ${saved.meta.name}` : '';
+  renderProjectStatus();
 }
 
 function bindProjectForm() {
@@ -448,6 +464,7 @@ function bindProjectActions() {
   const exportBtn = document.getElementById('exportProject');
   const importBtn = document.getElementById('importProject');
   const importFile = document.getElementById('importProjectFile');
+  const demoBtn = document.getElementById('loadMongoliaDemo');
 
   exportBtn?.addEventListener('click', (event) => {
     event.preventDefault();
@@ -464,6 +481,7 @@ function bindProjectActions() {
     if (!file) return;
     MissionProjectStore.importMissionProject(file)
       .then(() => {
+        projectStatusMessage = `Imported project from ${file.name}`;
         hydrateProjectForm();
       })
       .catch(() => {
@@ -471,7 +489,35 @@ function bindProjectActions() {
       })
       .finally(() => {
         importFile.value = '';
+        renderProjectStatus();
       });
+  });
+
+  demoBtn?.addEventListener('click', async (event) => {
+    event.preventDefault();
+    demoBtn.disabled = true;
+    demoBtn.textContent = 'Loading demo…';
+
+    try {
+      const response = await fetch('data/mongolia_demo_project.json');
+      if (!response.ok) {
+        throw new Error('Unable to fetch demo project');
+      }
+      const payload = await response.json();
+      if (!MissionProjectStore.validateMissionProject(payload)) {
+        throw new Error('Invalid demo project payload');
+      }
+      MissionProjectStore.saveMissionProject(payload);
+      projectStatusMessage = payload.meta?.name ? `${payload.meta.name} loaded.` : 'Demo project loaded.';
+      hydrateProjectForm();
+    } catch (error) {
+      console.error(error);
+      alert('Unable to load the Mongolia demo project. Please try again.');
+    } finally {
+      demoBtn.disabled = false;
+      demoBtn.textContent = 'Load Mongolia Demo Project';
+      renderProjectStatus();
+    }
   });
 }
 
