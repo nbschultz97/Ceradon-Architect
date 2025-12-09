@@ -167,11 +167,15 @@
       <div class="hero">
         <div>
           <p class="eyebrow">Ceradon Systems | Architect Stack</p>
-          <h1>Ceradon Architect Stack – Planning, Design, and Mission Tools for Small UxS and RF Nodes</h1>
-          <p class="lead">Architect is the lab-level planning layer that bridges COTS UxS, RF relays, and sustainment kits with mission realities. Build missions, select platforms, shape meshes, and package kits without leaving the stack.</p>
+          <h1>Ceradon Architect Stack – Project WHITEFROST Demo</h1>
+          <p class="lead">The Architect stack plans, designs, and sustains small unmanned systems for cold, mountainous, austere environments. Project WHITEFROST is a public, fictional demo: low-cost 3D-printed recon quad, ridge-top mesh relays, and partner forces operating in a remote highlands corridor.</p>
           <div class="hero-actions">
             <a class="btn primary" href="/#/workflow">Explore Workflow</a>
             <a class="btn ghost" href="/#/tools">Launch Tools</a>
+          </div>
+          <div class="whitefrost-toggle" role="group" aria-label="WHITEFROST demo mode">
+            <button class="btn subtle" id="whitefrostToggle" type="button">Enable WHITEFROST Demo Mode</button>
+            <span class="small muted">Public-safe, fictional scenario. No unit-specific data.</span>
           </div>
         </div>
         <div class="hero-panel">
@@ -186,42 +190,120 @@
         </div>
       </div>
 
+      <div class="toolchain" aria-label="Architect toolchain">
+        <h2 class="strip-title">Toolchain</h2>
+        <p class="lead">Move through the stack in sequence or jump in by mission, inventory, or RF need. Every step honors the same demo access code and WHITEFROST scenario.</p>
+        <div class="toolchain-steps">
+          <article class="step-card">
+            <div>
+              <p class="eyebrow">Step 1</p>
+              <h3>Node Architect</h3>
+              <p>Outline sensing nodes, payload stacks, and power envelopes for cold-weather hides and relay sites.</p>
+            </div>
+            <a class="btn primary" href="https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
+          </article>
+          <article class="step-card">
+            <div>
+              <p class="eyebrow">Step 2</p>
+              <h3>UxS Architect</h3>
+              <p>Pair the nodes to low-cost airframes, check lift/power margins, and keep sorties aligned to terrain.</p>
+            </div>
+            <a class="btn primary" href="https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
+          </article>
+          <article class="step-card">
+            <div>
+              <p class="eyebrow">Step 3</p>
+              <h3>Mesh Architect</h3>
+              <p>Plan ridge-line relays, mesh redundancy, and RF entry points that survive high-altitude cold soak.</p>
+            </div>
+            <a class="btn primary" href="https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
+          </article>
+          <article class="step-card">
+            <div>
+              <p class="eyebrow">Step 4</p>
+              <h3>KitSmith</h3>
+              <p>Package ruck-level spares, batteries, and field repairs that match cold-weather sortie plans.</p>
+            </div>
+            <a class="btn primary" href="https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
+          </article>
+          <article class="step-card">
+            <div>
+              <p class="eyebrow">Step 5</p>
+              <h3>Mission Architect</h3>
+              <p>Drive phases, constraints, and partner overlays for the WHITEFROST corridor without exposing real units.</p>
+            </div>
+            <a class="btn primary" href="https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
+          </article>
+        </div>
+        <div class="entry-modes" aria-label="Alternate entry modes">
+          <h4>Non-linear entry options</h4>
+          <p class="small muted">Start wherever you need—mission-first, inventory-first, or RF-first—and the MissionProject JSON keeps everything in sync.</p>
+          <div class="entry-diagram" role="img" aria-label="Mission-first, inventory-first, and RF-first entry options">
+            <div class="entry-node">Mission-first<div class="entry-sub">Mission Architect → rest of stack</div></div>
+            <div class="entry-node">Inventory-first<div class="entry-sub">Node Architect → UxS → Mesh → Kits</div></div>
+            <div class="entry-node">RF-first<div class="entry-sub">Mesh Architect anchors coverage</div></div>
+          </div>
+        </div>
+      </div>
+
       <div class="card-grid" aria-label="Tool quick launch">
         <article class="card">
           <div>
             <h3>Node Architect</h3>
             <p>Define sensing nodes, payload stacks, and deployment envelopes from inventory or greenfield concepts.</p>
           </div>
-          <a class="btn subtle" href="https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html" target="_blank" rel="noopener">Launch</a>
+          <a class="btn subtle" href="https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch</a>
         </article>
         <article class="card">
           <div>
             <h3>UxS Architect</h3>
             <p>Pair nodes to unmanned air/ground/surface platforms with power, payload, and range checks.</p>
           </div>
-          <a class="btn subtle" href="https://nbschultz97.github.io/Ceradon-UxS-Architect/web/" target="_blank" rel="noopener">Launch</a>
+          <a class="btn subtle" href="https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch</a>
         </article>
         <article class="card">
           <div>
             <h3>Mesh Architect</h3>
             <p>Plan RF meshes, relays, and gateways to backhaul small teams and unmanned assets.</p>
           </div>
-          <a class="btn subtle" href="https://nbschultz97.github.io/Ceradon-Mesh-Architect/" target="_blank" rel="noopener">Launch</a>
+          <a class="btn subtle" href="https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch</a>
         </article>
         <article class="card">
           <div>
             <h3>KitSmith</h3>
             <p>Assemble sustainment kits, spares, and team loadouts tied to mission phases.</p>
           </div>
-          <a class="btn subtle" href="https://nbschultz97.github.io/Ceradon-KitSmith/" target="_blank" rel="noopener">Launch</a>
+          <a class="btn subtle" href="https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch</a>
         </article>
         <article class="card">
           <div>
             <h3>Mission Architect</h3>
             <p>Compose missions, phases, and constraints that drive the rest of the stack.</p>
           </div>
-          <a class="btn subtle" href="https://nbschultz97.github.io/Mission-Architect/" target="_blank" rel="noopener">Launch</a>
+          <a class="btn subtle" href="https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch</a>
         </article>
+      </div>
+
+      <div class="whitefrost-panel" id="whitefrostPanel" hidden aria-live="polite">
+        <div class="panel-header">
+          <h3>WHITEFROST Demo Mode</h3>
+          <span class="badge">Fictional</span>
+        </div>
+        <p>Cold-weather, high-altitude remote area of operations with fictional partner units in a highlands corridor. Emphasis on low-cost, modular 3D-printed airframes and rucksack-level sustainment. This demo is generic and not tied to any real-world unit or country.</p>
+      </div>
+
+      <div class="missionproject-callout" aria-label="MissionProject JSON overview">
+        <h3>MissionProject exchange file</h3>
+        <p class="small">All Architect tools exchange the same <code>MissionProject</code> JSON. Top-level keys stay consistent so planners can hand off between mission, RF, and sustainment without retyping.</p>
+        <pre class="code-snippet"><code>{
+  "nodes": [],
+  "platforms": [],
+  "mesh_links": [],
+  "kits": [],
+  "mission": {},
+  "environment": {},
+  "constraints": []
+}</code></pre>
       </div>
 
     </section>
@@ -232,6 +314,7 @@
           <p class="eyebrow">Mission Workflow</p>
           <h2>One dashboard, four modules. Move missions without leaving the shell.</h2>
           <p class="lead">Stay on a single page to embed platform, mesh, mission, and kit planners. Update module status, keep a shared mission project JSON in localStorage, and export/import as you go.</p>
+          <p class="small muted demo-note">Demo requests stay here and on CeradonSystems.com. Embedded planners load directly without in-iframe request prompts.</p>
         </div>
       </div>
 
@@ -355,7 +438,7 @@
         <h2>Mission Architect – drive the stack from the mission down</h2>
         <p class="lead">Compose phases, AO constraints, timelines, and outputs that downstream tools consume. This hub links directly to the existing Mission Architect app.</p>
         <div class="mission-actions">
-          <a class="btn primary" href="https://nbschultz97.github.io/Mission-Architect/" target="_blank" rel="noopener">Open Mission Architect</a>
+          <a class="btn primary" href="https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Open Mission Architect</a>
           <a class="btn ghost" href="/#/workflow">See integrated workflow</a>
         </div>
       </div>
@@ -378,14 +461,14 @@
               <li>Package sustainment in KitSmith aligned to each phase and team role.</li>
             </ol>
             <div class="quick-links">
-              <a class="btn subtle" href="https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html" target="_blank" rel="noopener">Open Node Architect</a>
-              <a class="btn subtle" href="https://nbschultz97.github.io/Ceradon-UxS-Architect/web/" target="_blank" rel="noopener">Open UxS Architect</a>
-              <a class="btn subtle" href="https://nbschultz97.github.io/Ceradon-Mesh-Architect/" target="_blank" rel="noopener">Open Mesh Architect</a>
-              <a class="btn subtle" href="https://nbschultz97.github.io/Ceradon-KitSmith/" target="_blank" rel="noopener">Open KitSmith</a>
+              <a class="btn subtle" href="https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Open Node Architect</a>
+              <a class="btn subtle" href="https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Open UxS Architect</a>
+              <a class="btn subtle" href="https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Open Mesh Architect</a>
+              <a class="btn subtle" href="https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Open KitSmith</a>
             </div>
             <div class="quick-links">
-              <a class="btn ghost" href="https://nbschultz97.github.io/Mission-Architect/print.html" target="_blank" rel="noopener">Mission Architect print view</a>
-              <a class="btn ghost" href="https://nbschultz97.github.io/Ceradon-KitSmith/print.html" target="_blank" rel="noopener">KitSmith print view</a>
+              <a class="btn ghost" href="https://mission-architect.ceradonsystems.com/print.html?access_code=ARC-STACK-761" target="_blank" rel="noopener">Mission Architect print view</a>
+              <a class="btn ghost" href="https://kitsmith.ceradonsystems.com/print.html?access_code=ARC-STACK-761" target="_blank" rel="noopener">KitSmith print view</a>
             </div>
           </div>
         </div>
@@ -393,7 +476,7 @@
           <h3>Live preview</h3>
           <p class="small">Embedded view loads the existing Mission Architect app. If it does not load, use the primary button above.</p>
           <div class="embed-container">
-            <iframe title="Mission Architect" src="https://nbschultz97.github.io/Mission-Architect/" loading="lazy"></iframe>
+            <iframe title="Mission Architect" src="https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761" loading="lazy"></iframe>
           </div>
         </div>
       </div>
@@ -443,11 +526,11 @@
   <footer class="site-footer">
     <div class="footer-links">
       <a href="https://ceradonsystems.com" target="_blank" rel="noopener">CeradonSystems.com</a>
-      <a href="https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html" target="_blank" rel="noopener">Node Architect</a>
-      <a href="https://nbschultz97.github.io/Ceradon-UxS-Architect/web/" target="_blank" rel="noopener">UxS Architect</a>
-      <a href="https://nbschultz97.github.io/Ceradon-Mesh-Architect/" target="_blank" rel="noopener">Mesh Architect</a>
-      <a href="https://nbschultz97.github.io/Ceradon-KitSmith/" target="_blank" rel="noopener">KitSmith</a>
-      <a href="https://nbschultz97.github.io/Mission-Architect/" target="_blank" rel="noopener">Mission Architect</a>
+      <a href="https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Node Architect</a>
+      <a href="https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">UxS Architect</a>
+      <a href="https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Mesh Architect</a>
+      <a href="https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">KitSmith</a>
+      <a href="https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Mission Architect</a>
     </div>
     <p class="small">Ceradon Systems LLC – Covert sensing, RF, and UxS planning tools.</p>
   </footer>
