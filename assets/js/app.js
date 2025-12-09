@@ -94,10 +94,10 @@ const workflowModules = [
 
 const demoStories = [
   {
-    name: 'Project WHITEFROST – alpine recon',
+    name: 'Sample COTS sortie stack',
     entry: 'Mission-first',
     flow: 'Mission Architect → Node Architect → UxS Architect → Mesh Architect → KitSmith',
-    outputs: 'Cold-weather printed quad, ridge relays, partner sustainment cache, and TAK-friendly exports.',
+    outputs: 'Light UxS, lean relays, and kit packaging tied together by MissionProject JSON.',
     links: {
       mission: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
       tools: [
@@ -109,10 +109,10 @@ const demoStories = [
     }
   },
   {
-    name: 'Urban mesh in dense city block',
+    name: 'Urban mesh in dense block',
     entry: 'RF-environment-first',
     flow: 'Mesh Architect → Mission Architect → Node Architect → UxS Architect → KitSmith',
-    outputs: 'RF survey-driven relays, mission phases constrained to coverage pockets, small quad loadouts, lean kits.',
+    outputs: 'RF survey-driven relays, constrained phases, small quad loadouts, and lean sustainment.',
     links: {
       mission: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
       tools: [
@@ -129,10 +129,12 @@ const demoStories = [
 const routes = ['home', 'workflow', 'tools', 'mission', 'demos', 'docs'];
 const MODULE_STATUS_KEY = 'ceradon_module_statuses';
 const moduleStatusOptions = ['Not Started', 'In Progress', 'Complete'];
+const DEMO_PROJECT_PATH = 'data/demo_mission_project.json';
 let highlightedTools = [];
 let moduleStatuses = {};
 let activeModuleId = workflowModules[0].id;
 let projectStatusMessage = '';
+let projectLoadSource = '';
 
 function setActiveRoute(route) {
   const target = routes.includes(route) ? route : 'home';
@@ -397,6 +399,31 @@ function renderProjectStatus() {
   status.hidden = !projectStatusMessage;
 }
 
+function renderMissionProjectStatusPanel(projectOverride) {
+  const panel = document.getElementById('missionProjectStatusPanel');
+  if (!panel) return;
+
+  const project = projectOverride || MissionProjectStore.loadMissionProject();
+  const hasStoredProject = MissionProjectStore.hasMissionProject();
+  const env = Array.isArray(project.environment) && project.environment.length ? project.environment[0] : {};
+  const displayLoaded = projectLoadSource && projectLoadSource !== 'Starter template';
+
+  const nameEl = document.getElementById('statusProjectName');
+  const metaEl = document.getElementById('statusProjectMeta');
+  const sourceEl = document.getElementById('statusProjectSource');
+
+  const name = displayLoaded ? (project.meta?.name || 'Mission project') : 'No project loaded';
+  const duration = project.meta?.durationHours ? `${project.meta.durationHours}h` : 'Duration not set';
+  const envLabel = env?.name || env?.altitudeBand || 'Environment not set';
+  const sourceLabel = projectLoadSource || (hasStoredProject ? 'Local storage' : 'Not loaded');
+
+  if (nameEl) nameEl.textContent = name;
+  if (metaEl) metaEl.textContent = displayLoaded
+    ? `${duration} • ${envLabel}`
+    : 'Import a MissionProject JSON or load the demo payload.';
+  if (sourceEl) sourceEl.textContent = `Source: ${sourceLabel}`;
+}
+
 function setProjectAlert(message, tone = 'info') {
   const alertBox = document.getElementById('projectAlert');
   if (!alertBox) return;
@@ -405,10 +432,18 @@ function setProjectAlert(message, tone = 'info') {
   alertBox.hidden = !message;
 }
 
-function hydrateProjectForm() {
-  const project = MissionProjectStore.loadMissionProject();
+function hydrateProjectForm(sourceLabel) {
+  const hasStoredProject = MissionProjectStore.hasMissionProject();
+  const baseProject = hasStoredProject ? MissionProjectStore.loadMissionProject() : MissionProjectStore.createEmptyMissionProject();
   setProjectAlert('', 'info');
-  MissionProjectStore.saveMissionProject(project);
+  const project = MissionProjectStore.saveMissionProject(baseProject);
+
+  if (sourceLabel) {
+    projectLoadSource = sourceLabel;
+  } else if (!projectLoadSource) {
+    projectLoadSource = hasStoredProject ? 'Local storage' : 'Starter template';
+  }
+
   if (!projectStatusMessage && project.meta?.name) {
     projectStatusMessage = `Active project: ${project.meta.name}`;
   }
@@ -426,6 +461,7 @@ function hydrateProjectForm() {
 
   renderFeasibility(project);
   renderProjectStatus();
+  renderMissionProjectStatusPanel(project);
 }
 
 function syncProjectFromForm() {
@@ -456,7 +492,9 @@ function syncProjectFromForm() {
   const saved = MissionProjectStore.saveMissionProject(project);
   renderFeasibility(saved);
   projectStatusMessage = saved.meta?.name ? `Active project: ${saved.meta.name}` : '';
+  projectLoadSource = projectLoadSource || 'Local storage';
   renderProjectStatus();
+  renderMissionProjectStatusPanel(saved);
 }
 
 function bindProjectForm() {
@@ -466,11 +504,72 @@ function bindProjectForm() {
   form.addEventListener('change', syncProjectFromForm);
 }
 
+function attachImportHandlers(button, fileInput, sourceLabel = 'Imported JSON') {
+  button?.addEventListener('click', (event) => {
+    event.preventDefault();
+    fileInput?.click();
+  });
+
+  fileInput?.addEventListener('change', (event) => {
+    const [file] = event.target.files || [];
+    if (!file) return;
+    MissionProjectStore.importMissionProject(file)
+      .then((saved) => {
+        projectStatusMessage = saved.meta?.name ? `Imported project: ${saved.meta.name}` : 'Imported MissionProject payload.';
+        projectLoadSource = sourceLabel;
+        setProjectAlert('MissionProject imported successfully.', 'success');
+        hydrateProjectForm(sourceLabel);
+      })
+      .catch(() => {
+        setProjectAlert('Unable to import project JSON. Please verify the MissionProject schema.', 'alert');
+      })
+      .finally(() => {
+        if (fileInput) fileInput.value = '';
+        renderProjectStatus();
+        renderMissionProjectStatusPanel();
+      });
+  });
+}
+
+async function loadDemoProject(button) {
+  const defaultLabel = button?.dataset.defaultLabel || 'Load demo project';
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Loading demo…';
+  }
+
+  try {
+    const response = await fetch(DEMO_PROJECT_PATH);
+    if (!response.ok) {
+      throw new Error('Unable to fetch demo project');
+    }
+    const payload = await response.json();
+    if (!MissionProjectStore.validateMissionProject(payload)) {
+      throw new Error('Invalid demo project payload');
+    }
+    const saved = MissionProjectStore.saveMissionProject(payload);
+    projectStatusMessage = saved.meta?.name ? `${saved.meta.name} loaded.` : 'Demo project loaded.';
+    projectLoadSource = 'Demo project';
+    setProjectAlert('Demo project loaded. Exports now mirror the shared schema.', 'success');
+    hydrateProjectForm('Demo project');
+  } catch (error) {
+    console.error(error);
+    setProjectAlert('Unable to load the demo project. Please try again.', 'alert');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = defaultLabel;
+    }
+    renderProjectStatus();
+    renderMissionProjectStatusPanel();
+  }
+}
+
 function bindProjectActions() {
   const exportBtn = document.getElementById('exportProject');
   const importBtn = document.getElementById('importProject');
   const importFile = document.getElementById('importProjectFile');
-  const demoBtn = document.getElementById('loadWhitefrostDemo');
+  const demoBtn = document.getElementById('loadDemoProject');
   const exportGeoBtn = document.getElementById('exportGeo');
   const exportCoTBtn = document.getElementById('exportCoT');
 
@@ -492,55 +591,35 @@ function bindProjectActions() {
     setProjectAlert('CoT stub export saved.', 'info');
   });
 
-  importBtn?.addEventListener('click', (event) => {
+  attachImportHandlers(importBtn, importFile, 'Imported JSON');
+
+  demoBtn?.addEventListener('click', (event) => {
     event.preventDefault();
-    importFile?.click();
+    loadDemoProject(demoBtn);
+  });
+}
+
+function bindStatusPanelActions() {
+  const loadBtn = document.getElementById('homeLoadDemo');
+  const importBtn = document.getElementById('homeImportProject');
+  const importFile = document.getElementById('homeImportProjectFile');
+  const clearBtn = document.getElementById('homeClearProject');
+
+  attachImportHandlers(importBtn, importFile, 'Imported JSON');
+
+  loadBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    loadDemoProject(loadBtn);
   });
 
-  importFile?.addEventListener('change', (event) => {
-    const [file] = event.target.files || [];
-    if (!file) return;
-    MissionProjectStore.importMissionProject(file)
-      .then(() => {
-        projectStatusMessage = `Imported project from ${file.name}`;
-        setProjectAlert('MissionProject imported successfully.', 'success');
-        hydrateProjectForm();
-      })
-      .catch(() => {
-        setProjectAlert('Unable to import project JSON. Please verify the MissionProject schema.', 'alert');
-      })
-      .finally(() => {
-        importFile.value = '';
-        renderProjectStatus();
-      });
-  });
-
-  demoBtn?.addEventListener('click', async (event) => {
+  clearBtn?.addEventListener('click', (event) => {
     event.preventDefault();
-    demoBtn.disabled = true;
-    demoBtn.textContent = 'Loading WHITEFROST…';
-
-    try {
-      const response = await fetch('data/whitefrost_demo_project.json');
-      if (!response.ok) {
-        throw new Error('Unable to fetch demo project');
-      }
-      const payload = await response.json();
-      if (!MissionProjectStore.validateMissionProject(payload)) {
-        throw new Error('Invalid demo project payload');
-      }
-      MissionProjectStore.saveMissionProject(payload);
-      projectStatusMessage = payload.meta?.name ? `${payload.meta.name} loaded.` : 'Demo project loaded.';
-      setProjectAlert('WHITEFROST demo loaded. Exports now match the shared schema.', 'success');
-      hydrateProjectForm();
-    } catch (error) {
-      console.error(error);
-      setProjectAlert('Unable to load the WHITEFROST demo project. Please try again.', 'alert');
-    } finally {
-      demoBtn.disabled = false;
-      demoBtn.textContent = 'Load WHITEFROST Demo';
-      renderProjectStatus();
-    }
+    MissionProjectStore.clearMissionProject();
+    projectStatusMessage = '';
+    projectLoadSource = 'Starter template';
+    setProjectAlert('', 'info');
+    hydrateProjectForm('Starter template');
+    renderMissionProjectStatusPanel();
   });
 }
 
@@ -570,33 +649,12 @@ function initThemeToggle() {
   });
 }
 
-function initWhitefrostMode() {
-  const toggle = document.getElementById('whitefrostToggle');
-  const panel = document.getElementById('whitefrostPanel');
-  if (!toggle || !panel) return;
-
-  const stored = localStorage.getItem('ceradon-whitefrost-mode') === 'true';
-  if (stored) {
-    panel.hidden = false;
-    toggle.classList.add('active');
-    toggle.textContent = 'WHITEFROST Demo Mode On';
-  }
-
-  toggle.addEventListener('click', () => {
-    const nextState = panel.hidden;
-    panel.hidden = !panel.hidden;
-    toggle.classList.toggle('active', nextState);
-    toggle.textContent = nextState ? 'WHITEFROST Demo Mode On' : 'Enable WHITEFROST Demo Mode';
-    localStorage.setItem('ceradon-whitefrost-mode', nextState);
-  });
-}
-
 function initApp() {
   buildTools();
   buildDemos();
   initWorkflowDashboard();
+  bindStatusPanelActions();
   initThemeToggle();
-  initWhitefrostMode();
   handleHashChange();
   window.addEventListener('hashchange', handleHashChange);
 }

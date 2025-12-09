@@ -35,7 +35,7 @@ This repo is the front-door, static SPA hub for the Ceradon Architect tools, pub
   - `exportMissionProject(fileName)`, `exportGeoJSON()`, `exportCoTStub()` / `importMissionProject(file)`
   - `validateMissionProject()` and `migrateMissionProjectIfNeeded(project)` placeholders for forward compatibility
 - The workflow dashboard form writes directly to this object, so other repos can read the same structure without extra wiring.
-- WHITEFROST demo: `data/whitefrost_demo_project.json` provides the cold-weather scenario with TAK-ready exports.
+- Sample demo: `data/demo_mission_project.json` provides a neutral COTS planning scenario with TAK-ready exports.
 
 ## Tool deep links
 - Node Architect: <https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761>

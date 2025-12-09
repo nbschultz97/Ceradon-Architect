@@ -150,44 +150,25 @@ h1, h2, h3, h4 {
   margin-bottom: 24px;
 }
 
-.whitefrost-toggle {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-
-.whitefrost-toggle .btn.active {
-  background: var(--accent);
-  color: #0b0e17;
-  border: 1px solid var(--accent);
-}
-
-.whitefrost-panel {
-  margin: 28px 0 12px;
+.missionproject-status {
+  margin: 24px 0 12px;
   padding: 18px;
   border-radius: 14px;
   border: 1px solid var(--border);
-  background: linear-gradient(135deg, rgba(77, 163, 255, 0.12), rgba(255, 255, 255, 0.02));
-  box-shadow: var(--shadow);
-}
-
-.whitefrost-panel .panel-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-
-.whitefrost-panel .badge {
   background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  box-shadow: var(--shadow);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .muted {

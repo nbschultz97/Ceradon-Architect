@@ -167,16 +167,13 @@
       <div class="hero">
         <div>
           <p class="eyebrow">Ceradon Systems | Architect Stack</p>
-          <h1>Ceradon Architect Stack – Project WHITEFROST Demo</h1>
-          <p class="lead">The Architect stack plans, designs, and sustains small unmanned systems for cold, mountainous, austere environments. Project WHITEFROST is a public, fictional demo: low-cost 3D-printed recon quad, ridge-top mesh relays, and partner forces operating in a remote highlands corridor.</p>
+          <h1>Ceradon Architect Stack – COTS planning suite</h1>
+          <p class="lead">Offline-first planners for nodes, UxS, meshes, and sustainment. Every module speaks the same MissionProject JSON so field teams can move plans without rework or external services.</p>
           <div class="hero-actions">
             <a class="btn primary" href="/#/workflow">Explore Workflow</a>
             <a class="btn ghost" href="/#/tools">Launch Tools</a>
           </div>
-          <div class="whitefrost-toggle" role="group" aria-label="WHITEFROST demo mode">
-            <button class="btn subtle" id="whitefrostToggle" type="button">Enable WHITEFROST Demo Mode</button>
-            <span class="small muted">Public-safe, fictional scenario. No unit-specific data.</span>
-          </div>
+          <p class="small muted">Access-code gated demos run in-browser. No external APIs or vendor lock-in.</p>
         </div>
         <div class="hero-panel">
           <h3>Stack At-a-Glance</h3>
@@ -192,13 +189,13 @@
 
       <div class="toolchain" aria-label="Architect toolchain">
         <h2 class="strip-title">Toolchain</h2>
-        <p class="lead">Move through the stack in sequence or jump in by mission, inventory, or RF need. Every step honors the same demo access code and WHITEFROST scenario.</p>
+        <p class="lead">Move through the stack in sequence or jump in by mission, inventory, or RF need. Every step honors the same demo access code and the shared MissionProject JSON.</p>
         <div class="toolchain-steps">
           <article class="step-card">
             <div>
               <p class="eyebrow">Step 1</p>
               <h3>Node Architect</h3>
-              <p>Outline sensing nodes, payload stacks, and power envelopes for cold-weather hides and relay sites.</p>
+              <p>Outline sensing nodes, payload stacks, and power envelopes for field hides and relay sites.</p>
             </div>
             <a class="btn primary" href="https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
           </article>
@@ -214,7 +211,7 @@
             <div>
               <p class="eyebrow">Step 3</p>
               <h3>Mesh Architect</h3>
-              <p>Plan ridge-line relays, mesh redundancy, and RF entry points that survive high-altitude cold soak.</p>
+              <p>Plan relays, mesh redundancy, and RF entry points tailored to the mission environment.</p>
             </div>
             <a class="btn primary" href="https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
           </article>
@@ -222,7 +219,7 @@
             <div>
               <p class="eyebrow">Step 4</p>
               <h3>KitSmith</h3>
-              <p>Package ruck-level spares, batteries, and field repairs that match cold-weather sortie plans.</p>
+              <p>Package ruck-level spares, batteries, and field repairs that match sortie plans.</p>
             </div>
             <a class="btn primary" href="https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
           </article>
@@ -230,7 +227,7 @@
             <div>
               <p class="eyebrow">Step 5</p>
               <h3>Mission Architect</h3>
-              <p>Drive phases, constraints, and partner overlays for the WHITEFROST corridor without exposing real units.</p>
+              <p>Drive phases, constraints, and overlays that keep every downstream tool aligned.</p>
             </div>
             <a class="btn primary" href="https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Launch Demo</a>
           </article>
@@ -284,26 +281,34 @@
         </article>
       </div>
 
-      <div class="whitefrost-panel" id="whitefrostPanel" hidden aria-live="polite">
-        <div class="panel-header">
-          <h3>WHITEFROST Demo Mode</h3>
-          <span class="badge">Fictional</span>
-        </div>
-        <p>Cold-weather, high-altitude remote area of operations with fictional partner units in a highlands corridor. Emphasis on low-cost, modular 3D-printed airframes and rucksack-level sustainment. This demo is generic and not tied to any real-world unit or country.</p>
-      </div>
-
       <div class="missionproject-callout" aria-label="MissionProject JSON overview">
         <h3>MissionProject exchange file</h3>
         <p class="small">All Architect tools exchange the same <code>MissionProject</code> JSON. Top-level keys stay consistent so planners can hand off between mission, RF, and sustainment without retyping.</p>
         <pre class="code-snippet"><code>{
+  "mission": { "tasks": [], "phases": [], "assignments": [] },
+  "environment": [{ "id": "env-main", "altitudeBand": "0-600m", "temperatureBand": "5-25C" }],
+  "constraints": [],
   "nodes": [],
   "platforms": [],
   "mesh_links": [],
-  "kits": [],
-  "mission": {},
-  "environment": {},
-  "constraints": []
+  "kits": []
 }</code></pre>
+        <p class="small">Schema details live in <a href="docs/mission_project_schema.md" target="_blank" rel="noopener">docs/mission_project_schema.md</a>. Imports preserve unknown keys to stay compatible across tools.</p>
+      </div>
+
+      <div class="missionproject-status" id="missionProjectStatusPanel" aria-live="polite">
+        <div>
+          <p class="eyebrow">MissionProject status</p>
+          <h3 id="statusProjectName">No project loaded</h3>
+          <p class="small" id="statusProjectMeta">Import a MissionProject JSON or load the demo payload.</p>
+          <p class="small muted" id="statusProjectSource">Source: Not loaded</p>
+        </div>
+        <div class="status-actions">
+          <button class="btn primary" id="homeLoadDemo" data-default-label="Load demo project">Load demo project</button>
+          <button class="btn ghost" id="homeImportProject">Import JSON</button>
+          <button class="btn subtle" id="homeClearProject">Clear</button>
+          <input type="file" id="homeImportProjectFile" accept="application/json" hidden>
+        </div>
       </div>
 
     </section>
@@ -405,7 +410,7 @@
                   <button class="btn subtle" id="exportCoT">Export CoT Stub</button>
                 </div>
                 <div class="action-row">
-                  <button class="btn primary" id="loadWhitefrostDemo">Load WHITEFROST Demo</button>
+                  <button class="btn primary" id="loadDemoProject" data-default-label="Load demo project">Load demo project</button>
                   <p class="small" id="projectStatus" aria-live="polite"></p>
                 </div>
               </div>
@@ -510,7 +515,7 @@
         </div>
         <div class="card">
           <h3>How it fits Ceradon</h3>
-          <p>Architect Stack pairs with Ceradon products such as Vantage, Phantom-Scout, ATAK plugins, Telemetry Forge, and Tactical-App to close the loop between sensing, control, and sustainment.</p>
+          <p>Architect is a neutral, COTS-focused planning layer that stays offline-first and access-code gated. Each module exports the same MissionProject JSON so teams can move between tools without rebuilding data.</p>
           <p>For more, visit <a href="https://ceradonsystems.com" target="_blank" rel="noopener">CeradonSystems.com</a>.</p>
           <p class="small">This site is static and GitHub Pages–ready. Edit theme tokens in <code>assets/css/styles.css</code>, update routes in <code>assets/js/app.js</code>, and add tools or demos via the data structures near the top of <code>app.js</code>.</p>
         </div>
@@ -532,7 +537,7 @@
       <a href="https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">KitSmith</a>
       <a href="https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761" target="_blank" rel="noopener">Mission Architect</a>
     </div>
-    <p class="small">Ceradon Systems LLC – Covert sensing, RF, and UxS planning tools.</p>
+    <p class="small">Ceradon Systems LLC – COTS-friendly RF and UxS planning tools.</p>
   </footer>
   </div>
 
