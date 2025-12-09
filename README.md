@@ -38,11 +38,11 @@ This repo is the front-door, static SPA hub for the Ceradon Architect tools, pub
 - WHITEFROST demo: `data/whitefrost_demo_project.json` provides the cold-weather scenario with TAK-ready exports.
 
 ## Tool deep links
-- Node Architect: <https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html>
-- UxS Architect: <https://nbschultz97.github.io/Ceradon-UxS-Architect/web/>
-- Mesh Architect: <https://nbschultz97.github.io/Ceradon-Mesh-Architect/>
-- KitSmith: <https://nbschultz97.github.io/Ceradon-KitSmith/>
-- Mission Architect: <https://nbschultz97.github.io/Mission-Architect/>
+- Node Architect: <https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761>
+- UxS Architect: <https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761>
+- Mesh Architect: <https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761>
+- KitSmith: <https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761>
+- Mission Architect: <https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761>
 
 ## Notes
 - The site is fully static and GitHub Pages–compatible; no backend or build tooling is required.

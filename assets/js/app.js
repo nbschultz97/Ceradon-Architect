@@ -10,7 +10,7 @@ const toolData = [
     description: 'Mission-first entry point for phases, AO geometry, and constraints that drive the rest of the stack.',
     status: 'Live demo',
     badges: ['Mission composition', 'JSON export'],
-    link: 'https://nbschultz97.github.io/Mission-Architect/'
+    link: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761'
   },
   {
     name: 'Node Architect',
@@ -18,7 +18,7 @@ const toolData = [
     description: 'Define sensing nodes, payload stacks, power envelopes, and deployment conditions.',
     status: 'Live demo',
     badges: ['Node planning', 'Payload design'],
-    link: 'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html'
+    link: 'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761'
   },
   {
     name: 'UxS Architect',
@@ -26,7 +26,7 @@ const toolData = [
     description: 'Pair nodes to UxS platforms (air/ground/surface) with loadouts and sortie timing.',
     status: 'Live demo',
     badges: ['Platform design', 'Loadouts'],
-    link: 'https://nbschultz97.github.io/Ceradon-UxS-Architect/web/'
+    link: 'https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761'
   },
   {
     name: 'Mesh Architect',
@@ -34,7 +34,7 @@ const toolData = [
     description: 'Shape RF meshes, relays, and gateways for contested environments.',
     status: 'Live demo',
     badges: ['Mesh / RF', 'Coverage'],
-    link: 'https://nbschultz97.github.io/Ceradon-Mesh-Architect/'
+    link: 'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761'
   },
   {
     name: 'KitSmith',
@@ -42,7 +42,7 @@ const toolData = [
     description: 'Build kits, spares, and sustainment loads aligned to mission phases and roles.',
     status: 'Live demo',
     badges: ['Kits & sustainment', 'Resupply'],
-    link: 'https://nbschultz97.github.io/Ceradon-KitSmith/'
+    link: 'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761'
   }
 ];
 
@@ -52,10 +52,10 @@ const workflowModules = [
     name: 'Platform Designer (Node + UxS)',
     category: 'Platform Designer',
     description: 'Shape sensing nodes and pair them with UxS lift. Keep payload, power, and sortie timing together.',
-    iframe: 'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html',
+    iframe: 'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
     links: [
-      { label: 'Open Node Architect', href: 'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html' },
-      { label: 'Open UxS Architect', href: 'https://nbschultz97.github.io/Ceradon-UxS-Architect/web/' }
+      { label: 'Open Node Architect', href: 'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761' },
+      { label: 'Open UxS Architect', href: 'https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761' }
     ]
   },
   {
@@ -63,9 +63,9 @@ const workflowModules = [
     name: 'Mesh Planner',
     category: 'Mesh Planner',
     description: 'Plan relays, LOS/NLOS links, and coverage so critical links stay redundant.',
-    iframe: 'https://nbschultz97.github.io/Ceradon-Mesh-Architect/',
+    iframe: 'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
     links: [
-      { label: 'Open Mesh Architect', href: 'https://nbschultz97.github.io/Ceradon-Mesh-Architect/' }
+      { label: 'Open Mesh Architect', href: 'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761' }
     ]
   },
   {
@@ -73,10 +73,10 @@ const workflowModules = [
     name: 'Mission Planner',
     category: 'Mission Planner',
     description: 'Mission Architect drives phases, AO constraints, and exports that feed every downstream tool.',
-    iframe: 'https://nbschultz97.github.io/Mission-Architect/',
+    iframe: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
     links: [
-      { label: 'Open Mission Architect', href: 'https://nbschultz97.github.io/Mission-Architect/' },
-      { label: 'Mission Architect print view', href: 'https://nbschultz97.github.io/Mission-Architect/print.html' }
+      { label: 'Open Mission Architect', href: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761' },
+      { label: 'Mission Architect print view', href: 'https://mission-architect.ceradonsystems.com/print.html?access_code=ARC-STACK-761' }
     ]
   },
   {
@@ -84,10 +84,10 @@ const workflowModules = [
     name: 'KitSmith',
     category: 'KitSmith',
     description: 'Sustainment packaging, batteries, and per-person loads tied to mission phases.',
-    iframe: 'https://nbschultz97.github.io/Ceradon-KitSmith/',
+    iframe: 'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761',
     links: [
-      { label: 'Open KitSmith', href: 'https://nbschultz97.github.io/Ceradon-KitSmith/' },
-      { label: 'KitSmith print view', href: 'https://nbschultz97.github.io/Ceradon-KitSmith/print.html' }
+      { label: 'Open KitSmith', href: 'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761' },
+      { label: 'KitSmith print view', href: 'https://kitsmith.ceradonsystems.com/print.html?access_code=ARC-STACK-761' }
     ]
   }
 ];
@@ -99,12 +99,12 @@ const demoStories = [
     flow: 'Mission Architect → Node Architect → UxS Architect → Mesh Architect → KitSmith',
     outputs: 'Cold-weather printed quad, ridge relays, partner sustainment cache, and TAK-friendly exports.',
     links: {
-      mission: 'https://nbschultz97.github.io/Mission-Architect/',
+      mission: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
       tools: [
-        'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html',
-        'https://nbschultz97.github.io/Ceradon-UxS-Architect/web/',
-        'https://nbschultz97.github.io/Ceradon-Mesh-Architect/',
-        'https://nbschultz97.github.io/Ceradon-KitSmith/'
+        'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+        'https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+        'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+        'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761'
       ]
     }
   },
@@ -114,13 +114,13 @@ const demoStories = [
     flow: 'Mesh Architect → Mission Architect → Node Architect → UxS Architect → KitSmith',
     outputs: 'RF survey-driven relays, mission phases constrained to coverage pockets, small quad loadouts, lean kits.',
     links: {
-      mission: 'https://nbschultz97.github.io/Mission-Architect/',
+      mission: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
       tools: [
-        'https://nbschultz97.github.io/Ceradon-Mesh-Architect/',
-        'https://nbschultz97.github.io/Mission-Architect/',
-        'https://nbschultz97.github.io/Ceradon-Node-Architect/web/index.html',
-        'https://nbschultz97.github.io/Ceradon-UxS-Architect/web/',
-        'https://nbschultz97.github.io/Ceradon-KitSmith/'
+        'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+        'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+        'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+        'https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+        'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761'
       ]
     }
   }
@@ -570,11 +570,33 @@ function initThemeToggle() {
   });
 }
 
+function initWhitefrostMode() {
+  const toggle = document.getElementById('whitefrostToggle');
+  const panel = document.getElementById('whitefrostPanel');
+  if (!toggle || !panel) return;
+
+  const stored = localStorage.getItem('ceradon-whitefrost-mode') === 'true';
+  if (stored) {
+    panel.hidden = false;
+    toggle.classList.add('active');
+    toggle.textContent = 'WHITEFROST Demo Mode On';
+  }
+
+  toggle.addEventListener('click', () => {
+    const nextState = panel.hidden;
+    panel.hidden = !panel.hidden;
+    toggle.classList.toggle('active', nextState);
+    toggle.textContent = nextState ? 'WHITEFROST Demo Mode On' : 'Enable WHITEFROST Demo Mode';
+    localStorage.setItem('ceradon-whitefrost-mode', nextState);
+  });
+}
+
 function initApp() {
   buildTools();
   buildDemos();
   initWorkflowDashboard();
   initThemeToggle();
+  initWhitefrostMode();
   handleHashChange();
   window.addEventListener('hashchange', handleHashChange);
 }
