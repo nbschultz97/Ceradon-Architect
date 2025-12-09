@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 2,
+  "projectId": "mission-sample-demo",
+  "meta": {
+    "name": "Sample demo project",
+    "description": "Generic COTS planner sample with small teams and simple RF links.",
+    "durationHours": 48,
+    "origin_tool": "hub",
+    "scenario": "Sample training lane",
+    "inventoryReference": "DEMO-COTS-001",
+    "accessCode": "ARC-STACK-761"
+  },
+  "environment": [
+    {
+      "id": "env-demo",
+      "name": "Temperate training lane",
+      "altitudeBand": "0-600m",
+      "temperatureBand": "5-25C",
+      "weather": "Light winds, intermittent clouds",
+      "elevationM": 180,
+      "terrain": "mixed",
+      "origin_tool": "hub",
+      "notes": "Synthetic grid for demo planning"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "demo-base-relay",
+      "name": "Base relay kit",
+      "role": "C2 backhaul",
+      "rf": { "band": "L/S", "powerW": 8 },
+      "power": "24V pack",
+      "battery": { "chemistry": "Li-ion", "capacityWh": 160 },
+      "geo": { "lat": 0, "lon": 0, "elevationM": 180 },
+      "origin_tool": "node",
+      "notes": "Sheltered at staging point"
+    },
+    {
+      "id": "demo-ridge-relay",
+      "name": "Portable relay",
+      "role": "LOS hop",
+      "rf": { "band": "UHF", "powerW": 6 },
+      "power": "Smart battery",
+      "battery": { "chemistry": "Li-ion", "capacityWh": 98 },
+      "geo": { "lat": 0.01, "lon": 0.01, "elevationM": 240 },
+      "origin_tool": "mesh",
+      "notes": "Tripod mounted for height"
+    },
+    {
+      "id": "demo-sensor",
+      "name": "Portable ISR payload",
+      "role": "EO/IR overwatch",
+      "rf": { "band": "2.4 GHz", "powerW": 4 },
+      "power": "UxS bus",
+      "battery": { "chemistry": "Li-ion", "capacityWh": 45 },
+      "geo": { "lat": 0.012, "lon": 0.009, "elevationM": 200 },
+      "origin_tool": "node",
+      "notes": "Lightweight gimbal"
+    }
+  ],
+  "platforms": [
+    {
+      "id": "demo-quad",
+      "name": "COTS quad",
+      "type": "Quad",
+      "role": "Short-range recon",
+      "rf_bands": ["2.4 GHz", "915 MHz"],
+      "power": "6S Li-ion",
+      "battery": { "capacityWh": 140, "lowTempLimitC": -10 },
+      "payloadKg": 1.2,
+      "enduranceMin": 28,
+      "geo": { "lat": 0.008, "lon": 0.012, "elevationM": 210 },
+      "origin_tool": "uxs",
+      "notes": "Printed frame, easily serviced"
+    },
+    {
+      "id": "demo-fixedwing",
+      "name": "Light fixed-wing",
+      "type": "Fixed-wing",
+      "role": "Wide-area ISR + relay",
+      "rf_bands": ["L/S", "2.4 GHz"],
+      "power": "4S Li-ion",
+      "battery": { "capacityWh": 200, "lowTempLimitC": -5 },
+      "payloadKg": 2.0,
+      "enduranceMin": 70,
+      "geo": { "lat": 0.02, "lon": 0.02, "elevationM": 260 },
+      "origin_tool": "uxs",
+      "notes": "Catapult launch, hand recovery"
+    }
+  ],
+  "mesh_links": [
+    {
+      "id": "demo-link-1",
+      "from": "demo-base-relay",
+      "to": "demo-ridge-relay",
+      "band": "L/S",
+      "throughputMbps": 10,
+      "role": "Backhaul",
+      "notes": "Primary mesh leg",
+      "origin_tool": "mesh"
+    },
+    {
+      "id": "demo-link-2",
+      "from": "demo-ridge-relay",
+      "to": "demo-quad",
+      "band": "2.4 GHz",
+      "throughputMbps": 6,
+      "role": "UxS control",
+      "notes": "Short-range hop for quad sorties",
+      "origin_tool": "mesh"
+    }
+  ],
+  "kits": [
+    {
+      "id": "demo-kit-alpha",
+      "name": "Core sustainment",
+      "items": ["6x batteries", "Tripod", "Tool roll"],
+      "weightKg": 10.5,
+      "powerSupportWh": 520,
+      "origin_tool": "kit"
+    },
+    {
+      "id": "demo-kit-bravo",
+      "name": "UxS spares",
+      "items": ["Spare props", "ESC", "Motor", "Airframe tape"],
+      "weightKg": 7.8,
+      "powerSupportWh": 180,
+      "origin_tool": "kit"
+    }
+  ],
+  "mission": {
+    "tasks": [
+      {
+        "id": "demo-task-1",
+        "name": "Route scan",
+        "description": "Fly quad along lane to validate comms and imagery baselines.",
+        "assignedPlatforms": ["demo-quad"],
+        "priority": "High",
+        "origin_tool": "mission"
+      },
+      {
+        "id": "demo-task-2",
+        "name": "Wide-area watch",
+        "description": "Fixed-wing loiter to hold RF relay and broad ISR.",
+        "assignedPlatforms": ["demo-fixedwing"],
+        "priority": "Medium",
+        "origin_tool": "mission"
+      }
+    ],
+    "phases": [
+      {
+        "id": "demo-phase-1",
+        "name": "Setup",
+        "durationHours": 8,
+        "focus": "Deploy relay and stage kits",
+        "origin_tool": "mission"
+      },
+      {
+        "id": "demo-phase-2",
+        "name": "Sorties",
+        "durationHours": 28,
+        "focus": "Quad hops and fixed-wing overwatch",
+        "origin_tool": "mission"
+      },
+      {
+        "id": "demo-phase-3",
+        "name": "Recovery",
+        "durationHours": 12,
+        "focus": "Pull relay and repack kits",
+        "origin_tool": "mission"
+      }
+    ],
+    "assignments": [
+      {
+        "phaseId": "demo-phase-1",
+        "nodeIds": ["demo-base-relay", "demo-ridge-relay"],
+        "platformIds": [],
+        "origin_tool": "mission"
+      },
+      {
+        "phaseId": "demo-phase-2",
+        "nodeIds": ["demo-sensor", "demo-ridge-relay"],
+        "platformIds": ["demo-quad", "demo-fixedwing"],
+        "origin_tool": "mission"
+      }
+    ]
+  },
+  "constraints": [
+    {
+      "id": "demo-constraint-weather",
+      "type": "weather",
+      "description": "Pause sorties if sustained winds exceed 18kt",
+      "severity": "medium",
+      "origin_tool": "hub"
+    },
+    {
+      "id": "demo-constraint-airspace",
+      "type": "airspace",
+      "description": "Stay below 120m AGL in training lane",
+      "severity": "high",
+      "origin_tool": "mission"
+    }
+  ],
+  "sustainment": {
+    "sustainmentHours": 60,
+    "batteryCounts": 18,
+    "feasibility": {},
+    "notes": "Rotate batteries indoors between sorties"
+  },
+  "meshPlan": {
+    "relayCount": 2,
+    "criticalLinks": 2
+  },
+  "kitsSummary": {
+    "perOperatorLoads": [
+      { "role": "Team lead", "weightKg": 19, "notes": "Carries relay pack" },
+      { "role": "UxS operator", "weightKg": 18, "notes": "Carries quad and spares" }
+    ],
+    "perOperatorLoadKg": 18.5,
+    "perOperatorLimitKg": 22
+  }
+}

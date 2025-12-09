@@ -19,10 +19,10 @@ The hub can export MissionProject data to two offline-friendly formats meant for
 {
   "type": "cot-stub",
   "schemaVersion": 2,
-  "mission": "Project WHITEFROST",
+  "mission": "Sample demo project",
   "units": [
-    { "type": "sensor", "id": "ridge-relay", "callsign": "Ridgeline relay", "role": "LOS relay", "lat": 46.1, "lon": 90.4, "hae": 2870, "origin_tool": "mesh" },
-    { "type": "platform", "id": "wf-quad-alpha", "callsign": "Printed quad", "role": "Cold-weather recon", "lat": 46.102, "lon": 90.405, "hae": 2785, "origin_tool": "uxs" }
+    { "type": "sensor", "id": "demo-ridge-relay", "callsign": "Portable relay", "role": "LOS hop", "lat": 0.01, "lon": 0.01, "hae": 240, "origin_tool": "mesh" },
+    { "type": "platform", "id": "demo-quad", "callsign": "COTS quad", "role": "Short-range recon", "lat": 0.008, "lon": 0.012, "hae": 210, "origin_tool": "uxs" }
   ]
 }
 ```

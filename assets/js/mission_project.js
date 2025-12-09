@@ -60,6 +60,8 @@ const MissionProjectStore = (() => {
 
   const ensureArray = (value) => (Array.isArray(value) ? value : []);
 
+  const hasMissionProject = () => Boolean(localStorage.getItem(STORAGE_KEY));
+
   const tagOrigin = (collection, fallback = 'hub') => ensureArray(collection).map((item, index) => ({
     ...item,
     id: item?.id || `${fallback}-${index}`,
@@ -242,6 +244,11 @@ const MissionProjectStore = (() => {
     merged.schemaVersion = MISSION_PROJECT_SCHEMA_VERSION;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
     return merged;
+  };
+
+  const clearMissionProject = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    return createEmptyMissionProject();
   };
 
   const exportMissionProject = (fileName = 'mission_project.json') => {
@@ -437,6 +444,8 @@ const MissionProjectStore = (() => {
     createEmptyMissionProject,
     loadMissionProject,
     saveMissionProject,
+    clearMissionProject,
+    hasMissionProject,
     migrateMissionProjectIfNeeded,
     validateMissionProject,
     exportMissionProject,
