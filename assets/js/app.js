@@ -10,7 +10,7 @@ const toolData = [
     description: 'Mission-first entry point for phases, AO geometry, and constraints that drive the rest of the stack.',
     status: 'Live demo',
     badges: ['Mission composition', 'JSON export'],
-    link: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761'
+    link: 'https://mission.architect.ceradonsystems.com/'
   },
   {
     name: 'Node Architect',
@@ -18,7 +18,7 @@ const toolData = [
     description: 'Define sensing nodes, payload stacks, power envelopes, and deployment conditions.',
     status: 'Live demo',
     badges: ['Node planning', 'Payload design'],
-    link: 'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761'
+    link: 'https://node.architect.ceradonsystems.com/'
   },
   {
     name: 'UxS Architect',
@@ -26,7 +26,7 @@ const toolData = [
     description: 'Pair nodes to UxS platforms (air/ground/surface) with loadouts and sortie timing.',
     status: 'Live demo',
     badges: ['Platform design', 'Loadouts'],
-    link: 'https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761'
+    link: 'https://uxs.architect.ceradonsystems.com/'
   },
   {
     name: 'Mesh Architect',
@@ -34,7 +34,7 @@ const toolData = [
     description: 'Shape RF meshes, relays, and gateways for contested environments.',
     status: 'Live demo',
     badges: ['Mesh / RF', 'Coverage'],
-    link: 'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761'
+    link: 'https://mesh.architect.ceradonsystems.com/'
   },
   {
     name: 'KitSmith',
@@ -42,7 +42,7 @@ const toolData = [
     description: 'Build kits, spares, and sustainment loads aligned to mission phases and roles.',
     status: 'Live demo',
     badges: ['Kits & sustainment', 'Resupply'],
-    link: 'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761'
+    link: 'https://kitsmith.ceradonsystems.com/'
   }
 ];
 
@@ -52,10 +52,10 @@ const workflowModules = [
     name: 'Platform Designer (Node + UxS)',
     category: 'Platform Designer',
     description: 'Shape sensing nodes and pair them with UxS lift. Keep payload, power, and sortie timing together.',
-    iframe: 'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+    iframe: 'https://node.architect.ceradonsystems.com/',
     links: [
-      { label: 'Open Node Architect', href: 'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761' },
-      { label: 'Open UxS Architect', href: 'https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761' }
+      { label: 'Open Node Architect', href: 'https://node.architect.ceradonsystems.com/' },
+      { label: 'Open UxS Architect', href: 'https://uxs.architect.ceradonsystems.com/' }
     ]
   },
   {
@@ -63,9 +63,9 @@ const workflowModules = [
     name: 'Mesh Planner',
     category: 'Mesh Planner',
     description: 'Plan relays, LOS/NLOS links, and coverage so critical links stay redundant.',
-    iframe: 'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+    iframe: 'https://mesh.architect.ceradonsystems.com/',
     links: [
-      { label: 'Open Mesh Architect', href: 'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761' }
+      { label: 'Open Mesh Architect', href: 'https://mesh.architect.ceradonsystems.com/' }
     ]
   },
   {
@@ -73,10 +73,10 @@ const workflowModules = [
     name: 'Mission Planner',
     category: 'Mission Planner',
     description: 'Mission Architect drives phases, AO constraints, and exports that feed every downstream tool.',
-    iframe: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+    iframe: 'https://mission.architect.ceradonsystems.com/',
     links: [
-      { label: 'Open Mission Architect', href: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761' },
-      { label: 'Mission Architect print view', href: 'https://mission-architect.ceradonsystems.com/print.html?access_code=ARC-STACK-761' }
+      { label: 'Open Mission Architect', href: 'https://mission.architect.ceradonsystems.com/' },
+      { label: 'Mission Architect print view', href: 'https://mission.architect.ceradonsystems.com/print.html' }
     ]
   },
   {
@@ -84,10 +84,10 @@ const workflowModules = [
     name: 'KitSmith',
     category: 'KitSmith',
     description: 'Sustainment packaging, batteries, and per-person loads tied to mission phases.',
-    iframe: 'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761',
+    iframe: 'https://kitsmith.ceradonsystems.com/',
     links: [
-      { label: 'Open KitSmith', href: 'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761' },
-      { label: 'KitSmith print view', href: 'https://kitsmith.ceradonsystems.com/print.html?access_code=ARC-STACK-761' }
+      { label: 'Open KitSmith', href: 'https://kitsmith.ceradonsystems.com/' },
+      { label: 'KitSmith print view', href: 'https://kitsmith.ceradonsystems.com/print.html' }
     ]
   }
 ];
@@ -99,12 +99,12 @@ const demoStories = [
     flow: 'Mission Architect → Node Architect → UxS Architect → Mesh Architect → KitSmith',
     outputs: 'Light UxS, lean relays, and kit packaging tied together by MissionProject JSON.',
     links: {
-      mission: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+      mission: 'https://mission.architect.ceradonsystems.com/',
       tools: [
-        'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
-        'https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
-        'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
-        'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761'
+        'https://node.architect.ceradonsystems.com/',
+        'https://uxs.architect.ceradonsystems.com/',
+        'https://mesh.architect.ceradonsystems.com/',
+        'https://kitsmith.ceradonsystems.com/'
       ]
     }
   },
@@ -114,13 +114,13 @@ const demoStories = [
     flow: 'Mesh Architect → Mission Architect → Node Architect → UxS Architect → KitSmith',
     outputs: 'RF survey-driven relays, constrained phases, small quad loadouts, and lean sustainment.',
     links: {
-      mission: 'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
+      mission: 'https://mission.architect.ceradonsystems.com/',
       tools: [
-        'https://mesh-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
-        'https://mission-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
-        'https://node-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
-        'https://uxs-architect.ceradonsystems.com/?access_code=ARC-STACK-761',
-        'https://kitsmith.ceradonsystems.com/?access_code=ARC-STACK-761'
+        'https://mesh.architect.ceradonsystems.com/',
+        'https://mission.architect.ceradonsystems.com/',
+        'https://node.architect.ceradonsystems.com/',
+        'https://uxs.architect.ceradonsystems.com/',
+        'https://kitsmith.ceradonsystems.com/'
       ]
     }
   }
