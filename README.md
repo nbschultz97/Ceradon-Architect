@@ -38,11 +38,11 @@ This repo is the front-door, static SPA hub for the Ceradon Architect tools, pub
 - Sample demo: `data/demo_mission_project.json` provides a neutral COTS planning scenario with TAK-ready exports.
 
 ## Tool deep links
-- Node Architect: <https://node.architect.ceradonsystems.com/>
-- UxS Architect: <https://uxs.architect.ceradonsystems.com/>
-- Mesh Architect: <https://mesh.architect.ceradonsystems.com/>
+- Node Architect: <https://node.ceradonsystems.com/web/index.html>
+- UxS Architect: <https://uxs.ceradonsystems.com/web/>
+- Mesh Architect: <https://mesh.ceradonsystems.com/>
 - KitSmith: <https://kitsmith.ceradonsystems.com/>
-- Mission Architect: <https://mission.architect.ceradonsystems.com/>
+- Mission Architect: <https://mission.ceradonsystems.com/>
 
 ## Notes
 - The site is fully static and GitHub Pages–compatible; no backend or build tooling is required.
