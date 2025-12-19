@@ -135,6 +135,25 @@ a:focus-visible {
   color: var(--muted);
 }
 
+.pill.success {
+  background: rgba(46, 204, 113, 0.12);
+  border-color: rgba(46, 204, 113, 0.4);
+  color: #9be7c4;
+}
+
+.context-bar {
+  max-width: 1180px;
+  margin: 0 auto 12px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  background: rgba(76, 97, 122, 0.08);
+}
+
+.context-bar p {
+  margin: 0;
+}
+
 .view-container {
   max-width: 1180px;
   margin: 0 auto;
@@ -168,6 +187,11 @@ h1, h2, h3, h4 {
   max-width: 760px;
 }
 
+.small.subtle {
+  color: var(--muted);
+  opacity: 0.85;
+}
+
 .hero { 
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -187,6 +211,56 @@ h1, h2, h3, h4 {
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
+}
+
+.status-widgets {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.widget-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.widget-tile {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.widget-tile strong {
+  display: block;
+}
+
+.widget-tile.good {
+  border-color: rgba(46, 204, 113, 0.4);
+  background: rgba(46, 204, 113, 0.08);
+}
+
+.widget-tile.warning {
+  border-color: rgba(255, 199, 99, 0.6);
+  background: rgba(255, 199, 99, 0.08);
+}
+
+.widget-tile.alert {
+  border-color: rgba(255, 99, 99, 0.6);
+  background: rgba(255, 99, 99, 0.1);
 }
 
 .status-meta-grid {
@@ -798,6 +872,32 @@ h1, h2, h3, h4 {
 
 .schema-info {
   margin: 16px 0;
+}
+
+.compliance-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+  margin: 12px 0 4px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.compliance-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.compliance-item {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+  background: rgba(77, 163, 255, 0.05);
 }
 
 .schema-card {
