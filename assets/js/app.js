@@ -514,6 +514,46 @@ function getActiveToolList(project) {
   return Array.from(tools);
 }
 
+async function renderMissionProjectHealth(projectOverride) {
+  const widget = document.getElementById('missionProjectHealth');
+  if (!widget) return;
+
+  const versionEl = document.getElementById('healthSchemaVersion');
+  const statusEl = document.getElementById('healthValidationStatus');
+  const detailEl = document.getElementById('healthValidationDetail');
+  const tile = document.getElementById('healthValidationTile');
+  const project = projectOverride || MissionProjectStore.loadMissionProject();
+  const version = project?.schemaVersion || MISSION_PROJECT_SCHEMA_VERSION;
+
+  if (versionEl) {
+    versionEl.textContent = version || MISSION_PROJECT_SCHEMA_VERSION;
+  }
+
+  let status = 'good';
+  let headline = 'OK';
+  let detail = 'Required fields present for MissionProject v2.0.0.';
+
+  try {
+    const { valid, errors } = await MissionProjectStore.validateMissionProjectDetailed(project);
+    if (!valid) {
+      status = 'alert';
+      headline = 'Missing required fields';
+      detail = errors.slice(0, 2).join(' • ') || 'Missing required fields.';
+    }
+  } catch (error) {
+    status = 'warning';
+    headline = 'Validation unavailable';
+    detail = 'Schema could not be loaded for validation.';
+  }
+
+  if (statusEl) statusEl.textContent = headline;
+  if (detailEl) detailEl.textContent = detail;
+  if (tile) {
+    tile.classList.remove('good', 'warning', 'alert');
+    tile.classList.add(status);
+  }
+}
+
 function renderSchemaVersion(project) {
   const badge = document.getElementById('schemaVersionBadge');
   const detail = document.getElementById('schemaVersionDetail');
@@ -581,6 +621,7 @@ function applyWorkflowGuard() {
   const overlay = document.getElementById('workflowAccessOverlay');
   const banner = document.getElementById('workflowAccessBanner');
   const dashboard = document.querySelector('.workflow-dashboard');
+  const lockedNotice = document.getElementById('plannerLockedNotice');
   const authorized = hasDemoAccess();
 
   if (guard) {
@@ -596,6 +637,12 @@ function applyWorkflowGuard() {
   }
   if (banner) {
     banner.hidden = !authorized;
+    if (authorized) {
+      banner.textContent = `Demo code ${DEMO_ACCESS_CODE} active — embedded planners unlocked.`;
+    }
+  }
+  if (lockedNotice) {
+    lockedNotice.hidden = authorized;
   }
 }
 
@@ -641,6 +688,7 @@ function renderMissionProjectStatusPanel(projectOverride) {
   renderSchemaVersion(project);
   renderSchemaWarning(project);
   renderProjectSummary(project);
+  renderMissionProjectHealth(project);
 }
 
 function setProjectAlert(message, tone = 'info') {
@@ -787,6 +835,44 @@ function attachImportHandlers(button, fileInput, sourceLabel = 'Imported JSON') 
   });
 }
 
+async function loadWhitefrostDemo(button) {
+  const defaultLabel = button?.dataset.defaultLabel || 'Run the WHITEFROST demo';
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Preparing WHITEFROST…';
+  }
+
+  try {
+    // TODO: replace placeholder with WHITEFROST MissionProject v2 JSON once available.
+    const stub = MissionProjectStore.createEmptyMissionProject();
+    const placeholder = {
+      ...stub,
+      schemaVersion: MISSION_PROJECT_SCHEMA_VERSION,
+      meta: {
+        ...stub.meta,
+        name: 'WHITEFROST demo (stub)',
+        description: 'TODO: load WHITEFROST MissionProject v2 JSON when published.'
+      }
+    };
+    const saved = MissionProjectStore.saveMissionProject(placeholder);
+    projectStatusMessage = 'WHITEFROST loader stubbed in place.';
+    projectLoadSource = 'WHITEFROST (stub)';
+    setProjectAlert('WHITEFROST demo placeholder loaded. TODO: attach real MissionProject v2 JSON.', 'info');
+    hydrateProjectForm('WHITEFROST (stub)');
+    renderMissionProjectHealth(saved);
+  } catch (error) {
+    console.error(error);
+    setProjectAlert('Unable to stage WHITEFROST demo. Please try again.', 'alert');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = defaultLabel;
+    }
+    renderProjectStatus();
+    renderMissionProjectStatusPanel();
+  }
+}
+
 async function loadDemoProject(button) {
   const defaultLabel = button?.dataset.defaultLabel || 'Load demo project';
   if (button) {
@@ -826,6 +912,7 @@ function bindProjectActions() {
   const importBtn = document.getElementById('importProject');
   const importFile = document.getElementById('importProjectFile');
   const demoBtn = document.getElementById('loadDemoProject');
+  const whitefrostBtn = document.getElementById('runWhitefrostDemo');
   const exportGeoBtn = document.getElementById('exportGeo');
   const exportCoTBtn = document.getElementById('exportCoT');
   const validateBtn = document.getElementById('validateProjectJson');
@@ -854,6 +941,11 @@ function bindProjectActions() {
   demoBtn?.addEventListener('click', (event) => {
     event.preventDefault();
     loadDemoProject(demoBtn);
+  });
+
+  whitefrostBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    loadWhitefrostDemo(whitefrostBtn);
   });
 
   validateBtn?.addEventListener('click', (event) => {

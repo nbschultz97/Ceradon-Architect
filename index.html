@@ -28,6 +28,29 @@
       box-sizing: border-box;
     }
 
+    body.app-locked #access-gate {
+      display: flex;
+      position: fixed;
+      inset: 0;
+      overflow-y: auto;
+      z-index: 20;
+    }
+
+    body:not(.app-locked) #access-gate {
+      display: none;
+    }
+
+    #app-root {
+      transition: filter 160ms ease, opacity 160ms ease;
+    }
+
+    body.app-locked #app-root {
+      filter: blur(4px) grayscale(0.4);
+      opacity: 0.65;
+      pointer-events: none;
+      user-select: none;
+    }
+
     .gate-stack {
       max-width: 560px;
       margin: 0 auto;
@@ -106,7 +129,7 @@
   </style>
 </head>
 <body>
-  <div id="access-gate">
+  <div id="access-gate" aria-live="polite">
     <div class="gate-stack">
       <div class="gate-shell" role="dialog" aria-labelledby="gateTitle" aria-describedby="gateDescription">
         <h1 id="gateTitle">Ceradon Systems — Architect Stack demos</h1>
@@ -143,7 +166,7 @@
     </div>
   </div>
 
-  <div id="app-root" style="display: none;">
+  <div id="app-root">
     <header class="top-nav">
       <div class="brand">
         <div class="logo-dot" aria-hidden="true"></div>
@@ -165,6 +188,11 @@
     <div class="version-strip" aria-label="Application version and schema version">
       <span class="pill" id="appVersionBadge" data-app-version></span>
       <span class="pill subtle" id="schemaHeaderBadge" data-schema-version></span>
+      <span class="pill success" id="accessBanner" hidden></span>
+    </div>
+
+    <div class="context-bar" role="note">
+      <p class="small">Small UAS / mesh / EW / sustainment planning tool for contested environments. Architect keeps mission intent, RF realities, and sustainment in one MissionProject JSON.</p>
     </div>
 
     <main id="app" class="view-container">
@@ -244,6 +272,55 @@
         </div>
       </div>
 
+      <div class="status-widgets" id="missionProjectHealth" aria-live="polite">
+        <div class="widget-heading">
+          <p class="eyebrow">MissionProject status</p>
+          <h3>Schema + validation check</h3>
+        </div>
+        <div class="widget-grid">
+          <div class="widget-tile">
+            <p class="small muted">Loaded schemaVersion</p>
+            <strong id="healthSchemaVersion">2.0.0</strong>
+            <p class="small">Defaults to v2.0.0 when absent.</p>
+          </div>
+          <div class="widget-tile" id="healthValidationTile">
+            <p class="small muted">Validation</p>
+            <strong id="healthValidationStatus">Checking…</strong>
+            <p class="small" id="healthValidationDetail">Validating required fields.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="compliance-card" aria-label="Module compliance summary">
+        <div>
+          <p class="eyebrow">Module compliance</p>
+          <h3>Who owns which MissionProject sections</h3>
+          <p class="small muted">Each tool targets MissionProject schemaVersion 2.0.0. Preserve unknown fields and keep schemaVersion tagged for downstream integrity.</p>
+        </div>
+        <div class="compliance-grid">
+          <div class="compliance-item">
+            <strong>Node Architect</strong>
+            <p class="small">Populates <code>nodes[]</code>, RF/power envelopes, and can annotate <code>environment</code> plus <code>constraints</code> with RF realities.</p>
+          </div>
+          <div class="compliance-item">
+            <strong>UxS Architect</strong>
+            <p class="small">Fills <code>platforms[]</code>, lift/endurance metrics, sortie timing, and keeps <code>nodes</code> paired to rides.</p>
+          </div>
+          <div class="compliance-item">
+            <strong>Mesh Architect</strong>
+            <p class="small">Owns <code>mesh_links[]</code>, <code>rf_bands</code>, EW context, and link redundancy across contested paths.</p>
+          </div>
+          <div class="compliance-item">
+            <strong>KitSmith</strong>
+            <p class="small">Maintains <code>kits[]</code>, <code>sustainment</code>, <code>power_plan</code>, <code>packing_lists</code>, and <code>kitsSummary</code> weight limits.</p>
+          </div>
+          <div class="compliance-item">
+            <strong>Mission Architect</strong>
+            <p class="small">Defines <code>mission</code>, <code>phases</code>, <code>assignments</code>, AO constraints, <code>mission_cards</code>, and <code>exports</code>.</p>
+          </div>
+        </div>
+      </div>
+
       <div class="missionproject-status" id="missionProjectStatusPanel" aria-live="polite">
         <div class="status-body">
           <p class="eyebrow">MissionProject status</p>
@@ -290,6 +367,7 @@
           <div>
             <h3>Demo access required</h3>
             <p class="small muted">Enter the access code to unlock embedded planners and MissionProject edits.</p>
+            <p class="small subtle" id="plannerLockedNotice">Planner is locked until a valid access code is entered.</p>
           </div>
         </div>
 
@@ -379,12 +457,13 @@
                     <button class="btn subtle" id="exportGeo">Export GeoJSON</button>
                     <button class="btn subtle" id="exportCoT">Export CoT Stub</button>
                   </div>
-                  <div class="action-row">
-                    <button class="btn primary" id="loadDemoProject" data-default-label="Load demo project">Load demo project</button>
-                    <p class="small" id="projectStatus" aria-live="polite"></p>
-                  </div>
-                </div>
-              </div>
+          <div class="action-row">
+            <button class="btn primary" id="loadDemoProject" data-default-label="Load demo project">Load demo project</button>
+            <button class="btn ghost" id="runWhitefrostDemo" data-default-label="Run the WHITEFROST demo">Run the WHITEFROST demo</button>
+            <p class="small" id="projectStatus" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
 
               <div class="card editor-card" aria-label="MissionProject viewer and editor">
                 <div class="editor-header">
@@ -567,38 +646,48 @@
       const submit = document.getElementById("demo-enter");
       const error = document.getElementById("demo-error");
 
-      function showApp() {
-        if (gate) gate.style.display = "none";
-        if (appRoot) appRoot.style.display = "block";
+      const accessBanner = document.getElementById("accessBanner");
+
+      function renderAccessBanner(code) {
+        if (!accessBanner) return;
+        if (!code) {
+          accessBanner.hidden = true;
+          accessBanner.textContent = '';
+          return;
+        }
+        accessBanner.textContent = `Active demo code: ${code}`;
+        accessBanner.hidden = false;
       }
 
-      function showGate() {
-        if (gate) gate.style.display = "block";
-        if (appRoot) appRoot.style.display = "none";
+      function setLocked(isLocked, activeCode) {
+        document.body.classList.toggle("app-locked", isLocked);
+        renderAccessBanner(isLocked ? '' : activeCode);
+        if (!isLocked && error) {
+          error.style.display = "none";
+          error.textContent = '';
+        }
       }
 
       function handleAuth() {
         const value = (input?.value || "").trim();
         if (value === ACCESS_CODE) {
           localStorage.setItem(STORAGE_KEY, ACCESS_CODE);
-          if (error) error.style.display = "none";
-          showApp();
+          setLocked(false, ACCESS_CODE);
           window.dispatchEvent(new Event("ceradon-demo-authorized"));
         } else {
-          if (error) error.style.display = "block";
+          if (error) {
+            error.style.display = "block";
+            error.textContent = 'Invalid code.';
+          }
         }
       }
 
       document.addEventListener("DOMContentLoaded", () => {
         const storedValue = localStorage.getItem(STORAGE_KEY);
         const authorized = storedValue === ACCESS_CODE || storedValue === "true";
-        if (authorized) {
-          showApp();
-          window.applyWorkflowGuard?.();
-          return;
-        }
+        setLocked(!authorized, authorized ? ACCESS_CODE : '');
 
-        showGate();
+        window.applyWorkflowGuard?.();
 
         submit?.addEventListener("click", handleAuth);
         input?.addEventListener("keydown", (event) => {
