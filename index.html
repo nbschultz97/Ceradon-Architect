@@ -133,12 +133,13 @@
     <div class="gate-stack">
       <div class="gate-shell" role="dialog" aria-labelledby="gateTitle" aria-describedby="gateDescription">
         <h1 id="gateTitle">Ceradon Systems — Architect Stack demos</h1>
-        <p id="gateDescription">Enter your demo access code to unlock the Architect Stack hub and launch tools in one place.</p>
+        <p id="gateDescription">Enter the access code provided by Ceradon Systems to unlock the Architect Stack hub and launch tools in one place.</p>
         <div class="gate-form">
           <label for="demo-code">Access code</label>
           <input id="demo-code" type="password" autocomplete="off" inputmode="numeric" aria-describedby="demo-error">
           <button id="demo-enter" type="button">Enter</button>
           <div id="demo-error" class="error-message" role="alert">Invalid code.</div>
+          <p class="small muted">Need a code? <a href="https://ceradonsystems.com/contact" target="_blank" rel="noopener">Request a demo code</a>.</p>
         </div>
       </div>
 
@@ -152,7 +153,10 @@
           <a
             id="demo-request-button"
             class="btn primary demo-request-btn"
-            href="mailto:contact@ceradonsystems.com?subject=Demo%20code%20request%20%E2%80%93%20Ceradon%20Architect%20Stack&body=Hi%20Ceradon%20team,%0D%0A%0D%0AI%27d%20like%20to%20request%20a%20demo%20access%20code%20for%20the%20Architect%20Stack.%0D%0A%0D%0AOrganization:%20%0D%0AUse%20case:%20%0D%0ATimeline:%20%0D%0A%0D%0AThank%20you.">
+            href="https://ceradonsystems.com/contact"
+            target="_blank"
+            rel="noopener"
+          >
             Request a demo code
           </a>
 
@@ -406,19 +410,17 @@
                     <label>Mission name
                       <input type="text" id="missionName" name="missionName" autocomplete="off">
                     </label>
+                    <label>Mission type (taxonomy)
+                      <select id="missionType" name="missionType"></select>
+                    </label>
+                    <label>Operating environment band
+                      <select id="environmentBand" name="environmentBand"></select>
+                    </label>
                     <label>Environment – altitude band
-                      <select id="altitudeBand" name="altitudeBand">
-                        <option value="0-1000m">0-1000m</option>
-                        <option value="1000-2500m">1000-2500m</option>
-                        <option value=">2500m">&gt;2500m</option>
-                      </select>
+                      <select id="altitudeBand" name="altitudeBand"></select>
                     </label>
                     <label>Environment – temperature band
-                      <select id="temperatureBand" name="temperatureBand">
-                        <option value="10-25C">10-25°C</option>
-                        <option value="-10-10C">-10 to 10°C</option>
-                        <option value="25-40C">25-40°C</option>
-                      </select>
+                      <select id="temperatureBand" name="temperatureBand"></select>
                     </label>
                     <label>Duration (hours)
                       <select id="durationHours" name="durationHours">
@@ -438,6 +440,9 @@
                     </label>
                     <label>Per-person weight limit (kg)
                       <input type="number" id="perPersonLimit" name="perPersonLimit" min="0" step="0.5">
+                    </label>
+                    <label>EW level (taxonomy)
+                      <select id="ewLevel" name="ewLevel"></select>
                     </label>
                     <label>Comms relay count
                       <input type="number" id="relayCount" name="relayCount" min="0" step="1">
@@ -548,6 +553,11 @@
             </div>
           </div>
         </div>
+        <div class="card">
+          <h3>Mission archetypes</h3>
+          <p class="small">Load doctrine-aligned MissionProject presets that mirror common Ceradon demo lanes.</p>
+          <div id="missionArchetypeList" class="archetype-list" aria-live="polite"></div>
+        </div>
         <div class="embed-card">
           <h3>Live preview</h3>
           <p class="small">Embedded view loads the existing Mission Architect app. If it does not load, use the primary button above.</p>
@@ -597,6 +607,31 @@
           <p class="small">All entities are tagged with <code>origin_tool</code> to ease cross-Architect imports. Exports remain offline-first and require no external APIs.</p>
         </div>
         <div class="card">
+          <h3>Schema &amp; Validation</h3>
+          <p>Paste a MissionProject JSON payload and validate it against the hub schema. Invalid payloads return JSON paths with issues.</p>
+          <p class="small" id="schemaVersionDisplay">MissionProject schema v2.0.0</p>
+          <textarea id="schemaValidatorInput" class="json-editor" rows="10" aria-label="MissionProject validation input"></textarea>
+          <div class="editor-actions">
+            <button class="btn subtle" id="schemaValidateBtn">Validate</button>
+            <button class="btn primary" id="schemaApplyBtn">Apply to workspace</button>
+            <a class="btn ghost" href="schema/mission_project_schema_v2.json" target="_blank" rel="noopener">Open schema file</a>
+          </div>
+          <div id="schemaValidationResult" class="validation-callout">Awaiting validation.</div>
+          <ul class="editor-status" id="schemaValidationErrors"></ul>
+        </div>
+        <div class="card">
+          <h3>Environment &amp; EW taxonomy</h3>
+          <p>Canonical environment bands, altitude and temperature ranges, EW levels, and mission types used across Architect tools. Workflow metadata selects from this shared list to keep planners aligned.</p>
+          <p class="small">Reference file: <code>data/environment_taxonomy.json</code>. Node, UxS, Mesh, and KitSmith are expected to mirror these enums.</p>
+          <ul class="bullet-list">
+            <li><strong>Environment bands:</strong> Indoor, dense urban, urban, suburban, rural, open.</li>
+            <li><strong>Altitude bands:</strong> 0–500m, 500–1500m, 1500–2500m, &gt;2500m.</li>
+            <li><strong>Temperature bands:</strong> -30 to -10°C, -10 to 10°C, 10 to 25°C, 25 to 40°C.</li>
+            <li><strong>EW levels:</strong> Permissive, contested, high-EW.</li>
+            <li><strong>Mission types:</strong> Mesh reconnaissance, urban lane, partner sustainment, low-infrastructure mesh.</li>
+          </ul>
+        </div>
+        <div class="card">
           <h3>How to use this with the other tools</h3>
           <ul class="bullet-list">
             <li><strong>Import/export:</strong> Each planner reads the same MissionProject JSON and should preserve unknown keys.</li>
@@ -639,7 +674,8 @@
   <script>
     (() => {
       const ACCESS_CODE = window.DEMO_ACCESS_CODE || "ARC-STACK-761";
-      const STORAGE_KEY = window.DEMO_ACCESS_KEY || "ceradon_demo_code";
+      const STORAGE_KEY = window.DEMO_ACCESS_KEY || "ceradon_architect_access_granted";
+      const LEGACY_KEY = window.LEGACY_ACCESS_KEY || "ceradon_demo_code";
       const gate = document.getElementById("access-gate");
       const appRoot = document.getElementById("app-root");
       const input = document.getElementById("demo-code");
@@ -648,20 +684,20 @@
 
       const accessBanner = document.getElementById("accessBanner");
 
-      function renderAccessBanner(code) {
+      function renderAccessBanner(isGranted) {
         if (!accessBanner) return;
-        if (!code) {
+        if (!isGranted) {
           accessBanner.hidden = true;
           accessBanner.textContent = '';
           return;
         }
-        accessBanner.textContent = `Active demo code: ${code}`;
+        accessBanner.textContent = 'Demo access granted — planners unlocked';
         accessBanner.hidden = false;
       }
 
-      function setLocked(isLocked, activeCode) {
+      function setLocked(isLocked) {
         document.body.classList.toggle("app-locked", isLocked);
-        renderAccessBanner(isLocked ? '' : activeCode);
+        renderAccessBanner(!isLocked);
         if (!isLocked && error) {
           error.style.display = "none";
           error.textContent = '';
@@ -671,8 +707,9 @@
       function handleAuth() {
         const value = (input?.value || "").trim();
         if (value === ACCESS_CODE) {
-          localStorage.setItem(STORAGE_KEY, ACCESS_CODE);
-          setLocked(false, ACCESS_CODE);
+          localStorage.setItem(STORAGE_KEY, 'true');
+          localStorage.removeItem(LEGACY_KEY);
+          setLocked(false);
           window.dispatchEvent(new Event("ceradon-demo-authorized"));
         } else {
           if (error) {
@@ -683,9 +720,12 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        const storedValue = localStorage.getItem(STORAGE_KEY);
-        const authorized = storedValue === ACCESS_CODE || storedValue === "true";
-        setLocked(!authorized, authorized ? ACCESS_CODE : '');
+        const storedValue = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_KEY);
+        const authorized = storedValue === "true" || storedValue === ACCESS_CODE;
+        if (authorized) {
+          localStorage.setItem(STORAGE_KEY, 'true');
+        }
+        setLocked(!authorized);
 
         window.applyWorkflowGuard?.();
 

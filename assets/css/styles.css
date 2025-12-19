@@ -478,6 +478,11 @@ h1, h2, h3, h4 {
   text-decoration: none;
 }
 
+.btn.full {
+  width: 100%;
+  justify-content: flex-start;
+}
+
 .btn.primary {
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
   color: #0c111a;
@@ -1059,6 +1064,36 @@ h1, h2, h3, h4 {
   padding: 8px 12px;
   background: rgba(248, 113, 113, 0.08);
   border-radius: 10px;
+}
+
+.validation-callout {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.validation-callout.success {
+  border-color: #2dd4bf;
+  background: rgba(45, 212, 191, 0.1);
+  color: #befae0;
+}
+
+.validation-callout.alert {
+  border-color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+  color: #fecdd3;
+}
+
+.archetype-list {
+  display: grid;
+  gap: 12px;
+}
+
+.archetype-row {
+  display: grid;
+  gap: 6px;
 }
 
 .small {

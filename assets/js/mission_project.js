@@ -23,7 +23,7 @@ const MissionProjectStore = (() => {
       origin_tool: 'hub',
       scenario: '',
       inventoryReference: 'Pending catalog reference',
-      accessCode: 'ARC-STACK-761',
+      accessCode: 'Request via Ceradon',
       team: { size: 0, roles: [] }
     },
     environment: [

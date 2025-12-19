@@ -8,7 +8,7 @@
     "origin_tool": "hub",
     "scenario": "Sample training lane",
     "inventoryReference": "DEMO-COTS-001",
-    "accessCode": "ARC-STACK-761",
+    "accessCode": "Request via Ceradon",
     "team": { "size": 4, "roles": ["Team lead", "UxS operator", "Payload tech", "Mesh lead"] }
   },
   "environment": [

@@ -3,10 +3,22 @@
 // - Theme tokens live in assets/css/styles.css
 // - Add new tools/demos by editing the data blocks below
 
-const APP_VERSION = 'Architect Hub v0.4.0';
+const APP_VERSION = 'Architect Hub Web v1.3';
 const DEMO_ACCESS_CODE = 'ARC-STACK-761';
-const DEMO_ACCESS_KEY = 'ceradon_demo_code';
+const DEMO_ACCESS_KEY = 'ceradon_architect_access_granted';
+const LEGACY_ACCESS_KEY = 'ceradon_demo_code';
 const CHANGE_LOG = [
+  {
+    version: 'v1.3.0',
+    date: '2024-11-05',
+    changes: [
+      'Hardened the demo access gate with client-side validation, localStorage grant flag, and hidden code strings.',
+      'Added a schema validation console under Docs with MissionProject JSON paste + error surfaces.',
+      'Published canonical environment/EW taxonomy and wired workflow metadata to the shared enums.',
+      'Introduced mission archetype presets that load curated MissionProject templates.',
+      'Updated versioning to Architect Hub Web v1.3 and documented the release in CHANGELOG.md.'
+    ]
+  },
   {
     version: 'v0.4.0',
     date: '2024-06-06',
@@ -35,6 +47,7 @@ const CHANGE_LOG = [
 
 window.DEMO_ACCESS_CODE = DEMO_ACCESS_CODE;
 window.DEMO_ACCESS_KEY = DEMO_ACCESS_KEY;
+window.LEGACY_ACCESS_KEY = LEGACY_ACCESS_KEY;
 
 const toolData = [
   {
@@ -159,12 +172,40 @@ const demoStories = [
   }
 ];
 
+const missionArchetypes = [
+  {
+    id: 'whitefrost',
+    label: 'Cold-weather ridge recon mesh (WHITEFROST demo)',
+    path: 'data/preset_whitefrost.json',
+    description: 'High-altitude cold-weather ridge recon mesh with neutral WHITEFROST payloads.'
+  },
+  {
+    id: 'urban-lane',
+    label: 'Urban mesh lane under high EW',
+    path: 'data/preset_urban_high_ew.json',
+    description: 'Dense urban mesh lane with elevated EW profile and hard relays.'
+  },
+  {
+    id: 'partner-sustainment',
+    label: 'Partner-force sustainment w/ 3D-printed UAS (SOCPAC-style)',
+    path: 'data/preset_partner_sustainment.json',
+    description: 'Partner-force sustainment run with printed UAS sets and lean resupply windows.'
+  },
+  {
+    id: 'low-infrastructure',
+    label: 'Mongolia low-infrastructure UxS + node mesh',
+    path: 'data/preset_low_infrastructure.json',
+    description: 'Sparse infrastructure mesh for wide-open, high-altitude routes.'
+  }
+];
+
 const routes = ['home', 'workflow', 'tools', 'mission', 'demos', 'docs'];
 const MODULE_STATUS_KEY = 'ceradon_module_statuses';
 const moduleStatusOptions = ['Not Started', 'In Progress', 'Complete'];
 const DEMO_PROJECT_PATH = 'data/demo_mission_project.json';
 const LOAD_WARNING_MARGIN_KG = 2; // Small buffer before weight is flagged.
 const SUSTAINMENT_WARNING_BUFFER_HOURS = 6; // Hours of sustainment shortfall tolerated before alerting.
+let environmentTaxonomy = null;
 let highlightedTools = [];
 let moduleStatuses = {};
 let activeModuleId = workflowModules[0].id;
@@ -172,7 +213,17 @@ let projectStatusMessage = '';
 let projectLoadSource = '';
 let editorErrors = [];
 
-const hasDemoAccess = () => localStorage.getItem(DEMO_ACCESS_KEY) === DEMO_ACCESS_CODE;
+const hasDemoAccess = () => {
+  const granted = localStorage.getItem(DEMO_ACCESS_KEY);
+  const legacy = localStorage.getItem(LEGACY_ACCESS_KEY);
+
+  if (granted === 'true') return true;
+  if (legacy === DEMO_ACCESS_CODE || legacy === 'true') {
+    localStorage.setItem(DEMO_ACCESS_KEY, 'true');
+    return true;
+  }
+  return false;
+};
 
 function formatTimestamp(value) {
   if (!value) return 'Not set';
@@ -198,13 +249,121 @@ function handleHashChange() {
   setActiveRoute(hash);
 }
 
-function renderVersionBadges() {
+async function loadEnvironmentTaxonomy() {
+  if (environmentTaxonomy) return environmentTaxonomy;
+  try {
+    const response = await fetch('data/environment_taxonomy.json');
+    if (!response.ok) {
+      throw new Error('Unable to load taxonomy');
+    }
+    environmentTaxonomy = await response.json();
+    return environmentTaxonomy;
+  } catch (error) {
+    console.warn('Falling back to default taxonomy', error);
+    environmentTaxonomy = {
+      environmentBands: [
+        { value: 'indoor', label: 'Indoor' },
+        { value: 'dense_urban', label: 'Dense urban' },
+        { value: 'urban', label: 'Urban' },
+        { value: 'suburban', label: 'Suburban' },
+        { value: 'rural', label: 'Rural' },
+        { value: 'open', label: 'Open / sparsely settled' }
+      ],
+      altitudeBands: [
+        { value: '0-500m', label: '0–500m' },
+        { value: '500-1500m', label: '500–1500m' },
+        { value: '1500-2500m', label: '1500–2500m' },
+        { value: '>2500m', label: '>2500m' }
+      ],
+      temperatureBands: [
+        { value: '-30--10C', label: '-30 to -10°C' },
+        { value: '-10-10C', label: '-10 to 10°C' },
+        { value: '10-25C', label: '10 to 25°C' },
+        { value: '25-40C', label: '25 to 40°C' }
+      ],
+      ewLevels: [
+        { value: 'permissive', label: 'Permissive' },
+        { value: 'contested', label: 'Contested' },
+        { value: 'high-ew', label: 'High-EW' }
+      ],
+      missionTypes: [
+        { value: 'mesh_recon', label: 'Mesh reconnaissance' },
+        { value: 'urban_lane', label: 'Urban mesh lane' },
+        { value: 'sustainment', label: 'Partner sustainment' },
+        { value: 'low_infrastructure', label: 'Low-infrastructure mesh' }
+      ]
+    };
+    return environmentTaxonomy;
+  }
+}
+
+function populateSelectOptions(selectEl, options = [], placeholder = 'Select an option') {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (placeholder) {
+    const emptyOpt = document.createElement('option');
+    emptyOpt.value = '';
+    emptyOpt.textContent = placeholder;
+    selectEl.appendChild(emptyOpt);
+  }
+  options.forEach((option) => {
+    const opt = document.createElement('option');
+    opt.value = option.value;
+    opt.textContent = option.label || option.value;
+    selectEl.appendChild(opt);
+  });
+}
+
+function ensureOption(selectEl, value) {
+  if (!selectEl || !value) return;
+  const exists = Array.from(selectEl.options).some((opt) => opt.value === value);
+  if (!exists) {
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = value;
+    selectEl.appendChild(opt);
+  }
+}
+
+async function applyTaxonomyToForms() {
+  const taxonomy = await loadEnvironmentTaxonomy();
+  const altitudeSelect = document.getElementById('altitudeBand');
+  const temperatureSelect = document.getElementById('temperatureBand');
+  const environmentSelect = document.getElementById('environmentBand');
+  const ewLevelSelect = document.getElementById('ewLevel');
+  const missionTypeSelect = document.getElementById('missionType');
+
+  populateSelectOptions(environmentSelect, taxonomy.environmentBands, 'Select environment band');
+  populateSelectOptions(altitudeSelect, taxonomy.altitudeBands, 'Select altitude band');
+  populateSelectOptions(temperatureSelect, taxonomy.temperatureBands, 'Select temperature band');
+  populateSelectOptions(ewLevelSelect, taxonomy.ewLevels, 'Select EW level');
+  populateSelectOptions(missionTypeSelect, taxonomy.missionTypes, 'Select mission type');
+}
+
+function renderVersionBadges(schemaVersion = MISSION_PROJECT_SCHEMA_VERSION) {
   document.querySelectorAll('[data-app-version]').forEach((el) => {
     el.textContent = APP_VERSION;
   });
   document.querySelectorAll('[data-schema-version]').forEach((el) => {
-    el.textContent = `MissionProject schema v${MISSION_PROJECT_SCHEMA_VERSION}`;
+    el.textContent = `MissionProject schema v${schemaVersion}`;
   });
+}
+
+async function renderSchemaVersionMetadata() {
+  try {
+    const schema = await MissionProjectStore.fetchMissionProjectSchema();
+    const description = schema?.description || '';
+    const versionMatch = description.match(/v(\d+\.\d+\.\d+)/i);
+    const parsedVersion = versionMatch ? versionMatch[1] : (schema?.properties?.schemaVersion?.default || MISSION_PROJECT_SCHEMA_VERSION);
+    renderVersionBadges(parsedVersion);
+    const schemaVersionDisplay = document.getElementById('schemaVersionDisplay');
+    if (schemaVersionDisplay) {
+      schemaVersionDisplay.textContent = `MissionProject schema v${parsedVersion}`;
+    }
+  } catch (error) {
+    console.warn('Unable to resolve schema version from file', error);
+    renderVersionBadges();
+  }
 }
 
 function renderChangeLog() {
@@ -287,6 +446,30 @@ function buildDemos() {
     actions.appendChild(openTools);
     card.appendChild(actions);
     grid.appendChild(card);
+  });
+}
+
+function renderMissionArchetypes() {
+  const container = document.getElementById('missionArchetypeList');
+  if (!container) return;
+  container.innerHTML = '';
+
+  missionArchetypes.forEach((archetype) => {
+    const button = document.createElement('button');
+    button.className = 'btn primary full';
+    button.type = 'button';
+    button.textContent = archetype.label;
+    button.setAttribute('aria-label', `${archetype.label} – ${archetype.description}`);
+    button.addEventListener('click', (event) => {
+      event.preventDefault();
+      loadArchetypeProject(archetype, button);
+    });
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'archetype-row';
+    wrapper.innerHTML = `<p class="small muted">${archetype.description}</p>`;
+    wrapper.prepend(button);
+    container.appendChild(wrapper);
   });
 }
 
@@ -616,6 +799,53 @@ function renderEditorErrors() {
   errorBox.innerHTML = editorErrors.map((err) => `<li>${err}</li>`).join('');
 }
 
+function renderSchemaValidationResults({ valid, errors, version }) {
+  const resultEl = document.getElementById('schemaValidationResult');
+  const errorList = document.getElementById('schemaValidationErrors');
+  if (!resultEl || !errorList) return;
+
+  errorList.innerHTML = '';
+  if (valid) {
+    resultEl.className = 'validation-callout success';
+    resultEl.textContent = `Valid MissionProject for schema v${version}`;
+  } else {
+    resultEl.className = 'validation-callout alert';
+    resultEl.textContent = 'MissionProject failed schema validation';
+    errors.forEach((err) => {
+      const item = document.createElement('li');
+      item.textContent = err;
+      errorList.appendChild(item);
+    });
+  }
+}
+
+async function handleSchemaValidation(applyToWorkspace = false) {
+  const textarea = document.getElementById('schemaValidatorInput');
+  if (!textarea) return;
+  try {
+    const parsed = JSON.parse(textarea.value || '{}');
+    const { valid, errors } = await MissionProjectStore.validateMissionProjectDetailed(parsed);
+    const schema = await MissionProjectStore.fetchMissionProjectSchema();
+    const description = schema?.description || '';
+    const versionMatch = description.match(/v(\d+\.\d+\.\d+)/i);
+    const version = versionMatch ? versionMatch[1] : (schema?.properties?.schemaVersion?.default || MISSION_PROJECT_SCHEMA_VERSION);
+    renderSchemaValidationResults({ valid, errors, version });
+
+    if (applyToWorkspace && valid) {
+      const saved = MissionProjectStore.importMissionProjectFromText(textarea.value);
+      projectStatusMessage = saved.meta?.name ? `Imported project: ${saved.meta.name}` : 'Project applied from validator.';
+      projectLoadSource = 'Schema validator';
+      setProjectAlert('JSON applied to MissionProject store.', 'success');
+      hydrateProjectForm('Schema validator');
+      renderMissionProjectStatusPanel(saved);
+    } else if (applyToWorkspace && !valid) {
+      setProjectAlert('Fix schema errors before applying to the workspace.', 'alert');
+    }
+  } catch (error) {
+    renderSchemaValidationResults({ valid: false, errors: [error.message], version: MISSION_PROJECT_SCHEMA_VERSION });
+  }
+}
+
 function applyWorkflowGuard() {
   const guard = document.getElementById('workflowGuard');
   const overlay = document.getElementById('workflowAccessOverlay');
@@ -638,7 +868,7 @@ function applyWorkflowGuard() {
   if (banner) {
     banner.hidden = !authorized;
     if (authorized) {
-      banner.textContent = `Demo code ${DEMO_ACCESS_CODE} active — embedded planners unlocked.`;
+      banner.textContent = 'Demo access granted — embedded planners unlocked.';
     }
   }
   if (lockedNotice) {
@@ -750,6 +980,12 @@ function hydrateProjectForm(sourceLabel) {
   }
   const env = Array.isArray(project.environment) ? project.environment[0] : project.meta?.environment;
   document.getElementById('missionName').value = project.meta?.name || '';
+  ensureOption(document.getElementById('environmentBand'), env?.band || env?.environmentBand);
+  document.getElementById('environmentBand').value = env?.band || env?.environmentBand || '';
+  ensureOption(document.getElementById('ewLevel'), project.meshPlan?.ew_profile);
+  document.getElementById('ewLevel').value = project.meshPlan?.ew_profile || '';
+  ensureOption(document.getElementById('missionType'), project.meta?.missionType);
+  document.getElementById('missionType').value = project.meta?.missionType || '';
   document.getElementById('altitudeBand').value = env?.altitudeBand || '';
   document.getElementById('temperatureBand').value = env?.temperatureBand || '';
   document.getElementById('durationHours').value = project.meta?.durationHours || 24;
@@ -771,17 +1007,23 @@ function hydrateProjectForm(sourceLabel) {
 function syncProjectFromForm() {
   const project = MissionProjectStore.loadMissionProject();
   project.meta.name = document.getElementById('missionName').value;
+  const environmentBand = document.getElementById('environmentBand').value;
   const altitudeBand = document.getElementById('altitudeBand').value;
   const temperatureBand = document.getElementById('temperatureBand').value;
+  const ewProfile = document.getElementById('ewLevel').value;
+  const missionType = document.getElementById('missionType').value;
   const env = Array.isArray(project.environment) && project.environment.length ? project.environment[0] : {};
   project.environment[0] = {
     ...env,
     id: env.id || 'env-main',
     name: env.name || 'Baseline AO',
+    band: environmentBand || env.band || env.environmentBand,
     altitudeBand,
     temperatureBand,
     origin_tool: env.origin_tool || 'hub'
   };
+  project.meshPlan.ew_profile = ewProfile || project.meshPlan.ew_profile;
+  project.meta.missionType = missionType || project.meta.missionType;
   project.meta.durationHours = getNumeric(document.getElementById('durationHours').value, project.meta.durationHours);
   project.meta.inventoryReference = document.getElementById('inventoryReference').value;
   project.sustainment.sustainmentHours = getNumeric(document.getElementById('sustainmentHours').value, project.sustainment.sustainmentHours);
@@ -817,22 +1059,73 @@ function attachImportHandlers(button, fileInput, sourceLabel = 'Imported JSON') 
   fileInput?.addEventListener('change', (event) => {
     const [file] = event.target.files || [];
     if (!file) return;
-    MissionProjectStore.importMissionProject(file)
-      .then((saved) => {
+    const reader = new FileReader();
+    reader.onload = async (loadEvent) => {
+      try {
+        const text = loadEvent.target.result;
+        const parsed = JSON.parse(text || '{}');
+        const { valid, errors } = await MissionProjectStore.validateMissionProjectDetailed(parsed);
+        if (!valid) {
+          setProjectAlert(`Unable to import: ${errors.join('; ')}`, 'alert');
+          editorErrors = errors || [];
+          renderEditorErrors();
+          return;
+        }
+        const saved = MissionProjectStore.importMissionProjectFromText(text);
         projectStatusMessage = saved.meta?.name ? `Imported project: ${saved.meta.name}` : 'Imported MissionProject payload.';
         projectLoadSource = sourceLabel;
         setProjectAlert('MissionProject imported successfully.', 'success');
         hydrateProjectForm(sourceLabel);
-      })
-      .catch(() => {
+      } catch (error) {
+        console.error('Unable to import project JSON', error);
         setProjectAlert('Unable to import project JSON. Please verify the MissionProject schema.', 'alert');
-      })
-      .finally(() => {
+      } finally {
         if (fileInput) fileInput.value = '';
         renderProjectStatus();
         renderMissionProjectStatusPanel();
-      });
+      }
+    };
+    reader.readAsText(file);
   });
+}
+
+async function loadArchetypeProject(archetype, button) {
+  const defaultLabel = button?.textContent;
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Loading archetype…';
+  }
+
+  try {
+    const response = await fetch(archetype.path);
+    if (!response.ok) {
+      throw new Error('Unable to fetch archetype JSON');
+    }
+    const payload = await response.json();
+    const { valid, errors } = await MissionProjectStore.validateMissionProjectDetailed(payload);
+    if (!valid) {
+      setProjectAlert(`Archetype failed validation: ${errors.join('; ')}`, 'alert');
+      editorErrors = errors || [];
+      renderEditorErrors();
+      return;
+    }
+    const saved = MissionProjectStore.saveMissionProject(payload);
+    projectStatusMessage = saved.meta?.name ? `${saved.meta.name} loaded.` : `${archetype.label} loaded.`;
+    projectLoadSource = archetype.label;
+    setProjectAlert('Archetype applied to workspace.', 'success');
+    hydrateProjectForm(archetype.label);
+    renderMissionProjectHealth(saved);
+  } catch (error) {
+    console.error('Unable to load archetype', error);
+    setProjectAlert('Unable to load the archetype project. Please try again.', 'alert');
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = defaultLabel || 'Load archetype';
+    }
+    renderProjectStatus();
+    renderMissionProjectStatusPanel();
+  }
 }
 
 async function loadWhitefrostDemo(button) {
@@ -843,23 +1136,12 @@ async function loadWhitefrostDemo(button) {
   }
 
   try {
-    // TODO: replace placeholder with WHITEFROST MissionProject v2 JSON once available.
-    const stub = MissionProjectStore.createEmptyMissionProject();
-    const placeholder = {
-      ...stub,
-      schemaVersion: MISSION_PROJECT_SCHEMA_VERSION,
-      meta: {
-        ...stub.meta,
-        name: 'WHITEFROST demo (stub)',
-        description: 'TODO: load WHITEFROST MissionProject v2 JSON when published.'
-      }
-    };
-    const saved = MissionProjectStore.saveMissionProject(placeholder);
-    projectStatusMessage = 'WHITEFROST loader stubbed in place.';
-    projectLoadSource = 'WHITEFROST (stub)';
-    setProjectAlert('WHITEFROST demo placeholder loaded. TODO: attach real MissionProject v2 JSON.', 'info');
-    hydrateProjectForm('WHITEFROST (stub)');
-    renderMissionProjectHealth(saved);
+    const archetype = missionArchetypes.find((item) => item.id === 'whitefrost');
+    if (archetype) {
+      await loadArchetypeProject(archetype, button);
+      return;
+    }
+    setProjectAlert('WHITEFROST preset not found.', 'alert');
   } catch (error) {
     console.error(error);
     setProjectAlert('Unable to stage WHITEFROST demo. Please try again.', 'alert');
@@ -886,8 +1168,9 @@ async function loadDemoProject(button) {
       throw new Error('Unable to fetch demo project');
     }
     const payload = await response.json();
-    if (!MissionProjectStore.validateMissionProject(payload)) {
-      throw new Error('Invalid demo project payload');
+    const { valid, errors } = await MissionProjectStore.validateMissionProjectDetailed(payload);
+    if (!valid) {
+      throw new Error(`Invalid demo project payload: ${errors.join('; ')}`);
     }
     const saved = MissionProjectStore.saveMissionProject(payload);
     projectStatusMessage = saved.meta?.name ? `${saved.meta.name} loaded.` : 'Demo project loaded.';
@@ -959,6 +1242,21 @@ function bindProjectActions() {
   });
 }
 
+function bindSchemaValidator() {
+  const validateBtn = document.getElementById('schemaValidateBtn');
+  const applyBtn = document.getElementById('schemaApplyBtn');
+
+  validateBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    handleSchemaValidation(false);
+  });
+
+  applyBtn?.addEventListener('click', (event) => {
+    event.preventDefault();
+    handleSchemaValidation(true);
+  });
+}
+
 function bindStatusPanelActions() {
   const loadBtn = document.getElementById('homeLoadDemo');
   const importBtn = document.getElementById('homeImportProject');
@@ -983,10 +1281,11 @@ function bindStatusPanelActions() {
   });
 }
 
-function initWorkflowDashboard() {
+async function initWorkflowDashboard() {
   moduleStatuses = loadModuleStatuses();
   renderModuleNav();
   renderModuleContent();
+  await applyTaxonomyToForms();
   hydrateProjectForm();
   bindProjectForm();
   bindProjectActions();
@@ -1009,16 +1308,19 @@ function initThemeToggle() {
   });
 }
 
-function initApp() {
+async function initApp() {
   buildTools();
   buildDemos();
-  initWorkflowDashboard();
+  renderMissionArchetypes();
+  await initWorkflowDashboard();
   bindStatusPanelActions();
   initThemeToggle();
   renderVersionBadges();
   renderChangeLog();
+  bindSchemaValidator();
   applyWorkflowGuard();
   handleHashChange();
+  await renderSchemaVersionMetadata();
   window.addEventListener('hashchange', handleHashChange);
   window.addEventListener('ceradon-demo-authorized', applyWorkflowGuard);
   window.addEventListener('storage', (event) => {
@@ -1028,4 +1330,7 @@ function initApp() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', initApp);
+document.addEventListener('DOMContentLoaded', () => {
+  renderVersionBadges();
+  initApp();
+});
