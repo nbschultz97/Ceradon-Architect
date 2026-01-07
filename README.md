@@ -108,6 +108,36 @@ The Architect Stack now includes **fully offline-capable** planning modules that
   4. Generate BOM and export
   5. Integrate with Mission Planner
 
+#### 5. **Mission Planner with Sustainment Calculator** (`assets/js/mission_planner.js`)
+- **Purpose:** Operational mission planning with logistics integration
+- **Features:**
+  - **Phase Management:** ORP, Infil, On-Station, Exfil with durations and activity levels
+  - **Battery Swap Schedules:** Calculate when operators need to swap batteries during mission
+  - **Per-Operator Packing Lists:** Distribute batteries and equipment across team members
+  - **Weight Distribution:** Terrain-adjusted weight limits (urban: 25kg, mountain: 18kg, etc.)
+  - **Mission Feasibility:** Validate logistics against mission duration and team capacity
+- **Calculations:**
+  - Batteries needed = (Operating Hours / Flight Time per Battery) × 1.2 safety margin
+  - Per-operator load balanced across team with role-specific equipment
+  - Weight validation against terrain limits (standard + maximum thresholds)
+- **Exports:** Mission summary reports, per-operator packing lists (CSV), MissionProject JSON
+
+#### 6. **Comms Validator / Link Budget Calculator** (`assets/js/comms_validator.js`)
+- **Purpose:** RF link quality analysis and relay node placement
+- **Features:**
+  - **Link Budget Calculation:** Free-space path loss, received power, link margin
+  - **Line-of-Sight Analysis:** Earth curvature, radio horizon, LOS clearance
+  - **Fresnel Zone Clearance:** First Fresnel zone must be 60% clear for reliable signal
+  - **Terrain Effects:** Signal attenuation (open: 0dB, urban: 12dB, dense urban: 20dB)
+  - **Weather Effects:** Rain, snow, fog attenuation
+  - **Relay Recommendations:** Optimal placement for LOS and link margin issues
+  - **Radio Selection Advisor:** Suggest radios based on range, data rate, terrain
+- **Formulas:**
+  - FSPL (dB) = 20×log10(distance_km) + 20×log10(freq_MHz) + 32.45
+  - Link Margin = RX Power - Sensitivity (minimum: 10 dB for reliable comms)
+  - Radio Horizon = √(2 × Earth Radius × Antenna Height)
+- **Coverage Analysis:** Identifies gaps, recommends relay heights and positions
+
 ### Data Flow
 
 ```
@@ -118,8 +148,12 @@ Parts Library (IndexedDB)
 Platform Design
     ↓ [Physics Engine Validation]
 Validated Platform + BOM
+    ↓ [Mission Planner]
+Mission Phases + Battery Swaps + Packing Lists
+    ↓ [Comms Validator]
+RF Link Analysis + Relay Placement
     ↓ [Export]
-MissionProject JSON → Mission Planner
+Complete MissionProject JSON
 ```
 
 ### Offline Capability
@@ -133,8 +167,12 @@ MissionProject JSON → Mission Planner
 
 ### Getting Started with New Modules
 
+#### Complete Workflow Example
+
 ```javascript
-// Initialize Parts Library
+// ═══════════════════════════════════════════════════════════════
+// STEP 1: Initialize Parts Library
+// ═══════════════════════════════════════════════════════════════
 await PartsLibrary.initDB();
 
 // Import sample catalog
@@ -142,21 +180,213 @@ const response = await fetch('data/sample_parts_library.json');
 const catalog = await response.json();
 await PartsLibrary.importLibrary(catalog);
 
-// Create a platform design
+// ═══════════════════════════════════════════════════════════════
+// STEP 2: Design Platform
+// ═══════════════════════════════════════════════════════════════
 const design = PlatformDesigner.createEmptyDesign();
-design.name = 'Recon Quad';
+design.name = 'Long-Range Recon Quad';
+design.type = 'multi-rotor';
 design.environment = { altitude_m: 1500, temperature_c: -5 };
 
 // Add components from parts library
-const motor = await PartsLibrary.getPart('motors', 'motor-001');
-PlatformDesigner.addComponent(design, 'motors', motor);
+const airframe = await PartsLibrary.getPart('airframes', 'frame-002'); // 7" frame
+const motor = await PartsLibrary.getPart('motors', 'motor-002'); // 2806 1300KV
+const battery = await PartsLibrary.getPart('batteries', 'battery-002'); // 4S 3000mAh
+const fc = await PartsLibrary.getPart('flight_controllers', 'fc-002'); // Pixhawk
+const radio = await PartsLibrary.getPart('radios', 'radio-001'); // ELRS
+
+PlatformDesigner.addComponent(design, 'airframe', airframe);
+for (let i = 0; i < 4; i++) {
+  PlatformDesigner.addComponent(design, 'motors', motor);
+}
+PlatformDesigner.addComponent(design, 'battery', battery);
+PlatformDesigner.addComponent(design, 'flight_controller', fc);
+PlatformDesigner.addComponent(design, 'radios', radio);
 
 // Validate design
 const validation = PlatformDesigner.validateDesign(design);
-console.log(validation.metrics); // AUW, T/W, flight time, etc.
+console.log(validation.metrics);
+// Output:
+// {
+//   auw_kg: 0.85,
+//   thrust_to_weight: 2.18,
+//   nominal_flight_time_min: 42,
+//   environment: {
+//     adjusted_flight_time_min: 34,  // Cold + altitude effects
+//     thrust_reduction_pct: 15,
+//     battery_capacity_reduction_pct: 19
+//   }
+// }
 
-// Export BOM
-PlatformDesigner.downloadBOM(design);
+// Save design
+PlatformDesigner.saveDesign(design);
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 3: Plan Mission with Sustainment
+// ═══════════════════════════════════════════════════════════════
+const mission = MissionPlanner.createEmptyPlan();
+mission.name = 'Ridge Reconnaissance - 48hr';
+mission.duration_hours = 48;
+mission.terrain = 'mountain';
+mission.team = {
+  size: 4,
+  roles: ['Team Lead', 'UxS Pilot', 'Payload Operator', 'Mesh Lead']
+};
+
+// Add mission phases
+MissionPlanner.addPhase(mission, {
+  name: 'ORP Setup',
+  type: 'ORP',
+  duration_hours: 2,
+  activity_level: 'low',
+  platforms_active: []
+});
+
+MissionPlanner.addPhase(mission, {
+  name: 'Initial Recon',
+  type: 'ON_STATION',
+  duration_hours: 8,
+  activity_level: 'high',
+  platforms_active: [design.id]
+});
+
+MissionPlanner.addPhase(mission, {
+  name: 'Sustained Surveillance',
+  type: 'ON_STATION',
+  duration_hours: 36,
+  activity_level: 'medium',
+  platforms_active: [design.id]
+});
+
+MissionPlanner.addPhase(mission, {
+  name: 'Exfil',
+  type: 'EXFIL',
+  duration_hours: 2,
+  activity_level: 'low',
+  platforms_active: []
+});
+
+// Calculate logistics
+mission.platforms = [design.id];
+const platformDesigns = [design];
+MissionPlanner.calculateMissionLogistics(mission, platformDesigns);
+
+console.log(mission.sustainment);
+// Output:
+// {
+//   total_batteries: 78,
+//   weight_kg: 23.0,
+//   battery_swaps: [
+//     { time_hours: 0.57, platform_name: 'Long-Range Recon Quad', action: 'Battery swap required' },
+//     { time_hours: 1.14, ... },
+//     ...
+//   ],
+//   feasibility: { pass: true, warnings: [], errors: [] }
+// }
+
+// Check packing lists
+mission.packing_lists.forEach(list => {
+  console.log(`${list.role}: ${list.total_weight_kg.toFixed(1)} kg (limit: ${list.weight_limit_kg} kg)`);
+  // Team Lead: 21.5 kg (limit: 18 kg) ⚠ Overweight
+  // UxS Pilot: 20.8 kg (limit: 18 kg) ⚠ Overweight
+  // ...
+});
+
+// Download packing list for each operator
+mission.packing_lists.forEach(list => {
+  MissionPlanner.downloadPackingList(list);
+});
+
+// Save mission plan
+MissionPlanner.savePlan(mission);
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 4: Validate Communications
+// ═══════════════════════════════════════════════════════════════
+const comms = CommsValidator.createEmptyAnalysis();
+comms.name = 'Ridge Recon Comms Plan';
+comms.terrain = 'mountain';
+comms.weather = 'clear';
+
+// Add nodes
+CommsValidator.addNode(comms, {
+  name: 'ORP Base Station',
+  type: 'transceiver',
+  location: { lat: 40.7608, lon: -111.8910, elevation_m: 1500, height_agl_m: 3 },
+  radio: {
+    frequency_mhz: 900,
+    power_output_dbm: 20,
+    tx_gain_dbi: 5,
+    rx_gain_dbi: 5,
+    sensitivity_dbm: -110
+  }
+});
+
+CommsValidator.addNode(comms, {
+  name: 'Ridge Observation Point',
+  type: 'transceiver',
+  location: { lat: 40.7808, lon: -111.9010, elevation_m: 1800, height_agl_m: 2 },
+  radio: {
+    frequency_mhz: 900,
+    power_output_dbm: 20,
+    tx_gain_dbi: 2,
+    rx_gain_dbi: 2,
+    sensitivity_dbm: -110
+  }
+});
+
+CommsValidator.addNode(comms, {
+  name: 'UxS (airborne)',
+  type: 'transceiver',
+  location: { lat: 40.7708, lon: -111.8960, elevation_m: 1650, height_agl_m: 100 },
+  radio: {
+    frequency_mhz: 900,
+    power_output_dbm: 20,
+    tx_gain_dbi: 2,
+    rx_gain_dbi: 2,
+    sensitivity_dbm: -110
+  }
+});
+
+// Analyze links
+CommsValidator.analyzeLinks(comms);
+
+console.log(comms.links);
+// Output:
+// [
+//   {
+//     from_name: 'ORP Base Station',
+//     to_name: 'Ridge Observation Point',
+//     distance_km: 2.5,
+//     link_margin_db: 18.3,
+//     quality: 'excellent',
+//     relay_required: false
+//   },
+//   {
+//     from_name: 'ORP Base Station',
+//     to_name: 'UxS (airborne)',
+//     distance_km: 1.8,
+//     link_margin_db: 22.1,
+//     quality: 'excellent',
+//     relay_required: false
+//   }
+// ]
+
+console.log(comms.relay_recommendations);
+// Output: [] (no relays needed - all links good)
+
+// Download comms analysis report
+CommsValidator.downloadReport(comms);
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 5: Export Complete Mission Package
+// ═══════════════════════════════════════════════════════════════
+const missionProject = MissionPlanner.exportToMissionProject(mission, platformDesigns);
+MissionProjectStore.saveMissionProject(missionProject);
+MissionProjectStore.exportMissionProject('ridge_recon_48hr.json');
+
+// Generate summary report
+MissionPlanner.downloadSummaryReport(mission);
 ```
 
 ### Documentation
