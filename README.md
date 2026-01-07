@@ -1,18 +1,37 @@
 # Ceradon Architect - Offline Mission Planning Tool
 
+![Version](https://img.shields.io/badge/version-0.3.0--alpha.2-orange)
+![Stage](https://img.shields.io/badge/stage-alpha-red)
+![Schema](https://img.shields.io/badge/schema-v2.0.0-blue)
+![License](https://img.shields.io/badge/license-proprietary-lightgrey)
+
 **Fully Offline Mission Planning for Air-Gapped Environments**
 
 Ceradon Architect is a professional, offline-first web application for sUAS mission planning in contested environments. Build custom platforms from COTS components, plan multi-day missions with logistics, and validate RF communications — entirely in your browser with zero cloud dependencies.
 
 **Live Demo:** <https://architect.ceradonsystems.com> (GitHub Pages)
 
-## What's New (v2.0)
+> **⚠️ Alpha Software** - Version 0.3.0-alpha.2. Under active development. Not recommended for production use. See [CHANGELOG.md](CHANGELOG.md) for details.
 
-This is a **complete redesign** focused on making the offline tools the actual product, not just marketing links:
+## What's New (v0.3.0-alpha.2)
 
-- **Removed:** Access gates, external demo links, marketing content
-- **Added:** Full interactive UIs for all offline modules
-- **Focus:** Actual mission planning tool, not a demo hub
+**One-Click Sample Project** - Load 40+ COTS components, 2 validated platforms, a 48-hour ISR mission, and 3-node comms network instantly.
+
+**Complete Module UIs:**
+- ✅ **Parts Library** - Browse, search, import CSV, load sample catalog
+- ✅ **Platform Designer** - Real-time physics validation with environmental derating
+- ✅ **Mission Planner** - Battery calculations, packing lists, logistics
+- ✅ **Comms Validator** - RF link budgets, LOS checks, relay recommendations
+- ✅ **Export Module** - Download complete mission package as JSON
+
+**Key Features:**
+- 40+ realistic COTS components (motors, batteries, radios, sensors)
+- Physics-based validation (thrust-to-weight, flight time, altitude effects)
+- Terrain-adjusted packing lists for multi-day missions
+- RF link analysis with line-of-sight and Fresnel zone calculations
+- Zero cloud dependencies - works 100% offline
+
+See [CHANGELOG.md](CHANGELOG.md) for complete details.
 
 ## Quick Start
 
