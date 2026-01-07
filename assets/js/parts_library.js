@@ -427,6 +427,43 @@ const PartsLibrary = (() => {
     return stats;
   };
 
+  /**
+   * Load sample parts catalog from JSON file
+   */
+  const loadSampleCatalog = async () => {
+    try {
+      const response = await fetch('assets/data/sample_parts_catalog.json');
+      if (!response.ok) {
+        throw new Error('Failed to load sample catalog');
+      }
+
+      const catalog = await response.json();
+
+      // Import the catalog
+      await importLibrary(catalog);
+
+      // Update metadata
+      await saveMetadata({
+        catalogId: `catalog-${Date.now()}`,
+        name: 'Sample COTS Catalog',
+        description: 'Realistic commercial-off-the-shelf components for UAS platforms',
+        lastUpdated: new Date().toISOString(),
+        source: 'sample'
+      });
+
+      return {
+        success: true,
+        message: 'Sample catalog loaded successfully'
+      };
+    } catch (error) {
+      console.error('Error loading sample catalog:', error);
+      return {
+        success: false,
+        message: error.message
+      };
+    }
+  };
+
   // Public API
   return {
     CATEGORIES,
@@ -449,7 +486,8 @@ const PartsLibrary = (() => {
     clearLibrary,
     downloadLibrary,
     validatePart,
-    getStatistics
+    getStatistics,
+    loadSampleCatalog
   };
 })();
 

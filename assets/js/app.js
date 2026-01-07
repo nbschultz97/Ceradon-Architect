@@ -114,20 +114,55 @@ function initHomePage() {
   updateProjectStatus();
 }
 
-function loadSampleMission() {
-  fetch('data/demo_mission_project.json')
-    .then(response => response.json())
-    .then(data => {
-      if (typeof MissionProjectStore !== 'undefined') {
-        MissionProjectStore.saveMissionProject(data);
-        updateProjectStatus();
-        alert('Sample mission loaded successfully!');
-      }
-    })
-    .catch(error => {
-      console.error('Failed to load sample mission:', error);
-      alert('Failed to load sample mission. Check console for details.');
-    });
+async function loadSampleMission() {
+  try {
+    const btn = document.getElementById('homeLoadDemo');
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Loading sample data...';
+    }
+
+    // Step 1: Load sample parts catalog
+    updateProjectStatus();
+    const partsResult = await PartsLibrary.loadSampleCatalog();
+    if (!partsResult.success) {
+      throw new Error('Failed to load sample parts catalog');
+    }
+
+    // Step 2: Create sample platforms
+    await createSamplePlatforms();
+
+    // Step 3: Create sample mission
+    createSampleMission();
+
+    // Step 4: Create sample comms network
+    createSampleCommsNetwork();
+
+    // Update UI
+    updateProjectStatus();
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.defaultLabel || 'Load sample project';
+    }
+
+    alert('✅ Sample project loaded!\n\n' +
+          '• 40+ COTS parts in catalog\n' +
+          '• 2 validated platform designs\n' +
+          '• 48-hour ISR mission plan\n' +
+          '• 3-node comms network\n\n' +
+          'Explore each module to see the data!');
+
+  } catch (error) {
+    console.error('Failed to load sample project:', error);
+    alert(`Failed to load sample project: ${error.message}\n\nCheck console for details.`);
+
+    const btn = document.getElementById('homeLoadDemo');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = btn.dataset.defaultLabel || 'Load sample project';
+    }
+  }
 }
 
 function handleProjectImport(event) {
@@ -270,24 +305,29 @@ function handleCSVImport(event) {
   reader.readAsText(file);
 }
 
-function loadSamplePartsLibrary() {
-  fetch('data/sample_parts_library.json')
-    .then(response => response.json())
-    .then(data => {
-      if (typeof PartsLibrary !== 'undefined') {
-        PartsLibrary.importLibrary(data).then(() => {
-          alert('Sample parts library loaded successfully!');
-          loadPartsLibraryUI();
-        }).catch(error => {
-          console.error('Failed to load sample library:', error);
-          alert('Failed to load sample library. Check console for details.');
-        });
-      }
-    })
-    .catch(error => {
-      console.error('Failed to fetch sample library:', error);
-      alert('Failed to fetch sample library. Check console for details.');
-    });
+async function loadSamplePartsLibrary() {
+  if (typeof PartsLibrary === 'undefined') {
+    alert('Parts Library not initialized');
+    return;
+  }
+
+  try {
+    updatePartsStatus('Loading sample catalog...');
+    const result = await PartsLibrary.loadSampleCatalog();
+
+    if (result.success) {
+      await loadPartsLibraryUI();
+      updatePartsStatus('Sample catalog loaded successfully');
+      alert('Sample catalog loaded! Browse 40+ realistic COTS components.');
+    } else {
+      updatePartsStatus('Failed to load sample catalog');
+      alert(`Failed to load sample catalog: ${result.message}`);
+    }
+  } catch (error) {
+    console.error('Error loading sample catalog:', error);
+    updatePartsStatus('Error loading sample catalog');
+    alert('Error loading sample catalog. Check console for details.');
+  }
 }
 
 function exportPartsLibrary() {
@@ -692,6 +732,232 @@ function saveCurrentPlatform() {
 function loadSavedPlatforms() {
   // This will be displayed in a future enhancement
   console.log('Saved platforms:', PlatformDesigner.loadDesigns());
+}
+
+/**
+ * Create and save sample platform designs for demo purposes
+ */
+async function createSamplePlatforms() {
+  try {
+    // Ensure Parts Library is initialized and has data
+    await PartsLibrary.initDB();
+    const library = await PartsLibrary.exportLibrary();
+
+    // Check if we have parts loaded
+    const hasParts = library.motors?.length > 0 && library.batteries?.length > 0;
+    if (!hasParts) {
+      alert('Load the sample parts catalog first before creating sample platforms.');
+      return;
+    }
+
+    // Sample Platform 1: Medium Quadcopter ISR
+    const quadPlatform = PlatformDesigner.createEmptyDesign();
+    quadPlatform.name = 'X500 ISR Quadcopter';
+    quadPlatform.description = 'Medium quadcopter optimized for ISR missions with 40min flight time';
+    quadPlatform.type = 'multi-rotor';
+    quadPlatform.environment = { altitude_m: 1000, temperature_c: 15 };
+
+    // Add components (using sample catalog IDs)
+    quadPlatform.components.airframe = library.airframes?.find(a => a.id === 'airframe-001');
+    quadPlatform.components.motors = [
+      library.motors?.find(m => m.id === 'motor-001'),
+      library.motors?.find(m => m.id === 'motor-001'),
+      library.motors?.find(m => m.id === 'motor-001'),
+      library.motors?.find(m => m.id === 'motor-001')
+    ].filter(m => m);
+    quadPlatform.components.escs = library.escs?.find(e => e.id === 'esc-001');
+    quadPlatform.components.battery = library.batteries?.find(b => b.id === 'battery-002');
+    quadPlatform.components.flight_controller = library.flight_controllers?.find(fc => fc.id === 'fc-001');
+    quadPlatform.components.radios = [library.radios?.find(r => r.id === 'radio-001')].filter(r => r);
+    quadPlatform.components.sensors = [
+      library.sensors?.find(s => s.id === 'sensor-003'),
+      library.sensors?.find(s => s.id === 'sensor-004')
+    ].filter(s => s);
+
+    // Validate and save
+    PlatformDesigner.validateDesign(quadPlatform);
+    PlatformDesigner.saveDesign(quadPlatform);
+
+    // Sample Platform 2: Long Endurance Fixed-Wing
+    const fwPlatform = PlatformDesigner.createEmptyDesign();
+    fwPlatform.name = 'Skywalker X8 Long Range';
+    fwPlatform.description = 'Fixed-wing platform for long-range reconnaissance';
+    fwPlatform.type = 'fixed-wing';
+    fwPlatform.environment = { altitude_m: 2000, temperature_c: 10 };
+
+    fwPlatform.components.airframe = library.airframes?.find(a => a.id === 'airframe-003');
+    fwPlatform.components.motors = [library.motors?.find(m => m.id === 'motor-004')].filter(m => m);
+    fwPlatform.components.escs = library.escs?.find(e => e.id === 'esc-002');
+    fwPlatform.components.battery = library.batteries?.find(b => b.id === 'battery-004');
+    fwPlatform.components.flight_controller = library.flight_controllers?.find(fc => fc.id === 'fc-002');
+    fwPlatform.components.radios = [
+      library.radios?.find(r => r.id === 'radio-001'),
+      library.radios?.find(r => r.id === 'radio-002')
+    ].filter(r => r);
+    fwPlatform.components.sensors = [
+      library.sensors?.find(s => s.id === 'sensor-001'),
+      library.sensors?.find(s => s.id === 'sensor-004')
+    ].filter(s => s);
+
+    PlatformDesigner.validateDesign(fwPlatform);
+    PlatformDesigner.saveDesign(fwPlatform);
+
+    alert('Sample platforms created!\n\n1. X500 ISR Quadcopter (medium multi-rotor)\n2. Skywalker X8 Long Range (fixed-wing)');
+
+    return { quad: quadPlatform, fixedWing: fwPlatform };
+  } catch (error) {
+    console.error('Error creating sample platforms:', error);
+    alert('Error creating sample platforms. Check console for details.');
+    return null;
+  }
+}
+
+/**
+ * Create sample mission plan with phases
+ */
+function createSampleMission() {
+  const platforms = PlatformDesigner.loadDesigns();
+
+  if (platforms.length === 0) {
+    alert('Create sample platforms first before creating a sample mission.');
+    return;
+  }
+
+  const mission = MissionPlanner.createEmptyPlan();
+  mission.name = 'ISR Mission - Objective Rally Point Bravo';
+  mission.description = 'Multi-day reconnaissance and surveillance operation';
+  mission.duration_hours = 48;
+  mission.terrain = 'temperate';
+  mission.team.size = 4;
+  mission.team.roles = ['Team Lead', 'UxS Pilot', 'Payload Operator', 'Mesh Lead'];
+
+  // Add phases
+  MissionPlanner.addPhase(mission, {
+    name: 'Infiltration',
+    type: 'INFIL',
+    duration_hours: 4,
+    activity_level: 'low',
+    platforms_active: [],
+    notes: 'Movement to ORP Bravo'
+  });
+
+  MissionPlanner.addPhase(mission, {
+    name: 'ORP Setup',
+    type: 'ORP',
+    duration_hours: 2,
+    activity_level: 'medium',
+    platforms_active: [],
+    notes: 'Establish objective rally point and prep equipment'
+  });
+
+  MissionPlanner.addPhase(mission, {
+    name: 'ISR Operations Day 1',
+    type: 'ON_STATION',
+    duration_hours: 12,
+    activity_level: 'high',
+    platforms_active: [platforms[0].id],
+    notes: 'Primary reconnaissance of target area'
+  });
+
+  MissionPlanner.addPhase(mission, {
+    name: 'ISR Operations Day 2',
+    type: 'ON_STATION',
+    duration_hours: 12,
+    activity_level: 'high',
+    platforms_active: [platforms[0].id],
+    notes: 'Continued surveillance and pattern-of-life analysis'
+  });
+
+  MissionPlanner.addPhase(mission, {
+    name: 'Exfiltration',
+    type: 'EXFIL',
+    duration_hours: 4,
+    activity_level: 'low',
+    platforms_active: [],
+    notes: 'Return to base'
+  });
+
+  MissionPlanner.addPhase(mission, {
+    name: 'Contingency Reserve',
+    type: 'CONTINGENCY',
+    duration_hours: 14,
+    activity_level: 'low',
+    platforms_active: [],
+    notes: 'Reserve time for delays or mission extension'
+  });
+
+  MissionPlanner.savePlan(mission);
+
+  alert('Sample mission created!\n\n"ISR Mission - Objective Rally Point Bravo"\n48 hours, 6 phases, 4-person team');
+
+  return mission;
+}
+
+/**
+ * Create sample comms network
+ */
+function createSampleCommsNetwork() {
+  const analysis = CommsValidator.createEmptyAnalysis();
+  analysis.name = 'Ground Control to UAV Link Analysis';
+  analysis.description = 'RF link budget analysis for ISR platform operations';
+  analysis.terrain = 'rural';
+  analysis.weather = 'clear';
+
+  // Add GCS node
+  CommsValidator.addNode(analysis, {
+    name: 'GCS (Ground Control)',
+    type: 'transceiver',
+    location: { lat: 38.9072, lon: -77.0369, elevation_m: 10, height_agl_m: 2 },
+    radio: {
+      frequency_mhz: 915,
+      power_output_dbm: 30,
+      tx_gain_dbi: 5,
+      rx_gain_dbi: 5,
+      sensitivity_dbm: -110,
+      tx_cable_loss_db: 1,
+      rx_cable_loss_db: 1
+    }
+  });
+
+  // Add UAV node
+  CommsValidator.addNode(analysis, {
+    name: 'UAV-1 (ISR Platform)',
+    type: 'transceiver',
+    location: { lat: 38.9500, lon: -77.0500, elevation_m: 500, height_agl_m: 500 },
+    radio: {
+      frequency_mhz: 915,
+      power_output_dbm: 27,
+      tx_gain_dbi: 2,
+      rx_gain_dbi: 2,
+      sensitivity_dbm: -107,
+      tx_cable_loss_db: 0.5,
+      rx_cable_loss_db: 0.5
+    }
+  });
+
+  // Add relay node
+  CommsValidator.addNode(analysis, {
+    name: 'Relay-1 (High Ground)',
+    type: 'relay',
+    location: { lat: 38.9286, lon: -77.0435, elevation_m: 100, height_agl_m: 30 },
+    radio: {
+      frequency_mhz: 915,
+      power_output_dbm: 30,
+      tx_gain_dbi: 8,
+      rx_gain_dbi: 8,
+      sensitivity_dbm: -112,
+      tx_cable_loss_db: 2,
+      rx_cable_loss_db: 2
+    }
+  });
+
+  // Analyze links
+  CommsValidator.analyzeLinks(analysis);
+  CommsValidator.saveAnalysis(analysis);
+
+  alert('Sample comms network created!\n\n3 nodes: GCS, UAV-1, Relay-1\nLink analysis complete');
+
+  return analysis;
 }
 
 // ============================================================================
@@ -1304,26 +1570,93 @@ function initExport() {
   loadJSONViewer();
 }
 
-function loadExportSummary() {
+async function loadExportSummary() {
   const summaryDiv = document.getElementById('exportSummary');
   if (!summaryDiv) return;
 
-  if (typeof MissionProjectStore !== 'undefined') {
-    const project = MissionProjectStore.loadMissionProject();
-    const platforms = project.platforms?.length || 0;
-    const phases = project.mission?.phases?.length || 0;
-    const nodes = project.nodes?.length || 0;
+  try {
+    // Collect data from all modules
+    const partsLibrary = await PartsLibrary.exportLibrary();
+    const platforms = PlatformDesigner.loadDesigns();
+    const missions = MissionPlanner.loadPlans();
+    const commsAnalyses = CommsValidator.loadAnalyses();
 
-    summaryDiv.innerHTML = `
-      <h4>${project.meta?.name || 'Unnamed Project'}</h4>
-      <p class="small muted">
-        <strong>${platforms}</strong> platform(s) ·
-        <strong>${phases}</strong> phase(s) ·
-        <strong>${nodes}</strong> node(s)
-      </p>
+    // Count total parts across all categories
+    let totalParts = 0;
+    Object.values(partsLibrary).forEach(category => {
+      if (Array.isArray(category)) {
+        totalParts += category.length;
+      }
+    });
+
+    // Build summary
+    let html = '<div style="margin-bottom: 16px;">';
+    html += '<p class="small"><strong>Current Project Status</strong></p>';
+    html += '<div class="form-grid" style="margin-top: 8px;">';
+
+    html += `
+      <div>
+        <p class="small muted">Parts Catalog</p>
+        <strong>${totalParts} parts</strong>
+      </div>
+      <div>
+        <p class="small muted">Platform Designs</p>
+        <strong>${platforms.length} saved</strong>
+      </div>
+      <div>
+        <p class="small muted">Mission Plans</p>
+        <strong>${missions.length} saved</strong>
+      </div>
+      <div>
+        <p class="small muted">Comms Analyses</p>
+        <strong>${commsAnalyses.length} saved</strong>
+      </div>
     `;
-  } else {
-    summaryDiv.innerHTML = '<p class="small muted">No project loaded</p>';
+
+    html += '</div></div>';
+
+    // Add details if we have data
+    if (platforms.length > 0) {
+      html += '<div style="margin-bottom: 12px;">';
+      html += '<p class="small muted"><strong>Platforms:</strong></p>';
+      html += '<ul class="bullet-list small">';
+      platforms.forEach(p => {
+        const validation = p.validation;
+        const status = validation?.pass ? '✅' : '⚠️';
+        html += `<li>${status} ${p.name} (${p.type})</li>`;
+      });
+      html += '</ul></div>';
+    }
+
+    if (missions.length > 0) {
+      html += '<div style="margin-bottom: 12px;">';
+      html += '<p class="small muted"><strong>Missions:</strong></p>';
+      html += '<ul class="bullet-list small">';
+      missions.forEach(m => {
+        html += `<li>${m.name} (${m.duration_hours}h, ${m.phases?.length || 0} phases)</li>`;
+      });
+      html += '</ul></div>';
+    }
+
+    if (commsAnalyses.length > 0) {
+      html += '<div style="margin-bottom: 12px;">';
+      html += '<p class="small muted"><strong>Comms Networks:</strong></p>';
+      html += '<ul class="bullet-list small">';
+      commsAnalyses.forEach(c => {
+        const status = c.feasibility?.pass ? '✅' : '⚠️';
+        html += `<li>${status} ${c.name} (${c.nodes?.length || 0} nodes)</li>`;
+      });
+      html += '</ul></div>';
+    }
+
+    if (totalParts === 0 && platforms.length === 0 && missions.length === 0 && commsAnalyses.length === 0) {
+      html = '<p class="small muted">No data to export. Load sample project or build your own.</p>';
+    }
+
+    summaryDiv.innerHTML = html;
+  } catch (error) {
+    console.error('Error loading export summary:', error);
+    summaryDiv.innerHTML = '<p class="small muted">Error loading data. Check console.</p>';
   }
 }
 
@@ -1339,17 +1672,52 @@ function loadJSONViewer() {
   }
 }
 
-function exportMissionJSON() {
-  if (typeof MissionProjectStore !== 'undefined') {
-    const project = MissionProjectStore.loadMissionProject();
-    const json = JSON.stringify(project, null, 2);
+async function exportMissionJSON() {
+  try {
+    // Collect data from all modules
+    const partsLibrary = await PartsLibrary.exportLibrary();
+    const platforms = PlatformDesigner.loadDesigns();
+    const missions = MissionPlanner.loadPlans();
+    const commsAnalyses = CommsValidator.loadAnalyses();
+
+    // Build comprehensive export package
+    const exportPackage = {
+      schemaVersion: '2.0.0',
+      exported: new Date().toISOString(),
+      tool: 'Ceradon Architect - Offline Mission Planner',
+      data: {
+        partsLibrary: partsLibrary,
+        platforms: platforms,
+        missions: missions,
+        commsAnalyses: commsAnalyses
+      },
+      metadata: {
+        totalParts: Object.values(partsLibrary).reduce((sum, cat) =>
+          sum + (Array.isArray(cat) ? cat.length : 0), 0),
+        totalPlatforms: platforms.length,
+        totalMissions: missions.length,
+        totalCommsAnalyses: commsAnalyses.length
+      }
+    };
+
+    const json = JSON.stringify(exportPackage, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mission_project_${Date.now()}.json`;
+    a.download = `ceradon_mission_package_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
+
+    alert(`Mission package exported!\n\n` +
+          `• ${exportPackage.metadata.totalParts} parts\n` +
+          `• ${exportPackage.metadata.totalPlatforms} platforms\n` +
+          `• ${exportPackage.metadata.totalMissions} missions\n` +
+          `• ${exportPackage.metadata.totalCommsAnalyses} comms analyses`);
+
+  } catch (error) {
+    console.error('Export failed:', error);
+    alert('Failed to export mission package. Check console for details.');
   }
 }
 
