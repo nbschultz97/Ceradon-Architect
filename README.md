@@ -1,34 +1,71 @@
-# Ceradon Architect Stack
+# Ceradon Architect - Offline Mission Planning Tool
 
-**Offline-First Mission Planning Tool for Special Operations Forces**
+**Fully Offline Mission Planning for Air-Gapped Environments**
 
-The Ceradon Architect Stack is a professional, offline-capable web application designed for use in air-gapped, contested environments. It functions as a "Digital Construction Foreman," enabling small teams to virtually design, validate, and sustain custom small unmanned systems (sUAS) using commercial off-the-shelf (COTS) components before any physical assembly begins.
+Ceradon Architect is a professional, offline-first web application for sUAS mission planning in contested environments. Build custom platforms from COTS components, plan multi-day missions with logistics, and validate RF communications — entirely in your browser with zero cloud dependencies.
 
-Published via GitHub Pages at <https://nbschultz97.github.io/Ceradon-Architect/>. The authoritative MissionProject schema and Parts Library schema live here and surface throughout the UI.
+**Live Demo:** <https://architect.ceradonsystems.com> (GitHub Pages)
 
-## Quick start
-- Serve locally with any static file host (e.g., `python -m http.server 8000`) and open `http://localhost:8000`.
-- Navigate with hash routes: `/#/home`, `/#/workflow`, `/#/tools`, `/#/mission`, `/#/demos`, `/#/docs`.
-- Use the light/dark toggle in the nav to switch themes.
-- Open `/#/workflow` to reach the unified Mission Workflow dashboard with embedded tools, module status selectors, project import/export controls, and feasibility checks.
+## What's New (v2.0)
 
-## Updating content
-- **Theme tokens:** edit `assets/css/styles.css` (`:root` and `[data-theme="light"]`).
-- **Routes & views:** sections live in `index.html`; routing is in `assets/js/app.js`.
-- **Tools:** update the `toolData` array in `assets/js/app.js` to add or change tool cards.
-- **Workflow dashboard:** adjust the `workflowModules` array in `assets/js/app.js` to point the left-nav items to new URLs or change descriptions. The dashboard uses iframes by default to keep everything static-hostable.
-- **Demo stories:** edit the `demoStories` array in `assets/js/app.js`.
-- **Mission Architect embed:** update the iframe/link URL in the `mission` section of `index.html`.
+This is a **complete redesign** focused on making the offline tools the actual product, not just marketing links:
 
-## Mission Workflow dashboard
-- Navigate to `/#/workflow` to stay in one shell while operating the core modules:
-  - Platform Designer (Node + UxS Architect)
-  - Mesh Planner (Mesh Architect)
-  - Mission Planner (Mission Architect)
-  - KitSmith
-- Each module opens in an iframe with quick-launch links. A per-module status selector (Not Started / In Progress / Complete) is stored in `localStorage` under `ceradon_module_statuses`.
-- A mission project panel exposes shared metadata fields and import/export buttons to keep a single JSON object in sync across tools.
-- A feasibility panel reads the stored project JSON and highlights sustainment coverage, kit weight margins, and comms relay redundancy.
+- **Removed:** Access gates, external demo links, marketing content
+- **Added:** Full interactive UIs for all offline modules
+- **Focus:** Actual mission planning tool, not a demo hub
+
+## Quick Start
+
+```bash
+# Serve locally
+python -m http.server 8000
+# Open http://localhost:8000
+```
+
+Navigate with hash routes:
+- `/#/home` - Overview and quick start
+- `/#/library` - Parts Library (manage COTS components)
+- `/#/platform` - Platform Designer (build and validate platforms)
+- `/#/mission` - Mission Planner (phases, logistics, packing lists)
+- `/#/comms` - Comms Validator (RF link budgets, relay placement)
+- `/#/export` - Export mission packages (JSON, GeoJSON, CoT)
+
+## Application Structure
+
+### Frontend Modules
+- `index.html` - Single-page application with route-based views
+- `assets/js/app.js` - Main application logic, routing, and UI initialization
+- `assets/css/styles.css` - Theme system (dark/light mode)
+
+### Offline Planning Modules
+All modules operate entirely client-side with no external dependencies:
+
+1. **Parts Library** (`assets/js/parts_library.js`)
+   - IndexedDB storage for 1000+ COTS components
+   - CSV import for unit inventory
+   - Categories: airframes, motors, ESCs, batteries, flight controllers, radios, sensors, accessories
+
+2. **Platform Designer** (`assets/js/platform_designer.js`)
+   - Build virtual platforms from parts library components
+   - Real-time physics validation (thrust-to-weight, flight time)
+   - Environmental derating for altitude and temperature
+
+3. **Mission Planner** (`assets/js/mission_planner.js`)
+   - Define mission phases (ORP, infil, on-station, exfil)
+   - Calculate battery swap schedules
+   - Generate per-operator packing lists
+   - Terrain-adjusted weight limits
+
+4. **Comms Validator** (`assets/js/comms_validator.js`)
+   - RF link budget calculator
+   - Line-of-sight analysis
+   - Fresnel zone clearance
+   - Relay placement recommendations
+
+5. **Supporting Modules**
+   - `physics_engine.js` - Physics calculations and environmental modeling
+   - `csv_importer.js` - CSV parsing for bulk imports
+   - `mission_project.js` - MissionProject JSON store and validation
 
 ## MissionProject schema and helpers
 - MissionProject schema v2.0.0 is defined in `schema/mission_project_schema_v2.json` and described in `docs/mission_project_schema.md`. The UI surfaces the current version in a schema card and warns on mismatches.
@@ -42,12 +79,13 @@ Published via GitHub Pages at <https://nbschultz97.github.io/Ceradon-Architect/>
 - Sample demo: `data/demo_mission_project.json` provides a neutral COTS planning scenario with TAK-ready exports.
 - Data flow reference: `docs/stack_workflows.md` documents mission-first, kit-first, and RF-first chains and stresses preserving unknown fields when round-tripping.
 
-## Tool deep links
-- Node Architect: <https://node.ceradonsystems.com/web/index.html>
-- UxS Architect: <https://uxs.ceradonsystems.com/web/>
-- Mesh Architect: <https://mesh.ceradonsystems.com/>
-- KitSmith: <https://kitsmith.ceradonsystems.com/>
-- Mission Architect: <https://mission.ceradonsystems.com/>
+## Data Storage
+
+All data is stored locally in the browser:
+- **localStorage**: MissionProject JSON, user preferences, theme
+- **IndexedDB**: Parts Library catalog (efficient for 1000+ parts)
+
+No data ever leaves your device. Works completely offline in air-gapped environments.
 
 ---
 
@@ -397,13 +435,10 @@ MissionPlanner.downloadSummaryReport(mission);
 
 ---
 
-## Tool deep links
-- Node Architect: <https://node.ceradonsystems.com/web/index.html>
-- UxS Architect: <https://uxs.ceradonsystems.com/web/>
-- Mesh Architect: <https://mesh.ceradonsystems.com/>
-- KitSmith: <https://kitsmith.ceradonsystems.com/>
-- Mission Architect: <https://mission.ceradonsystems.com/>
+## Deployment
 
-## Notes
-- The site is fully static and GitHub Pages–compatible; no backend or build tooling is required.
-- New offline modules are completely self-contained and operate without external dependencies.
+The site is fully static and GitHub Pages-compatible:
+- No backend or build tooling required
+- Can be deployed to any static file host
+- Works offline once cached by the browser
+- All modules are self-contained JavaScript files
