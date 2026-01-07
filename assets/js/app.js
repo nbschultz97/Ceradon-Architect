@@ -699,6 +699,7 @@ function loadSavedPlatforms() {
 // ============================================================================
 
 let missionPlannerInitialized = false;
+let currentMissionPlan = null;
 
 function initMissionPlanner() {
   if (missionPlannerInitialized) return;
@@ -706,43 +707,271 @@ function initMissionPlanner() {
 
   console.log('Initializing Mission Planner...');
 
+  // Initialize with empty plan
+  currentMissionPlan = MissionPlanner.createEmptyPlan();
+
+  // Wire up mission details inputs
+  const missionName = document.getElementById('missionName');
+  if (missionName) {
+    missionName.addEventListener('change', (e) => {
+      currentMissionPlan.name = e.target.value;
+    });
+  }
+
+  const missionDuration = document.getElementById('missionDuration');
+  if (missionDuration) {
+    missionDuration.addEventListener('change', (e) => {
+      currentMissionPlan.duration_hours = parseInt(e.target.value);
+    });
+  }
+
+  const missionTerrain = document.getElementById('missionTerrain');
+  if (missionTerrain) {
+    missionTerrain.addEventListener('change', (e) => {
+      currentMissionPlan.terrain = e.target.value;
+    });
+  }
+
+  const teamSize = document.getElementById('teamSize');
+  if (teamSize) {
+    teamSize.addEventListener('change', (e) => {
+      const size = parseInt(e.target.value);
+      currentMissionPlan.team.size = size;
+      // Adjust roles array to match team size
+      currentMissionPlan.team.roles = MissionPlanner.OPERATOR_ROLES.slice(0, size);
+    });
+  }
+
+  // Wire up buttons
   const addPhaseBtn = document.getElementById('addPhase');
   if (addPhaseBtn) {
-    addPhaseBtn.addEventListener('click', addPhase);
+    addPhaseBtn.addEventListener('click', addMissionPhase);
   }
 
   const calculateBtn = document.getElementById('calculateLogistics');
   if (calculateBtn) {
-    calculateBtn.addEventListener('click', calculateLogistics);
+    calculateBtn.addEventListener('click', calculateMissionLogistics);
   }
 
   const downloadBtn = document.getElementById('downloadPackingLists');
   if (downloadBtn) {
-    downloadBtn.addEventListener('click', downloadPackingLists);
+    downloadBtn.addEventListener('click', downloadAllPackingLists);
   }
+
+  // Initial phase editor render
+  renderPhaseEditor();
 }
 
-function addPhase() {
-  alert('Add phase functionality will be implemented');
+function renderPhaseEditor() {
+  const container = document.getElementById('phasesEditor');
+  if (!container || !currentMissionPlan) return;
+
+  if (currentMissionPlan.phases.length === 0) {
+    container.innerHTML = '<p class="small muted">No phases added. Click "+ Add Phase" to start.</p>';
+    return;
+  }
+
+  container.innerHTML = currentMissionPlan.phases.map((phase, idx) => `
+    <div class="phase-card" style="margin-bottom: 12px; padding: 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div style="flex: 1;">
+          <strong>${phase.name}</strong>
+          <p class="small muted">${phase.type} • ${phase.duration_hours}h • ${phase.activity_level} activity</p>
+        </div>
+        <button class="btn subtle" onclick="removeMissionPhase('${phase.id}')">Remove</button>
+      </div>
+    </div>
+  `).join('');
 }
 
-function calculateLogistics() {
+function addMissionPhase() {
+  if (!currentMissionPlan) return;
+
+  const phaseName = prompt('Phase name (e.g., "Infiltration", "On-Station Ops"):');
+  if (!phaseName) return;
+
+  const duration = prompt('Duration in hours:', '2');
+  if (!duration) return;
+
+  const phase = {
+    name: phaseName,
+    type: 'ON_STATION',
+    duration_hours: parseFloat(duration),
+    activity_level: 'medium',
+    platforms_active: [],
+    notes: ''
+  };
+
+  MissionPlanner.addPhase(currentMissionPlan, phase);
+  renderPhaseEditor();
+}
+
+function removeMissionPhase(phaseId) {
+  if (!currentMissionPlan) return;
+  MissionPlanner.removePhase(currentMissionPlan, phaseId);
+  renderPhaseEditor();
+}
+
+function calculateMissionLogistics() {
   const resultsDiv = document.getElementById('logisticsResults');
-  if (!resultsDiv) return;
+  if (!resultsDiv || !currentMissionPlan) return;
 
-  resultsDiv.innerHTML = `
-    <p class="small muted">Logistics calculation will compute:</p>
-    <ul class="bullet-list">
-      <li>Battery swap schedules</li>
-      <li>Per-operator packing lists</li>
-      <li>Weight distribution across team</li>
-      <li>Mission feasibility checks</li>
-    </ul>
-  `;
+  // Get all saved platform designs
+  const platformDesigns = PlatformDesigner.loadDesigns();
+
+  if (platformDesigns.length === 0) {
+    resultsDiv.innerHTML = `
+      <div style="padding: 12px; background: #ffaa00; color: #000; border-radius: 8px;">
+        <p class="small"><strong>⚠️ No Platform Designs Found</strong></p>
+        <p class="small">Create and save platform designs in the Platform Designer first.</p>
+        <a class="btn subtle" href="/#/platform" style="margin-top: 8px;">Go to Platform Designer →</a>
+      </div>
+    `;
+    return;
+  }
+
+  // For now, assume we're using all saved platforms
+  // In a real app, users would select which platforms to use
+  currentMissionPlan.platforms = platformDesigns.map(d => d.id);
+
+  // Assign platforms to phases (simplified - use first platform for all phases)
+  currentMissionPlan.phases.forEach(phase => {
+    phase.platforms_active = [platformDesigns[0].id];
+  });
+
+  // Calculate logistics
+  MissionPlanner.calculateMissionLogistics(currentMissionPlan, platformDesigns);
+
+  // Display results
+  displayLogisticsResults(resultsDiv);
 }
 
-function downloadPackingLists() {
-  alert('Packing list download will be implemented');
+function displayLogisticsResults(resultsDiv) {
+  const sustainment = currentMissionPlan.sustainment;
+  const packingLists = currentMissionPlan.packing_lists;
+
+  if (!sustainment) {
+    resultsDiv.innerHTML = '<p class="small muted">Run calculation to see results.</p>';
+    return;
+  }
+
+  let html = '<div class="logistics-panel">';
+
+  // Sustainment summary
+  html += `
+    <div style="margin-bottom: 16px; padding: 12px; background: var(--card); border-radius: 8px;">
+      <p class="small"><strong>Battery Requirements</strong></p>
+      <div class="form-grid" style="margin-top: 8px;">
+        <div>
+          <p class="small muted">Total Batteries</p>
+          <strong>${sustainment.total_batteries}</strong>
+        </div>
+        <div>
+          <p class="small muted">Total Weight</p>
+          <strong>${sustainment.weight_kg.toFixed(1)} kg</strong>
+        </div>
+        <div>
+          <p class="small muted">Battery Swaps</p>
+          <strong>${sustainment.battery_swaps.length}</strong>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Battery requirements by platform
+  html += `
+    <div style="margin-bottom: 16px;">
+      <p class="small"><strong>By Platform:</strong></p>
+      <ul class="bullet-list small">
+  `;
+
+  Object.values(sustainment.batteries_by_platform).forEach(pb => {
+    html += `
+      <li><strong>${pb.platform_name}:</strong> ${pb.batteries_needed} batteries (${pb.weight_kg.toFixed(1)} kg) • Flight time: ${(pb.flight_time_hours * 60).toFixed(0)} min</li>
+    `;
+  });
+
+  html += '</ul></div>';
+
+  // Packing lists summary
+  if (packingLists && packingLists.length > 0) {
+    html += `
+      <div style="margin-bottom: 16px; padding: 12px; background: var(--panel); border-radius: 8px; border: 1px solid var(--border);">
+        <p class="small"><strong>Operator Loads</strong></p>
+        <table style="width: 100%; margin-top: 8px; font-size: 0.9em;">
+          <thead>
+            <tr style="text-align: left; border-bottom: 1px solid var(--border);">
+              <th style="padding: 4px;">Role</th>
+              <th style="padding: 4px;">Items</th>
+              <th style="padding: 4px;">Weight</th>
+              <th style="padding: 4px;">Limit</th>
+              <th style="padding: 4px;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    packingLists.forEach(list => {
+      const status = list.critically_overweight ? '🔴 Critical' :
+                    list.overweight ? '⚠️ Warning' : '✅ OK';
+      const color = list.critically_overweight ? '#ff4444' :
+                   list.overweight ? '#ffaa00' : 'inherit';
+
+      html += `
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding: 4px;">${list.role}</td>
+          <td style="padding: 4px;">${list.items.length}</td>
+          <td style="padding: 4px;">${list.total_weight_kg.toFixed(1)} kg</td>
+          <td style="padding: 4px;">${list.weight_limit_kg.toFixed(1)} kg</td>
+          <td style="padding: 4px; color: ${color};">${status}</td>
+        </tr>
+      `;
+    });
+
+    html += '</tbody></table></div>';
+  }
+
+  // Feasibility
+  if (sustainment.feasibility) {
+    if (sustainment.feasibility.errors.length > 0) {
+      html += `
+        <div style="margin-bottom: 16px; padding: 12px; background: #ff4444; color: white; border-radius: 8px;">
+          <p class="small"><strong>⚠️ Errors</strong></p>
+          <ul class="bullet-list small">
+            ${sustainment.feasibility.errors.map(err => `<li>${err}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
+
+    if (sustainment.feasibility.warnings.length > 0) {
+      html += `
+        <div style="padding: 12px; background: #ffaa00; color: #000; border-radius: 8px;">
+          <p class="small"><strong>⚠️ Warnings</strong></p>
+          <ul class="bullet-list small">
+            ${sustainment.feasibility.warnings.map(warn => `<li>${warn}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
+  }
+
+  html += '</div>';
+  resultsDiv.innerHTML = html;
+}
+
+function downloadAllPackingLists() {
+  if (!currentMissionPlan || !currentMissionPlan.packing_lists || currentMissionPlan.packing_lists.length === 0) {
+    alert('Calculate logistics first to generate packing lists.');
+    return;
+  }
+
+  // Download each operator's packing list
+  currentMissionPlan.packing_lists.forEach(list => {
+    MissionPlanner.downloadPackingList(list);
+  });
+
+  alert(`Downloaded ${currentMissionPlan.packing_lists.length} packing lists.`);
 }
 
 // ============================================================================
