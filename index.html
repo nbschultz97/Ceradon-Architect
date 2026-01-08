@@ -37,6 +37,15 @@
     <span class="pill subtle" id="schemaHeaderBadge" data-schema-version></span>
   </div>
 
+  <!-- Demo Site Notice -->
+  <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-align: center; border-bottom: 2px solid #5568d3;">
+    <p style="margin: 0; font-size: 14px; font-weight: 500;">
+      🌐 <strong>ONLINE DEMO</strong> — This is a feature demonstration running on GitHub Pages.
+      <span style="opacity: 0.9;">Full offline capability requires production deployment with local assets.</span>
+      <a href="#production-cta" style="color: #fff; text-decoration: underline; margin-left: 12px; font-weight: 600;">Learn More →</a>
+    </p>
+  </div>
+
   <div class="context-bar" role="note">
     <p class="small">Offline-first mission planning tool for air-gapped environments. Design platforms, plan missions, validate comms — all in your browser with zero cloud dependencies.</p>
   </div>
@@ -111,6 +120,64 @@
             <strong>5. Export</strong>
             <p class="small">Download complete mission package as JSON for field deployment.</p>
             <a class="btn subtle" href="/#/export">Export Package →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Production CTA -->
+      <div id="production-cta" style="margin: 48px auto; max-width: 900px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 40px; border: 2px solid #667eea; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <p style="margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #667eea; font-weight: 600;">Production Deployment</p>
+          <h2 style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #fff;">Ready for Air-Gapped Operations?</h2>
+          <p style="margin: 0; font-size: 16px; color: #b8c1ec; line-height: 1.6;">
+            This online demo showcases all features but requires internet connectivity. Deploy the production version on ruggedized, air-gapped systems for true offline capability in contested environments.
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
+          <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(102, 126, 234, 0.3);">
+            <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #fff; font-weight: 600;">🌐 Online Demo</h3>
+            <ul style="margin: 0; padding-left: 20px; color: #b8c1ec; font-size: 14px; line-height: 1.8;">
+              <li>Requires internet for Leaflet.js CDN</li>
+              <li>Map tiles load from OpenStreetMap</li>
+              <li>Sample data only (40+ generic parts)</li>
+              <li>All features functional for evaluation</li>
+              <li>Perfect for demonstration and testing</li>
+            </ul>
+          </div>
+
+          <div style="background: rgba(102, 126, 234, 0.1); padding: 20px; border-radius: 8px; border: 1px solid #667eea;">
+            <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #fff; font-weight: 600;">🔒 Production Deployment</h3>
+            <ul style="margin: 0; padding-left: 20px; color: #b8c1ec; font-size: 14px; line-height: 1.8;">
+              <li><strong style="color: #4CAF50;">100% offline</strong> — All assets bundled locally</li>
+              <li><strong style="color: #4CAF50;">Pre-cached map tiles</strong> for your AO</li>
+              <li><strong style="color: #4CAF50;">Load sensitive inventory</strong> via CSV</li>
+              <li><strong style="color: #4CAF50;">SRTM elevation tiles</strong> for terrain accuracy</li>
+              <li><strong style="color: #4CAF50;">Air-gap certified</strong> for classified networks</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="background: rgba(255, 170, 0, 0.1); border-left: 4px solid #ffaa00; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
+          <p style="margin: 0; font-size: 14px; color: #ffd700; line-height: 1.6;">
+            <strong>⚠️ Demo Constraints:</strong> This website loads Leaflet and map tiles from external CDNs. For operations in disconnected environments, deploy the production bundle with local assets. See <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/docs/v0.3_offline_gis_almanac.md" style="color: #ffd700; text-decoration: underline;" target="_blank">deployment documentation</a> for air-gap setup instructions.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <p style="margin: 0 0 20px 0; font-size: 15px; color: #b8c1ec;">
+            Interested in deploying Ceradon Architect for your unit or organization?
+          </p>
+          <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="https://github.com/nbschultz97/Ceradon-Architect" target="_blank" style="display: inline-block; padding: 12px 32px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; transition: all 0.3s;">
+              📦 View on GitHub
+            </a>
+            <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/docs/v0.3_offline_gis_almanac.md" target="_blank" style="display: inline-block; padding: 12px 32px; background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; border: 2px solid rgba(255, 255, 255, 0.2); transition: all 0.3s;">
+              📖 Deployment Docs
+            </a>
+            <a href="mailto:contact@ceradonsystems.com?subject=Ceradon%20Architect%20Production%20Deployment" style="display: inline-block; padding: 12px 32px; background: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; transition: all 0.3s;">
+              ✉️ Contact Us
+            </a>
           </div>
         </div>
       </div>
@@ -458,12 +525,64 @@
   </main>
 
   <footer class="site-footer">
-    <div class="footer-meta">
-      <span data-app-version></span>
-      <span class="divider">•</span>
-      <span data-schema-version></span>
+    <div style="max-width: 1200px; margin: 0 auto; padding: 24px;">
+      <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px; margin-bottom: 24px;">
+        <!-- About -->
+        <div>
+          <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">Ceradon Architect</h4>
+          <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted); line-height: 1.6;">
+            Offline-first mission planning for air-gapped, contested environments. Design platforms, plan logistics, validate communications — entirely in your browser with zero cloud dependencies.
+          </p>
+          <div class="footer-meta">
+            <span data-app-version></span>
+            <span class="divider">•</span>
+            <span data-schema-version></span>
+          </div>
+        </div>
+
+        <!-- Links -->
+        <div>
+          <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">Resources</h4>
+          <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px;">
+            <li style="margin-bottom: 8px;">
+              <a href="https://github.com/nbschultz97/Ceradon-Architect" target="_blank" style="color: var(--text-muted); text-decoration: none;">GitHub Repository</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/docs/v0.3_offline_gis_almanac.md" target="_blank" style="color: var(--text-muted); text-decoration: none;">Documentation</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/SECURITY_AUDIT_v0.3.md" target="_blank" style="color: var(--text-muted); text-decoration: none;">Security Audit</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="https://github.com/nbschultz97/Ceradon-Architect/issues" target="_blank" style="color: var(--text-muted); text-decoration: none;">Report Issues</a>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div>
+          <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">Contact</h4>
+          <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px;">
+            <li style="margin-bottom: 8px;">
+              <a href="mailto:contact@ceradonsystems.com" style="color: var(--text-muted); text-decoration: none;">✉️ Email Us</a>
+            </li>
+            <li style="margin-bottom: 8px;">
+              <a href="https://github.com/nbschultz97" target="_blank" style="color: var(--text-muted); text-decoration: none;">👤 Developer</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+        <p style="margin: 0 0 12px 0; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+          <strong>Online Demo Disclaimer:</strong> This website demonstrates Ceradon Architect features but requires internet connectivity (Leaflet.js CDN, OpenStreetMap tiles). Production deployments bundle all assets locally for true offline, air-gapped operation. No sensitive data should be entered into this public demo.
+        </p>
+        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">
+          © 2026 Ceradon Systems • Open Source • Deployed for evaluation purposes • For production deployment inquiries, contact <a href="mailto:contact@ceradonsystems.com" style="color: var(--accent); text-decoration: none;">contact@ceradonsystems.com</a>
+        </p>
+      </div>
     </div>
-    <p class="small">Ceradon Architect — Offline-first mission planning for contested environments</p>
   </footer>
 
   <!-- Load Leaflet library (offline mapping) -->
