@@ -106,13 +106,17 @@ const MapViewer = (() => {
 
     // Update marker popup
     if (currentMarker) {
+      const elevationDisplay = selectedLocation.elevation_m === 0
+        ? `<span style="color: #ffaa00;">${selectedLocation.elevation_m} m (estimated - load SRTM tiles for accuracy)</span>`
+        : `${selectedLocation.elevation_m} m`;
+
       currentMarker.bindPopup(`
-        <div style="min-width: 200px;">
-          <p style="margin: 0 0 8px 0; font-weight: bold;">Selected Location</p>
+        <div style="min-width: 240px;">
+          <p style="margin: 0 0 8px 0; font-weight: bold;">📍 Selected Location</p>
           <p style="margin: 4px 0; font-size: 13px;">
-            <strong>Lat:</strong> ${selectedLocation.lat}°<br>
-            <strong>Lon:</strong> ${selectedLocation.lon}°<br>
-            <strong>Elevation:</strong> ${selectedLocation.elevation_m} m
+            <strong>Latitude:</strong> ${selectedLocation.lat}°<br>
+            <strong>Longitude:</strong> ${selectedLocation.lon}°<br>
+            <strong>Elevation:</strong> ${elevationDisplay}
           </p>
           <button onclick="MapViewer.confirmLocation()" style="
             margin-top: 8px;
@@ -122,8 +126,9 @@ const MapViewer = (() => {
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            width: 100%;
           ">
-            Use This Location
+            ✓ Use This Location
           </button>
         </div>
       `).openPopup();

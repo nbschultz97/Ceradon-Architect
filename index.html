@@ -24,7 +24,7 @@
         <li><a href="/#/platform" data-route="platform">Platform Designer</a></li>
         <li><a href="/#/mission" data-route="mission">Mission Planner</a></li>
         <li><a href="/#/comms" data-route="comms">Comms Validator</a></li>
-        <li><a href="/#/map" data-route="map">Map</a></li>
+        <li><a href="/#/map" data-route="map">🗺️ Map & Environment</a></li>
         <li><a href="/#/export" data-route="export">Export</a></li>
       </ul>
     </nav>
@@ -60,12 +60,13 @@
       <div class="modules-workflows" aria-label="Workflow overview">
         <div class="mw-card">
           <h3>Complete Offline Workflow</h3>
-          <p class="small muted">Four integrated modules, one mission package.</p>
+          <p class="small muted">Five integrated modules, one mission package.</p>
           <ul class="bullet-list modules-list">
             <li><strong>Parts Library:</strong> Manage COTS component catalogs. Import inventory from CSV, search 1000+ parts, track availability and specs.</li>
             <li><strong>Platform Designer:</strong> Build virtual platforms from components. Real-time physics validation with environmental derating for altitude, temperature, and weather.</li>
             <li><strong>Mission Planner:</strong> Define mission phases, calculate battery swaps, generate per-operator packing lists with terrain-adjusted weight limits.</li>
             <li><strong>Comms Validator:</strong> Analyze RF link budgets, check line-of-sight, recommend relay placement for coverage gaps.</li>
+            <li><strong>🗺️ Map & Environment:</strong> Select mission locations on interactive map. Auto-populate coordinates, elevation, and query historical weather data for accurate physics calculations.</li>
           </ul>
         </div>
         <div class="mw-card">
@@ -73,10 +74,11 @@
           <p class="small muted">Follow this path or jump to any module.</p>
           <ul class="bullet-list">
             <li><strong>Step 1:</strong> Load your unit's inventory into Parts Library (or use sample catalog).</li>
-            <li><strong>Step 2:</strong> Design platforms in Platform Designer — select components, validate physics.</li>
-            <li><strong>Step 3:</strong> Plan your mission — define phases, calculate logistics, generate packing lists.</li>
-            <li><strong>Step 4:</strong> Validate comms — check link budgets, identify coverage gaps, place relays.</li>
-            <li><strong>Step 5:</strong> Export complete mission package as JSON for field deployment.</li>
+            <li><strong>Step 2:</strong> 🗺️ Select mission location on Map — auto-populates coordinates, elevation, and environmental data.</li>
+            <li><strong>Step 3:</strong> Design platforms in Platform Designer — select components, validate physics with environmental derating.</li>
+            <li><strong>Step 4:</strong> Plan your mission — define phases, calculate logistics with battery derating, generate packing lists.</li>
+            <li><strong>Step 5:</strong> Validate comms — check link budgets, identify coverage gaps, place relays.</li>
+            <li><strong>Step 6:</strong> Export complete mission package as JSON for field deployment.</li>
           </ul>
           <p class="small muted">All modules read/write the same MissionProject JSON. Start anywhere, work in any order.</p>
         </div>
@@ -220,6 +222,9 @@
 
         <div class="card">
           <h3>Environment</h3>
+          <p class="small muted" style="margin-bottom: 12px;">
+            💡 <strong>Tip:</strong> Use the <a href="/#/map" style="color: #667eea; text-decoration: underline;">Map & Environment module</a> to auto-populate elevation and get temperature suggestions based on your mission location.
+          </p>
           <div class="form-grid">
             <label>Altitude (m)
               <input type="number" id="envAltitude" value="0" min="0" max="5000" step="100">
@@ -256,6 +261,22 @@
       </div>
 
       <div class="tool-panel">
+        <div class="card" style="background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border-left: 4px solid #667eea;">
+          <h3>🗺️ Mission Environment Setup</h3>
+          <p class="small" style="margin-bottom: 12px;">Before planning logistics, select your mission location and query environmental data for accurate physics calculations.</p>
+          <div class="action-row">
+            <a href="/#/map" class="btn primary">
+              📍 Select Location on Map
+            </a>
+            <button class="btn ghost" onclick="alert('First select a location on the Map, then query environmental data for temperature/wind suggestions.')">
+              ℹ️ How It Works
+            </button>
+          </div>
+          <p class="small muted" style="margin-top: 12px;">
+            The map will auto-populate coordinates and elevation. Environmental data will suggest temperature and wind for battery derating calculations.
+          </p>
+        </div>
+
         <div class="card">
           <h3>Mission Details</h3>
           <div class="form-grid">
@@ -371,14 +392,19 @@
 
         <div class="card">
           <h3>Environmental Intelligence</h3>
-          <p class="small muted">Historical weather data for selected location and mission date.</p>
+          <p class="small muted">Query historical weather averages for your mission timeframe. This data auto-suggests temperature and wind for physics calculations.</p>
           <div class="form-grid">
-            <label>Mission Date
+            <label>Mission Date (for seasonal averages)
               <input type="date" id="missionDate" />
             </label>
-            <button class="btn primary" id="getEnvironmentalData">Get Environmental Data</button>
           </div>
+          <button class="btn primary" id="getEnvironmentalData" style="margin-top: 12px; width: 100%;">
+            📊 Query Environmental Data
+          </button>
           <div id="environmentalDataDisplay"></div>
+          <p class="small muted" style="margin-top: 12px;">
+            💡 <strong>Tip:</strong> Pick any date in the month you're planning. The system uses historical monthly averages, not specific dates.
+          </p>
         </div>
 
         <div class="card">
