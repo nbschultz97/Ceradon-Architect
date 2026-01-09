@@ -23,7 +23,7 @@ const MissionProjectStore = (() => {
       origin_tool: 'hub',
       scenario: '',
       inventoryReference: 'Pending catalog reference',
-      accessCode: 'Request via Ceradon',
+      accessCode: '',
       team: { size: 0, roles: [] }
     },
     environment: [

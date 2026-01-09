@@ -29,10 +29,10 @@ This hub is the connective tissue across Mission Architect, Node Architect, UxS 
 - Warn users when required fields are missing (`meta.name`, `meta.durationHours`, `mission`, `environment[]`).
 - Prefer additive edits—append constraints, add mesh links, or attach kits—without rewriting or renumbering IDs from other tools.
 
-## Links to live tools
+## Links to demo modules
 
-- Mission Architect: https://mission.ceradonsystems.com/
-- Node Architect: https://node.ceradonsystems.com/web/index.html
-- UxS Architect: https://uxs.ceradonsystems.com/web/
-- Mesh Architect: https://mesh.ceradonsystems.com/
-- KitSmith: https://kitsmith.ceradonsystems.com/
+- Mission Planner: https://nbschultz97.github.io/Ceradon-Architect/#/mission
+- Comms Validator: https://nbschultz97.github.io/Ceradon-Architect/#/comms
+- Platform Designer: https://nbschultz97.github.io/Ceradon-Architect/#/platform
+- Parts Library: https://nbschultz97.github.io/Ceradon-Architect/#/library
+- Export: https://nbschultz97.github.io/Ceradon-Architect/#/export

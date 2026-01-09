@@ -40,9 +40,9 @@
   <!-- Demo Site Notice -->
   <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; text-align: center; border-bottom: 2px solid #5568d3;">
     <p style="margin: 0; font-size: 14px; font-weight: 500;">
-      🌐 <strong>ONLINE DEMO</strong> — This is a feature demonstration running on GitHub Pages.
-      <span style="opacity: 0.9;">Full offline capability requires production deployment with local assets.</span>
-      <a href="#production-cta" style="color: #fff; text-decoration: underline; margin-left: 12px; font-weight: 600;">Learn More →</a>
+      🌐 <strong>ONLINE DEMO</strong> — Maintained by Noah Schultz (individual).
+      <span style="opacity: 0.9;">Not affiliated with or endorsed by DoD/USG/NPS/SOCPAC/CRUSER.</span>
+      <a href="#demo-disclaimer" style="color: #fff; text-decoration: underline; margin-left: 12px; font-weight: 600;">Details →</a>
     </p>
   </div>
 
@@ -128,9 +128,9 @@
       <div id="production-cta" style="margin: 48px auto; max-width: 900px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 40px; border: 2px solid #667eea; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);">
         <div style="text-align: center; margin-bottom: 32px;">
           <p style="margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #667eea; font-weight: 600;">Production Deployment</p>
-          <h2 style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #fff;">Ready for Air-Gapped Operations?</h2>
+          <h2 style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #fff;">Ready for Offline Deployment?</h2>
           <p style="margin: 0; font-size: 16px; color: #b8c1ec; line-height: 1.6;">
-            This online demo showcases all features but requires internet connectivity. Deploy the production version on ruggedized, air-gapped systems for true offline capability in contested environments.
+            This online demo showcases all features but requires internet connectivity. For offline use, deploy a local copy with bundled assets and cached data.
           </p>
         </div>
 
@@ -153,7 +153,7 @@
               <li><strong style="color: #4CAF50;">Pre-cached map tiles</strong> for your AO</li>
               <li><strong style="color: #4CAF50;">Load sensitive inventory</strong> via CSV</li>
               <li><strong style="color: #4CAF50;">SRTM elevation tiles</strong> for terrain accuracy</li>
-              <li><strong style="color: #4CAF50;">Air-gap certified</strong> for classified networks</li>
+              <li><strong style="color: #4CAF50;">Offline-first</strong> workflow for disconnected environments</li>
             </ul>
           </div>
         </div>
@@ -166,7 +166,7 @@
 
         <div style="text-align: center;">
           <p style="margin: 0 0 20px 0; font-size: 15px; color: #b8c1ec;">
-            Interested in deploying Ceradon Architect for your unit or organization?
+            Need offline deployment steps? Start with the documentation below.
           </p>
           <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
             <a href="https://github.com/nbschultz97/Ceradon-Architect" target="_blank" style="display: inline-block; padding: 12px 32px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; transition: all 0.3s;">
@@ -174,9 +174,6 @@
             </a>
             <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/docs/v0.3_offline_gis_almanac.md" target="_blank" style="display: inline-block; padding: 12px 32px; background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; border: 2px solid rgba(255, 255, 255, 0.2); transition: all 0.3s;">
               📖 Deployment Docs
-            </a>
-            <a href="mailto:contact@ceradonsystems.com?subject=Ceradon%20Architect%20Production%20Deployment" style="display: inline-block; padding: 12px 32px; background: #4CAF50; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; transition: all 0.3s;">
-              ✉️ Contact Us
             </a>
           </div>
         </div>
@@ -559,27 +556,27 @@
           </ul>
         </div>
 
-        <!-- Contact -->
+        <!-- Maintainer -->
         <div>
-          <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">Contact</h4>
+          <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">Maintainer</h4>
           <ul style="list-style: none; padding: 0; margin: 0; font-size: 14px;">
             <li style="margin-bottom: 8px;">
-              <a href="mailto:contact@ceradonsystems.com" style="color: var(--text-muted); text-decoration: none;">✉️ Email Us</a>
+              <span style="color: var(--text-muted);">👤 Noah Schultz (individual)</span>
             </li>
             <li style="margin-bottom: 8px;">
-              <a href="https://github.com/nbschultz97" target="_blank" style="color: var(--text-muted); text-decoration: none;">👤 Developer</a>
+              <a href="https://github.com/nbschultz97" target="_blank" style="color: var(--text-muted); text-decoration: none;">GitHub Profile</a>
             </li>
           </ul>
         </div>
       </div>
 
       <!-- Disclaimer -->
-      <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+      <div id="demo-disclaimer" style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
         <p style="margin: 0 0 12px 0; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-          <strong>Online Demo Disclaimer:</strong> This website demonstrates Ceradon Architect features but requires internet connectivity (Leaflet.js CDN, OpenStreetMap tiles). Production deployments bundle all assets locally for true offline, air-gapped operation. No sensitive data should be entered into this public demo.
+          <strong>Online Demo Disclaimer:</strong> This website demonstrates Ceradon Architect features but requires internet connectivity (Leaflet.js CDN, OpenStreetMap tiles). Production deployments bundle all assets locally for true offline operation. No sensitive data should be entered into this public demo.
         </p>
-        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">
-          © 2026 Ceradon Systems • Open Source • Deployed for evaluation purposes • For production deployment inquiries, contact <a href="mailto:contact@ceradonsystems.com" style="color: var(--accent); text-decoration: none;">contact@ceradonsystems.com</a>
+        <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+          Maintained by Noah Schultz (individual). Not affiliated with or endorsed by DoD/USG/NPS/SOCPAC/CRUSER. Open-source demo with example data only. No agency relationship implied.
         </p>
       </div>
     </div>

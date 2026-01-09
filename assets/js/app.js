@@ -1,7 +1,7 @@
 // Ceradon Architect - Offline Mission Planning Tool
 // Routes: home, library, platform, mission, comms, map, export
 
-const APP_VERSION = 'Ceradon Architect v0.3 - Offline GIS';
+const APP_VERSION = 'Ceradon Architect v0.4.0-alpha.2';
 const SCHEMA_VERSION = 'MissionProject v2.0.0';
 
 // ============================================================================
@@ -151,8 +151,8 @@ async function loadSampleMission() {
 
     alert('✅ Sample project loaded!\n\n' +
           '• 40+ COTS parts in catalog\n' +
-          '• 2 validated platform designs\n' +
-          '• 48-hour ISR mission plan\n' +
+          '• 2 sample platform designs\n' +
+          '• 48-hour recon mission plan\n' +
           '• 3-node comms network\n\n' +
           'Explore each module to see the data!');
 

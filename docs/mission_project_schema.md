@@ -7,7 +7,7 @@ MissionProject is the neutral JSON contract shared by every Ceradon Architect pl
 | Key | Type | Required | Primary owner | Notes |
 | --- | --- | --- | --- | --- |
 | `schemaVersion` | string | Required | Hub | Semantic version for compatibility checks. Current: `2.0.0`. |
-| `meta` | object | Required | Mission Architect | Name, description, duration, scenario tags, accessCode, and team size/roles. |
+| `meta` | object | Required | Mission Architect | Name, description, duration, scenario tags, and team size/roles. |
 | `mission` | object | Required | Mission Architect | Tasks, phases, assignments, and mission_cards. |
 | `environment` | array | Required | Mission Architect / Node / Mesh | One or more AO contexts (altitudeBand, temperatureBand, terrain, weather). |
 | `constraints` | array | Optional | Mission Architect / Node | Airspace, EW, policy, and power constraints that other tools should preserve. |
@@ -36,7 +36,7 @@ Unknown fields must be preserved when round-tripping between tools.
 
 ### meta (object)
 - `name` (string), `durationHours` (number), `origin_tool` (string).
-- Optional: `description`, `scenario`, `inventoryReference`, `accessCode`, `team{size, roles[]}`.
+- Optional: `description`, `scenario`, `inventoryReference`, `accessCode` (local-only label, unused in demo), `team{size, roles[]}`.
 
 ### mission (object)
 - `tasks[]`: `id`, `name`; optional `description`, `priority`, `assignedPlatforms[]`, `origin_tool`.

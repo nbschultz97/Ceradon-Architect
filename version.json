@@ -1,8 +1,8 @@
 {
   "offline": {
-    "version": "0.4.0-alpha.1",
+    "version": "0.4.0-alpha.2",
     "stage": "alpha",
-    "released": "2026-01-08",
+    "released": "2026-01-09",
     "description": "Offline mission planning tool for air-gapped environments - Digital Construction Foreman",
     "features": {
       "partsLibrary": {
@@ -41,7 +41,7 @@
       "platforms": ["Windows", "macOS", "Linux"]
     },
     "nextMilestone": {
-      "version": "0.4.0-alpha.1",
+      "version": "0.4.0-alpha.2",
       "targetDate": "2026-02-01",
       "goals": [
         "Comprehensive error handling",
@@ -54,13 +54,13 @@
     "targetRelease": "2026-Q3"
   },
   "webPlayground": {
-    "version": "0.4.0-alpha.1",
+    "version": "0.4.0-alpha.2",
     "stage": "alpha",
-    "released": "2026-01-08",
+    "released": "2026-01-09",
     "description": "Interactive web demo mirroring offline tool functionality",
-    "url": "https://architect.ceradonsystems.com",
-    "purpose": "Marketing and demonstration - ALWAYS mirrors offline version",
-    "syncedWith": "offline:0.4.0-alpha.1",
+    "url": "https://nbschultz97.github.io/Ceradon-Architect/",
+    "purpose": "Public demo only; always mirrors offline version",
+    "syncedWith": "offline:0.4.0-alpha.2",
     "features": {
       "allModules": "functional",
       "sampleData": "included",

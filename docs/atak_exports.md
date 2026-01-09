@@ -30,4 +30,4 @@ The hub can export MissionProject data to two offline-friendly formats meant for
 - Adaptation tip: wrap each unit in your preferred CoT XML/JSON envelope (`a-f-G-U-C` or similar) while retaining the stable IDs.
 
 ## Access control
-These exports do not bypass the access gate; the user must unlock the hub with the stack code before buttons appear. No external API calls are made during export.
+Exports are available in the demo without gating. If you need local access controls, implement them in your deployment environment (browser profile, OS account, or kiosk tooling). No external API calls are made during export.

@@ -8,7 +8,6 @@
     "origin_tool": "hub",
     "scenario": "Sample training lane",
     "inventoryReference": "DEMO-COTS-001",
-    "accessCode": "Request via Ceradon",
     "team": { "size": 4, "roles": ["Team lead", "UxS operator", "Payload tech", "Mesh lead"] }
   },
   "environment": [
@@ -49,7 +48,7 @@
     },
     {
       "id": "demo-sensor",
-      "name": "Portable ISR payload",
+      "name": "Portable recon payload",
       "role": "EO/IR overwatch",
       "rf": { "band": "2.4 GHz", "powerW": 4 },
       "power": "UxS bus",
@@ -78,7 +77,7 @@
       "id": "demo-fixedwing",
       "name": "Light fixed-wing",
       "type": "Fixed-wing",
-      "role": "Wide-area ISR + relay",
+      "role": "Wide-area recon + relay",
       "rf_bands": ["L/S", "2.4 GHz"],
       "power": "4S Li-ion",
       "battery": { "capacityWh": 200, "lowTempLimitC": -5 },
@@ -142,7 +141,7 @@
       {
         "id": "demo-task-2",
         "name": "Wide-area watch",
-        "description": "Fixed-wing loiter to hold RF relay and broad ISR.",
+        "description": "Fixed-wing loiter to hold RF relay and broad recon.",
         "assignedPlatforms": ["demo-fixedwing"],
         "priority": "Medium",
         "origin_tool": "mission"

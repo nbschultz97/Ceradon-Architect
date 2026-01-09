@@ -1,20 +1,24 @@
 # Ceradon Architect - Offline Mission Planning Tool
 
-![Version](https://img.shields.io/badge/version-0.3.0-blue)
-![Stage](https://img.shields.io/badge/stage-baseline-green)
+![Version](https://img.shields.io/badge/version-0.4.0--alpha.2-blue)
+![Stage](https://img.shields.io/badge/stage-alpha-orange)
 ![Schema](https://img.shields.io/badge/schema-v2.0.0-blue)
-![License](https://img.shields.io/badge/license-proprietary-lightgrey)
-![Air-Gap](https://img.shields.io/badge/air--gap-compliant-success)
+![License](https://img.shields.io/badge/license-Apache--2.0-blue)
+![Air-Gap](https://img.shields.io/badge/air--gap-ready-success)
 
 **Fully Offline Mission Planning for Air-Gapped Environments**
 
 Ceradon Architect is a professional, offline-first web application for sUAS mission planning in contested environments. Build custom platforms from COTS components, plan multi-day missions with logistics, and validate RF communications — entirely in your browser with **zero cloud dependencies**.
 
-**Live Demo:** <https://architect.ceradonsystems.com> (GitHub Pages)
+Maintained by **Noah Schultz (individual)**.
 
-> **✅ v0.3.0 Baseline** - Environmentally aware intelligence engine for air-gapped operations. Offline GIS, historical weather almanac, and enhanced cold-weather derating. See [v0.3_offline_gis_almanac.md](docs/v0.3_offline_gis_almanac.md) for full documentation.
+> **Not affiliated with or endorsed by DoD/USG/NPS/SOCPAC/CRUSER.** Demo-only content with example data.
 
-## What's New in v0.3.0 🗺️
+**Live Demo:** <https://nbschultz97.github.io/Ceradon-Architect/> (GitHub Pages)
+
+> **✅ v0.4.0-alpha.2** - Offline GIS, historical weather almanac, and enhanced cold-weather derating. See [v0.3_offline_gis_almanac.md](docs/v0.3_offline_gis_almanac.md) for full documentation.
+
+## What's New in v0.4.0-alpha.2 🗺️
 
 **Offline GIS & Coordinate Automation:**
 - ✅ **Interactive Map Viewer** - Leaflet-based offline mapping with click-to-select location picker
@@ -37,11 +41,11 @@ Ceradon Architect is a professional, offline-first web application for sUAS miss
 - ✅ **Arctic Mission Support** - At -40°C: 5% battery capacity with CRITICAL failure warning
 - ✅ **Real-Time Validation** - Battery derating instantly propagates to flight time and logistics
 
-**Security Hardening & Air-Gap Compliance:**
+**Security Posture & Air-Gap Notes:**
 - ✅ **100% Client-Agnostic** - No hard-coded units, exercises, or locations (generic demo data only)
-- ✅ **"Empty Ledger" Model** - Units load sensitive inventory via CSV locally
-- ✅ **Offline-First Validated** - Zero external API calls, runs on disconnected ruggedized laptops
-- ✅ **Security Audited** - See [SECURITY_AUDIT_v0.3.md](SECURITY_AUDIT_v0.3.md) for certification
+- ✅ **Skeleton Engine / Bring-Your-Own Inventory** - Load inventory locally via CSV/XLSX after install
+- ✅ **Offline-First Architecture** - Zero external API calls; runs on disconnected laptops with local assets
+- ✅ **Self-Review Notes** - See [SECURITY_AUDIT_v0.3.md](SECURITY_AUDIT_v0.3.md) for a non-certifying checklist
 
 **Doctrinal Reporting & ATAK Interoperability:**
 - ✅ **SALUTE Reports** - Pre-filled tactical reports from mission data
@@ -56,7 +60,7 @@ Ceradon Architect is a professional, offline-first web application for sUAS miss
 
 **What's New (Previous: v0.3.0-alpha.2)**
 
-**One-Click Sample Project** - Load 40+ COTS components, 2 validated platforms, a 48-hour ISR mission, and 3-node comms network instantly.
+**One-Click Sample Project** - Load 40+ COTS components, 2 sample platforms, a 48-hour recon mission, and 3-node comms network instantly.
 
 **Complete Module UIs:**
 - ✅ **Parts Library** - Browse, search, import CSV, load sample catalog
@@ -93,7 +97,7 @@ Navigate with hash routes:
 
 ### Demo Site vs Production Deployment
 
-**GitHub Pages Demo** ([architect.ceradonsystems.com](https://architect.ceradonsystems.com)):
+**GitHub Pages Demo** ([nbschultz97.github.io/Ceradon-Architect](https://nbschultz97.github.io/Ceradon-Architect/)):
 - ✅ All features functional online
 - ✅ Map viewer, environmental almanac, and SRTM elevation work
 - ⚠️ Leaflet loads from CDN (requires internet for first load)
@@ -506,6 +510,10 @@ MissionPlanner.downloadSummaryReport(mission);
 - **Implementation Plan:** `docs/IMPLEMENTATION_PLAN.md` - Full architectural roadmap
 - **Parts Library Schema:** `schema/parts_library_schema.json`
 - **Sample Data:** `data/sample_parts_library.json` - Realistic COTS components
+- **Governance:** `GOVERNANCE.md`
+- **Contributing:** `CONTRIBUTING.md`
+- **Security Reporting:** `SECURITY.md`
+- **Disclaimer:** `DISCLAIMER.md`
 
 ---
 
@@ -517,29 +525,21 @@ The site is fully static and GitHub Pages-compatible:
 - Works offline once cached by the browser
 - All modules are self-contained JavaScript files
 
+**GitHub Pages setup (default domain):**
+1. In GitHub repo settings, open **Pages**.
+2. Set **Source** to `Deploy from a branch`.
+3. Select the `main` branch and `/ (root)` folder.
+4. Save and use the published URL: `https://nbschultz97.github.io/Ceradon-Architect/`.
+
 ---
 
-## Security & Compliance
+## Security Notes
 
-**v0.3.0 Security Certification:** ✅ **APPROVED FOR AIR-GAPPED DEPLOYMENT**
+Ceradon Architect is built to avoid external dependencies and keep data local to the browser. The project includes a non-certifying, self-review checklist in [SECURITY_AUDIT_v0.3.md](SECURITY_AUDIT_v0.3.md); it is not an accreditation or operational approval.
 
-The Ceradon Architect Stack has undergone comprehensive security hardening and baseline validation. See [SECURITY_AUDIT_v0.3.md](SECURITY_AUDIT_v0.3.md) for the full audit report.
-
-**Key Security Features:**
-- ✅ **Zero External Dependencies** - No CDN calls, API requests, or cloud services
+**Security Highlights:**
+- ✅ **Zero External Dependencies** - No CDN calls, API requests, or cloud services when deployed offline
 - ✅ **Client-Agnostic Design** - Generic "Empty Ledger" model with scrubbed client references
-- ✅ **CSV Import Security** - Validated input sanitization for sensitive unit inventory ingestion
+- ✅ **CSV Import Hygiene** - Input validation and schema checks for local inventory ingestion
 - ✅ **Local-Only Storage** - All data in browser localStorage and IndexedDB
-- ✅ **Offline-First Architecture** - Fully functional without internet connectivity
-
-**Cleared For:**
-- Sensitive unit property book ingestion via CSV
-- Offline mission planning in contested environments
-- Partner force demonstrations with generic demo parts
-- Field deployment on ruggedized laptops without internet
-
-**Security Posture:** COMPLIANT
-**Operational Readiness:** READY
-**Certification Date:** 2026-01-08
-
-See the comprehensive [Security Audit Report](SECURITY_AUDIT_v0.3.md) for validation details, architecture verification, and environmental derating test results.
+- ✅ **Offline-First Architecture** - Fully functional without internet connectivity when assets are bundled

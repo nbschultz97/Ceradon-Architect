@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
-  "catalogId": "ceradon-sample-001",
+  "catalogId": "sample-cots-001",
   "meta": {
-    "name": "Ceradon Sample COTS Catalog",
+    "name": "Sample COTS Catalog",
     "description": "Sample catalog of commercial off-the-shelf sUAS components for training and demonstration",
     "unit": "Sample Unit",
     "lastUpdated": "2026-01-07T00:00:00Z",
@@ -61,7 +61,7 @@
       "cost_usd": 89.00,
       "availability": "in-stock",
       "notes": "Small fixed-wing platform for extended range missions",
-      "tags": ["fixed-wing", "long-range", "ISR"]
+      "tags": ["fixed-wing", "long-range", "recon"]
     },
     {
       "id": "frame-004",
@@ -399,7 +399,7 @@
       "part_number": "RC-HD-1080",
       "cost_usd": 45.00,
       "availability": "in-stock",
-      "notes": "Lightweight HD camera for ISR",
+      "notes": "Lightweight HD camera for recon",
       "tags": ["camera", "hd", "isr"]
     },
     {

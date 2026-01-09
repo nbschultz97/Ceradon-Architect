@@ -15,6 +15,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0-alpha.2] - 2026-01-09
+
+### Offline Tool + Web Playground (SYNCED)
+
+#### Added
+- Governance, contributing, security reporting, and disclaimer documents to clarify individual maintenance and contribution flow.
+- Apache-2.0 license for open-source distribution.
+
+#### Changed
+- Demo hosting posture updated to GitHub Pages default domain with explicit no-endorsement banner/footer.
+- README updated with maintainer attribution, disclaimer language, and bring-your-own inventory model.
+- Demo UI copy scrubbed of organization funnel language and email contact.
+- Sample data updated to remove access-code phrasing.
+- Web metadata updated to point to the neutral demo URL.
+
+#### Removed
+- Custom domain CNAME from the repository.
+
+---
+
 ## [0.4.0-alpha.1] - 2026-01-08
 
 ### Offline Tool + Web Playground (SYNCED)
