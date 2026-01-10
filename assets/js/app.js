@@ -1,7 +1,7 @@
-// Ceradon Architect - Offline Mission Planning Tool
+// COTS Architect - Offline Mission Planning Tool
 // Routes: home, library, platform, mission, comms, map, export
 
-const APP_VERSION = 'Ceradon Architect v0.4.0-alpha.2';
+const APP_VERSION = 'COTS Architect v0.4.0-alpha.2';
 const SCHEMA_VERSION = 'MissionProject v2.0.0';
 
 // ============================================================================
@@ -754,6 +754,11 @@ function updateSelectedComponentsDisplay() {
         </ul>
       </div>
     `;
+  }
+
+  // Update platform visualization
+  if (typeof PlatformViz !== 'undefined') {
+    PlatformViz.updateVisualization(components);
   }
 }
 
@@ -2757,15 +2762,20 @@ async function handleListSRTMTiles() {
 // ============================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('Ceradon Architect initializing...');
+  console.log('COTS Architect initializing...');
 
   initThemeToggle();
   initVersionBadges();
   initHomePage();
 
+  // Initialize workflow progress tracker
+  if (typeof WorkflowProgress !== 'undefined') {
+    WorkflowProgress.init();
+  }
+
   // Set up routing
   window.addEventListener('hashchange', handleHashChange);
   handleHashChange(); // Initial route
 
-  console.log('Ceradon Architect ready');
+  console.log('COTS Architect ready');
 });

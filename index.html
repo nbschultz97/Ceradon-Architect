@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ceradon Architect - Offline Mission Planning</title>
+  <title>COTS Architect - Offline Mission Planning</title>
   <link rel="stylesheet" href="assets/css/styles.css">
   <!-- Leaflet CSS for offline mapping -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -15,7 +15,7 @@
   <header class="top-nav">
     <a href="/#/home" class="brand" style="text-decoration: none; color: inherit; cursor: pointer;">
       <div class="logo-dot" aria-hidden="true"></div>
-      <span class="wordmark">Ceradon Architect</span>
+      <span class="wordmark">COTS Architect</span>
     </a>
     <nav aria-label="Primary">
       <ul class="nav-links">
@@ -35,6 +35,41 @@
     <span class="pill" id="appVersionBadge" data-app-version></span>
     <span class="pill success">Offline Ready</span>
     <span class="pill subtle" id="schemaHeaderBadge" data-schema-version></span>
+  </div>
+
+  <!-- Workflow Progress Bar -->
+  <div class="workflow-progress-container" aria-label="Workflow progress tracker">
+    <div class="workflow-progress">
+      <div class="progress-step" data-module="library">
+        <div class="progress-dot"></div>
+        <span class="progress-label">Parts Library</span>
+        <span class="progress-status"></span>
+      </div>
+      <div class="progress-connector"></div>
+      <div class="progress-step" data-module="platform">
+        <div class="progress-dot"></div>
+        <span class="progress-label">Platform Designer</span>
+        <span class="progress-status"></span>
+      </div>
+      <div class="progress-connector"></div>
+      <div class="progress-step" data-module="mission">
+        <div class="progress-dot"></div>
+        <span class="progress-label">Mission Planner</span>
+        <span class="progress-status"></span>
+      </div>
+      <div class="progress-connector"></div>
+      <div class="progress-step" data-module="comms">
+        <div class="progress-dot"></div>
+        <span class="progress-label">Comms Validator</span>
+        <span class="progress-status"></span>
+      </div>
+      <div class="progress-connector"></div>
+      <div class="progress-step" data-module="export">
+        <div class="progress-dot"></div>
+        <span class="progress-label">Export</span>
+        <span class="progress-status"></span>
+      </div>
+    </div>
   </div>
 
   <div class="context-bar" role="note">
@@ -256,6 +291,29 @@
           <h3>Component Selection</h3>
           <p class="small muted">Select components from your Parts Library</p>
           <div id="componentSelection"></div>
+        </div>
+
+        <div class="card">
+          <h3>Platform Visualization</h3>
+          <p class="small muted">Visual representation of selected components</p>
+          <div id="platformVisualization" class="platform-viz">
+            <div class="viz-container">
+              <div class="viz-layer viz-airframe" id="vizAirframe" title="Airframe"></div>
+              <div class="viz-layer viz-motors" id="vizMotors" title="Motors"></div>
+              <div class="viz-layer viz-battery" id="vizBattery" title="Battery"></div>
+              <div class="viz-layer viz-fc" id="vizFC" title="Flight Controller"></div>
+              <div class="viz-layer viz-radio" id="vizRadio" title="Radio"></div>
+              <div class="viz-layer viz-sensors" id="vizSensors" title="Sensors"></div>
+            </div>
+            <div class="viz-legend">
+              <div class="legend-item"><span class="legend-dot airframe"></span> Airframe</div>
+              <div class="legend-item"><span class="legend-dot motors"></span> Motors</div>
+              <div class="legend-item"><span class="legend-dot battery"></span> Battery</div>
+              <div class="legend-item"><span class="legend-dot fc"></span> Flight Controller</div>
+              <div class="legend-item"><span class="legend-dot radio"></span> Radio</div>
+              <div class="legend-item"><span class="legend-dot sensors"></span> Sensors</div>
+            </div>
+          </div>
         </div>
 
         <div class="card">
@@ -613,10 +671,12 @@
   <!-- Load event bus and UI feedback first -->
   <script src="assets/js/mission_project_events.js"></script>
   <script src="assets/js/ui_feedback.js"></script>
+  <script src="assets/js/workflow_progress.js"></script>
 
   <!-- Load offline modules -->
   <script src="assets/js/parts_library.js"></script>
   <script src="assets/js/physics_engine.js"></script>
+  <script src="assets/js/platform_viz.js"></script>
   <script src="assets/js/platform_designer.js"></script>
   <script src="assets/js/mission_planner.js"></script>
   <script src="assets/js/comms_validator.js"></script>
