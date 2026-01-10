@@ -148,9 +148,16 @@ const MapViewer = (() => {
   const confirmLocation = () => {
     if (!selectedLocation) return;
 
+    // Save to localStorage for cross-module persistence
+    try {
+      localStorage.setItem('ceradon_selected_location', JSON.stringify(selectedLocation));
+    } catch (error) {
+      console.error('[MapViewer] Error saving location to localStorage:', error);
+    }
+
     // Emit event for cross-module propagation
     if (typeof MissionProjectEvents !== 'undefined') {
-      MissionProjectEvents.emit('map_location_selected', {
+      MissionProjectEvents.emit(MissionProjectEvents.EVENTS.MAP_LOCATION_SELECTED, {
         location: selectedLocation,
         timestamp: new Date().toISOString()
       });

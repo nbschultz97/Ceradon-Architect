@@ -14,7 +14,9 @@ const MissionProjectEvents = (() => {
     COMMS_ANALYSIS_UPDATED: 'comms_analysis_updated',
     COMMS_ANALYSIS_DELETED: 'comms_analysis_deleted',
     MISSION_PROJECT_UPDATED: 'mission_project_updated',
-    PARTS_LIBRARY_UPDATED: 'parts_library_updated'
+    PARTS_LIBRARY_UPDATED: 'parts_library_updated',
+    MAP_LOCATION_SELECTED: 'map_location_selected',
+    ENV_DATA_LOADED: 'env_data_loaded'
   };
 
   // Event emitter using CustomEvent
