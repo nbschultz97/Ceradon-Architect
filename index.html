@@ -13,10 +13,10 @@
 </head>
 <body>
   <header class="top-nav">
-    <div class="brand">
+    <a href="/#/home" class="brand" style="text-decoration: none; color: inherit; cursor: pointer;">
       <div class="logo-dot" aria-hidden="true"></div>
       <span class="wordmark">Ceradon Architect</span>
-    </div>
+    </a>
     <nav aria-label="Primary">
       <ul class="nav-links">
         <li><a href="/#/home" data-route="home">Home</a></li>
@@ -37,17 +37,8 @@
     <span class="pill subtle" id="schemaHeaderBadge" data-schema-version></span>
   </div>
 
-  <!-- Air-Gapped Version Notice -->
-  <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 24px; text-align: center; border-bottom: 2px solid #047857;">
-    <p style="margin: 0; font-size: 14px; font-weight: 500;">
-      🔒 <strong>OFFLINE AIR-GAPPED VERSION</strong> — All data stored locally. Zero external dependencies.
-      <span style="opacity: 0.9;">Maintained by Noah Schultz (individual).</span>
-      <a href="#offline-notice" style="color: #fff; text-decoration: underline; margin-left: 12px; font-weight: 600;">Details →</a>
-    </p>
-  </div>
-
   <div class="context-bar" role="note">
-    <p class="small">Offline-first mission planning tool for air-gapped environments. Design platforms, plan missions, validate comms — all in your browser with zero cloud dependencies.</p>
+    <p class="small">🔒 Offline-first mission planning for air-gapped environments. All data stored locally. Maintained by <a href="https://github.com/nbschultz97" target="_blank" style="color: var(--accent); text-decoration: underline;">Noah Schultz</a>.</p>
   </div>
 
   <main id="app" class="view-container">
@@ -124,60 +115,6 @@
         </div>
       </div>
 
-      <!-- Production CTA -->
-      <div id="production-cta" style="margin: 48px auto; max-width: 900px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px; padding: 40px; border: 2px solid #667eea; box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);">
-        <div style="text-align: center; margin-bottom: 32px;">
-          <p style="margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #667eea; font-weight: 600;">Production Deployment</p>
-          <h2 style="margin: 0 0 16px 0; font-size: 32px; font-weight: 700; color: #fff;">Ready for Offline Deployment?</h2>
-          <p style="margin: 0; font-size: 16px; color: #b8c1ec; line-height: 1.6;">
-            This online demo showcases all features but requires internet connectivity. For offline use, deploy a local copy with bundled assets and cached data.
-          </p>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px;">
-          <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; border: 1px solid rgba(102, 126, 234, 0.3);">
-            <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #fff; font-weight: 600;">🌐 Online Demo</h3>
-            <ul style="margin: 0; padding-left: 20px; color: #b8c1ec; font-size: 14px; line-height: 1.8;">
-              <li>Requires internet for Leaflet.js CDN</li>
-              <li>Map tiles load from OpenStreetMap</li>
-              <li>Sample data only (40+ generic parts)</li>
-              <li>All features functional for evaluation</li>
-              <li>Perfect for demonstration and testing</li>
-            </ul>
-          </div>
-
-          <div style="background: rgba(102, 126, 234, 0.1); padding: 20px; border-radius: 8px; border: 1px solid #667eea;">
-            <h3 style="margin: 0 0 12px 0; font-size: 16px; color: #fff; font-weight: 600;">🔒 Production Deployment</h3>
-            <ul style="margin: 0; padding-left: 20px; color: #b8c1ec; font-size: 14px; line-height: 1.8;">
-              <li><strong style="color: #4CAF50;">100% offline</strong> — All assets bundled locally</li>
-              <li><strong style="color: #4CAF50;">Pre-cached map tiles</strong> for your AO</li>
-              <li><strong style="color: #4CAF50;">Load sensitive inventory</strong> via CSV</li>
-              <li><strong style="color: #4CAF50;">SRTM elevation tiles</strong> for terrain accuracy</li>
-              <li><strong style="color: #4CAF50;">Offline-first</strong> workflow for disconnected environments</li>
-            </ul>
-          </div>
-        </div>
-
-        <div style="background: rgba(255, 170, 0, 0.1); border-left: 4px solid #ffaa00; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
-          <p style="margin: 0; font-size: 14px; color: #ffd700; line-height: 1.6;">
-            <strong>⚠️ Demo Constraints:</strong> This website loads Leaflet and map tiles from external CDNs. For operations in disconnected environments, deploy the production bundle with local assets. See <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/docs/v0.3_offline_gis_almanac.md" style="color: #ffd700; text-decoration: underline;" target="_blank">deployment documentation</a> for air-gap setup instructions.
-          </p>
-        </div>
-
-        <div style="text-align: center;">
-          <p style="margin: 0 0 20px 0; font-size: 15px; color: #b8c1ec;">
-            Need offline deployment steps? Start with the documentation below.
-          </p>
-          <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-            <a href="https://github.com/nbschultz97/Ceradon-Architect" target="_blank" style="display: inline-block; padding: 12px 32px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; transition: all 0.3s;">
-              📦 View on GitHub
-            </a>
-            <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/docs/v0.3_offline_gis_almanac.md" target="_blank" style="display: inline-block; padding: 12px 32px; background: rgba(255, 255, 255, 0.1); color: white; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 15px; border: 2px solid rgba(255, 255, 255, 0.2); transition: all 0.3s;">
-              📖 Deployment Docs
-            </a>
-          </div>
-        </div>
-      </div>
 
       <div class="missionproject-status" id="missionProjectStatusPanel" aria-live="polite">
         <div class="status-body">
@@ -329,6 +266,16 @@
             <button class="btn ghost" id="savePlatform">Save Platform</button>
           </div>
         </div>
+
+        <!-- Module Navigation -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border-left: 4px solid #667eea;">
+          <h3>Next Step</h3>
+          <p class="small">Ready to plan a mission with this platform?</p>
+          <div class="action-row" style="margin-top: 12px;">
+            <button class="btn ghost" onclick="window.location.hash = '#/map'">← Map & Environment</button>
+            <button class="btn primary" onclick="window.location.hash = '#/mission'">Mission Planner →</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -381,6 +328,13 @@
           </div>
         </div>
 
+        <div class="card" id="missionEnvDataCard" style="display: none;">
+          <h3>📊 Environmental Data</h3>
+          <div id="missionEnvDataDisplay">
+            <p class="small muted">No environmental data loaded. Visit Map & Environment to select location and query data.</p>
+          </div>
+        </div>
+
         <div class="card">
           <h3>Mission Phases</h3>
           <div id="phasesEditor"></div>
@@ -393,6 +347,16 @@
           <div class="action-row">
             <button class="btn primary" id="calculateLogistics">Calculate Logistics</button>
             <button class="btn ghost" id="downloadPackingLists">Download Packing Lists</button>
+          </div>
+        </div>
+
+        <!-- Module Navigation -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border-left: 4px solid #667eea;">
+          <h3>Next Step</h3>
+          <p class="small">Ready to validate RF communications for this mission?</p>
+          <div class="action-row" style="margin-top: 12px;">
+            <button class="btn ghost" onclick="window.location.hash = '#/platform'">← Platform Designer</button>
+            <button class="btn primary" onclick="window.location.hash = '#/comms'">Comms Validator →</button>
           </div>
         </div>
       </div>
@@ -445,6 +409,16 @@
             <button class="btn ghost" id="downloadCommsReport">Download Report</button>
           </div>
         </div>
+
+        <!-- Module Navigation -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border-left: 4px solid #667eea;">
+          <h3>Next Step</h3>
+          <p class="small">Ready to export your complete mission package?</p>
+          <div class="action-row" style="margin-top: 12px;">
+            <button class="btn ghost" onclick="window.location.hash = '#/mission'">← Mission Planner</button>
+            <button class="btn primary" onclick="window.location.hash = '#/export'">Export Package →</button>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -474,8 +448,24 @@
           <h3>Environmental Intelligence</h3>
           <p class="small muted">Query historical weather averages for your mission timeframe. This data auto-suggests temperature and wind for physics calculations.</p>
           <div class="form-grid">
+            <label>Query Type
+              <select id="envQueryType">
+                <option value="single">Single Date</option>
+                <option value="range">Date Range (Multi-Day Mission)</option>
+              </select>
+            </label>
+          </div>
+          <div id="singleDateInput" class="form-grid" style="margin-top: 12px;">
             <label>Mission Date (for seasonal averages)
               <input type="date" id="missionDate" />
+            </label>
+          </div>
+          <div id="dateRangeInputs" class="form-grid" style="margin-top: 12px; display: none;">
+            <label>Start Date
+              <input type="date" id="missionStartDate" />
+            </label>
+            <label>End Date
+              <input type="date" id="missionEndDate" />
             </label>
           </div>
           <button class="btn primary" id="getEnvironmentalData" style="margin-top: 12px; width: 100%;">
@@ -483,15 +473,29 @@
           </button>
           <div id="environmentalDataDisplay"></div>
           <p class="small muted" style="margin-top: 12px;">
-            💡 <strong>Tip:</strong> Pick any date in the month you're planning. The system uses historical monthly averages, not specific dates.
+            💡 <strong>Tip:</strong> The system uses historical monthly averages. For date ranges, you'll get data for each month covered.
           </p>
         </div>
 
         <div class="card">
           <h3>SRTM Elevation Data</h3>
-          <p class="small muted">Manage offline elevation tiles for terrain-aware planning.</p>
-          <div id="srtmTilesList"></div>
-          <button class="btn subtle" id="listSRTMTiles">List Loaded Tiles</button>
+          <p class="small muted">Upload offline elevation tiles for terrain-aware planning. Supports SRTM1 (30m) and SRTM3 (90m) .hgt files.</p>
+          <div class="action-row">
+            <button class="btn primary" id="uploadSRTMTile">Upload SRTM Tile (.hgt)</button>
+            <button class="btn subtle" id="listSRTMTiles">List Loaded Tiles</button>
+            <input type="file" id="srtmFileInput" accept=".hgt,.HGT" hidden>
+          </div>
+          <div id="srtmTilesList" style="margin-top: 12px;"></div>
+        </div>
+
+        <!-- Module Navigation -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border-left: 4px solid #667eea;">
+          <h3>Next Step</h3>
+          <p class="small">Ready to design your platform with this environmental data?</p>
+          <div class="action-row" style="margin-top: 12px;">
+            <button class="btn ghost" onclick="window.location.hash = '#/library'">← Parts Library</button>
+            <button class="btn primary" onclick="window.location.hash = '#/platform'">Platform Designer →</button>
+          </div>
         </div>
       </div>
     </section>
@@ -561,6 +565,9 @@
               <a href="https://github.com/nbschultz97/Ceradon-Architect" target="_blank" style="color: var(--text-muted); text-decoration: none;">GitHub Repository</a>
             </li>
             <li style="margin-bottom: 8px;">
+              <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/CHANGELOG.md" target="_blank" style="color: var(--text-muted); text-decoration: none;">📋 Changelog & Updates</a>
+            </li>
+            <li style="margin-bottom: 8px;">
               <a href="https://github.com/nbschultz97/Ceradon-Architect/blob/main/docs/v0.3_offline_gis_almanac.md" target="_blank" style="color: var(--text-muted); text-decoration: none;">Documentation</a>
             </li>
             <li style="margin-bottom: 8px;">
@@ -589,7 +596,7 @@
       <!-- Disclaimer -->
       <div id="offline-notice" style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
         <p style="margin: 0 0 12px 0; font-size: 13px; color: var(--text-muted); line-height: 1.6;">
-          <strong>Air-Gapped Offline Version:</strong> This is the production offline version of Ceradon Architect. All data is stored locally in your browser (localStorage/IndexedDB). No data is transmitted to external servers. For complete air-gap operation, bundle Leaflet.js and map tiles locally.
+          <strong>Offline-First Architecture:</strong> All data is stored locally in your browser (localStorage/IndexedDB). No data is transmitted to external servers. For complete air-gap operation, you can bundle Leaflet.js and map tiles locally.
         </p>
         <p style="margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
           Maintained by Noah Schultz (individual). Open-source mission planning tool. Not affiliated with or endorsed by DoD/USG.

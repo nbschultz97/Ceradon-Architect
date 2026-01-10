@@ -471,6 +471,28 @@ function initPlatformDesigner() {
     currentPlatformDesign = PlatformDesigner.createEmptyDesign();
   }
 
+  // Check for environmental data from map and auto-populate if not already set
+  try {
+    const envData = localStorage.getItem('ceradon_environmental_data');
+    const location = localStorage.getItem('ceradon_selected_location');
+
+    if (envData && location) {
+      const parsedEnvData = JSON.parse(envData);
+      const parsedLocation = JSON.parse(location);
+
+      // Only auto-populate if current design has default/empty values
+      if (currentPlatformDesign.environment.altitude_m === 0 && parsedLocation.elevation_m !== undefined) {
+        currentPlatformDesign.environment.altitude_m = parsedLocation.elevation_m;
+      }
+
+      if (currentPlatformDesign.environment.temperature_c === 20 && parsedEnvData.temperature?.suggested_c !== undefined) {
+        currentPlatformDesign.environment.temperature_c = parsedEnvData.temperature.suggested_c;
+      }
+    }
+  } catch (error) {
+    console.log('[PlatformDesigner] No environmental data found or error loading it');
+  }
+
   // Wire up form inputs with auto-save
   const platformName = document.getElementById('platformName');
   if (platformName) {
@@ -520,6 +542,43 @@ function initPlatformDesigner() {
 
   // Load saved designs
   loadSavedPlatforms();
+
+  // Listen for environmental data events from Map module
+  if (typeof MissionProjectEvents !== 'undefined') {
+    MissionProjectEvents.on(MissionProjectEvents.EVENTS.ENV_DATA_LOADED, (detail) => {
+      console.log('[PlatformDesigner] Environmental data received:', detail);
+      const envData = detail.environmentalData;
+      const location = detail.location;
+
+      // Auto-populate altitude from selected location
+      if (location && location.elevation_m !== undefined) {
+        const envAltitude = document.getElementById('envAltitude');
+        if (envAltitude) {
+          envAltitude.value = location.elevation_m;
+          currentPlatformDesign.environment.altitude_m = location.elevation_m;
+          savePlatformDesignerDraft();
+        }
+      }
+
+      // Auto-populate temperature from environmental data
+      if (envData && envData.temperature && envData.temperature.suggested_c !== undefined) {
+        const envTemperature = document.getElementById('envTemperature');
+        if (envTemperature) {
+          envTemperature.value = envData.temperature.suggested_c;
+          currentPlatformDesign.environment.temperature_c = envData.temperature.suggested_c;
+          savePlatformDesignerDraft();
+        }
+      }
+
+      // Show toast notification
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.Toast.success(
+          `Environmental data applied: ${location.elevation_m}m altitude, ${envData.temperature.suggested_c}°C`,
+          4000
+        );
+      }
+    });
+  }
 }
 
 function savePlatformDesignerDraft() {
@@ -1106,6 +1165,153 @@ function initMissionPlanner() {
 
   // Initial phase editor render
   renderPhaseEditor();
+
+  // Listen for map location and environmental data events
+  if (typeof MissionProjectEvents !== 'undefined') {
+    MissionProjectEvents.on(MissionProjectEvents.EVENTS.MAP_LOCATION_SELECTED, (detail) => {
+      console.log('[MissionPlanner] Map location received:', detail);
+      // Store in mission plan metadata
+      if (currentMissionPlan) {
+        currentMissionPlan.location = detail.location;
+      }
+
+      // Show toast notification
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.Toast.success(
+          `Mission location set: ${detail.location.lat.toFixed(4)}°, ${detail.location.lon.toFixed(4)}°`,
+          3000
+        );
+      }
+    });
+
+    MissionProjectEvents.on(MissionProjectEvents.EVENTS.ENV_DATA_LOADED, (detail) => {
+      console.log('[MissionPlanner] Environmental data received:', detail);
+      // Store in mission plan metadata
+      if (currentMissionPlan) {
+        currentMissionPlan.environmentalData = detail.environmentalData;
+        currentMissionPlan.location = detail.location;
+      }
+
+      // Display environmental data in Mission Planner
+      displayMissionEnvData(detail.environmentalData, detail.location);
+
+      // Show toast notification
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.Toast.success(
+          'Environmental data loaded for mission planning',
+          3000
+        );
+      }
+    });
+  }
+
+  // Check for existing location data from localStorage
+  try {
+    const location = localStorage.getItem('ceradon_selected_location');
+    const envData = localStorage.getItem('ceradon_environmental_data');
+
+    if (location && currentMissionPlan) {
+      const parsedLocation = JSON.parse(location);
+      currentMissionPlan.location = parsedLocation;
+    }
+
+    if (envData && currentMissionPlan) {
+      const parsedEnvData = JSON.parse(envData);
+      currentMissionPlan.environmentalData = parsedEnvData;
+
+      // Display on init if both available
+      if (location && envData) {
+        const parsedLocation = JSON.parse(location);
+        displayMissionEnvData(parsedEnvData, parsedLocation);
+      }
+    }
+  } catch (error) {
+    console.log('[MissionPlanner] No location/environmental data found');
+  }
+}
+
+/**
+ * Display environmental data in Mission Planner
+ */
+function displayMissionEnvData(envData, location) {
+  const card = document.getElementById('missionEnvDataCard');
+  const display = document.getElementById('missionEnvDataDisplay');
+
+  if (!card || !display || !envData || !location) return;
+
+  // Show the card
+  card.style.display = 'block';
+
+  // Check if this is date range data
+  if (envData.type === 'range') {
+    // Display date range summary
+    const startDate = new Date(envData.startDate);
+    const endDate = new Date(envData.endDate);
+
+    display.innerHTML = `
+      <div style="padding: 12px; background: var(--card); border-radius: 8px;">
+        <p style="margin: 0 0 8px 0; font-weight: bold;">📍 Location</p>
+        <p class="small" style="margin: 0 0 12px 0;">
+          ${location.lat.toFixed(4)}°, ${location.lon.toFixed(4)}° at ${location.elevation_m}m elevation
+        </p>
+
+        <p style="margin: 12px 0 8px 0; font-weight: bold;">📅 Mission Duration</p>
+        <p class="small" style="margin: 0 0 12px 0;">
+          ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}
+        </p>
+
+        <p style="margin: 12px 0 8px 0; font-weight: bold;">🌡️ Temperature (Average)</p>
+        <p class="small" style="margin: 0;">
+          Average: <strong>${envData.summary.avgTemp}°C</strong><br>
+          Range: ${envData.summary.minTemp}°C to ${envData.summary.maxTemp}°C
+        </p>
+
+        <p style="margin: 12px 0 8px 0; font-weight: bold;">💨 Wind (Average)</p>
+        <p class="small" style="margin: 0;">
+          Average: <strong>${envData.summary.avgWind} m/s</strong>
+        </p>
+
+        <p class="small muted" style="margin: 12px 0 0 0;">
+          Multi-day mission data • ${envData.monthlyData.length} month(s)
+        </p>
+      </div>
+    `;
+  } else {
+    // Display single date data
+    display.innerHTML = `
+      <div style="padding: 12px; background: var(--card); border-radius: 8px;">
+        <p style="margin: 0 0 8px 0; font-weight: bold;">📍 Location</p>
+        <p class="small" style="margin: 0 0 12px 0;">
+          ${location.lat.toFixed(4)}°, ${location.lon.toFixed(4)}° at ${location.elevation_m}m elevation
+        </p>
+
+        <p style="margin: 12px 0 8px 0; font-weight: bold;">🌡️ Temperature</p>
+        <p class="small" style="margin: 0;">
+          Suggested: <strong>${envData.temperature.suggested_c}°C</strong><br>
+          Range: ${envData.temperature.avg_low_c}°C to ${envData.temperature.avg_high_c}°C
+        </p>
+
+        <p style="margin: 12px 0 8px 0; font-weight: bold;">💨 Wind</p>
+        <p class="small" style="margin: 0;">
+          Average: <strong>${envData.wind.suggested_ms} m/s</strong><br>
+          Max Gust: ${envData.wind.max_gust_ms} m/s
+        </p>
+
+        ${envData.warnings && envData.warnings.length > 0 ? `
+          <p style="margin: 12px 0 8px 0; font-weight: bold;">⚠️ Warnings</p>
+          ${envData.warnings.map(w => `
+            <div style="padding: 6px; margin-bottom: 4px; background: ${w.severity === 'critical' ? '#ff444422' : '#ffaa0022'}; border-left: 3px solid ${w.severity === 'critical' ? '#ff4444' : '#ffaa00'}; border-radius: 4px;">
+              <p class="small" style="margin: 0; font-size: 12px;">${w.message}</p>
+            </div>
+          `).join('')}
+        ` : ''}
+
+        <p class="small muted" style="margin: 12px 0 0 0;">
+          Data from ${envData.region_name} • ${new Date(envData.date).toLocaleDateString()}
+        </p>
+      </div>
+    `;
+  }
 }
 
 function restoreMissionPlannerState() {
@@ -1981,6 +2187,35 @@ function initMapViewer() {
     missionDateInput.value = new Date().toISOString().split('T')[0];
   }
 
+  const missionStartDateInput = document.getElementById('missionStartDate');
+  if (missionStartDateInput && !missionStartDateInput.value) {
+    missionStartDateInput.value = new Date().toISOString().split('T')[0];
+  }
+
+  const missionEndDateInput = document.getElementById('missionEndDate');
+  if (missionEndDateInput && !missionEndDateInput.value) {
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 2); // Default to 2 days from now
+    missionEndDateInput.value = endDate.toISOString().split('T')[0];
+  }
+
+  // Wire up query type toggle
+  const envQueryType = document.getElementById('envQueryType');
+  if (envQueryType) {
+    envQueryType.addEventListener('change', (e) => {
+      const singleInput = document.getElementById('singleDateInput');
+      const rangeInputs = document.getElementById('dateRangeInputs');
+
+      if (e.target.value === 'single') {
+        if (singleInput) singleInput.style.display = 'grid';
+        if (rangeInputs) rangeInputs.style.display = 'none';
+      } else {
+        if (singleInput) singleInput.style.display = 'none';
+        if (rangeInputs) rangeInputs.style.display = 'grid';
+      }
+    });
+  }
+
   // Wire up event handlers
   const getEnvDataBtn = document.getElementById('getEnvironmentalData');
   if (getEnvDataBtn) {
@@ -1992,6 +2227,16 @@ function initMapViewer() {
   if (listTilesBtn) {
     listTilesBtn.removeEventListener('click', handleListSRTMTiles);
     listTilesBtn.addEventListener('click', handleListSRTMTiles);
+  }
+
+  const uploadTileBtn = document.getElementById('uploadSRTMTile');
+  const srtmFileInput = document.getElementById('srtmFileInput');
+  if (uploadTileBtn && srtmFileInput) {
+    uploadTileBtn.removeEventListener('click', () => srtmFileInput.click());
+    uploadTileBtn.addEventListener('click', () => srtmFileInput.click());
+
+    srtmFileInput.removeEventListener('change', handleSRTMFileUpload);
+    srtmFileInput.addEventListener('change', handleSRTMFileUpload);
   }
 
   // Update displayed info if location already selected
@@ -2052,21 +2297,116 @@ async function handleGetEnvironmentalData() {
     return;
   }
 
-  const missionDateInput = document.getElementById('missionDate');
-  const missionDate = missionDateInput ? new Date(missionDateInput.value) : new Date();
+  const queryType = document.getElementById('envQueryType')?.value || 'single';
 
   try {
-    // Get environmental data from almanac
-    const envData = await EnvironmentAlmanac.getEnvironmentalData(
-      currentMapLocation.lat,
-      currentMapLocation.lon,
-      missionDate
-    );
+    if (queryType === 'single') {
+      // Single date query
+      const missionDateInput = document.getElementById('missionDate');
+      const missionDate = missionDateInput ? new Date(missionDateInput.value) : new Date();
 
-    displayEnvironmentalData(envData);
+      const envData = await EnvironmentAlmanac.getEnvironmentalData(
+        currentMapLocation.lat,
+        currentMapLocation.lon,
+        missionDate
+      );
 
-    if (typeof UIFeedback !== 'undefined') {
-      UIFeedback.Toast.success('Environmental data loaded successfully', 3000);
+      // Save to localStorage for cross-module persistence
+      try {
+        localStorage.setItem('ceradon_environmental_data', JSON.stringify(envData));
+      } catch (error) {
+        console.error('[MapViewer] Error saving environmental data to localStorage:', error);
+      }
+
+      // Emit event for cross-module propagation
+      if (typeof MissionProjectEvents !== 'undefined') {
+        MissionProjectEvents.emit(MissionProjectEvents.EVENTS.ENV_DATA_LOADED, {
+          environmentalData: envData,
+          location: currentMapLocation,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      displayEnvironmentalData(envData);
+
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.Toast.success('Environmental data loaded successfully', 3000);
+      }
+    } else {
+      // Date range query
+      const startDateInput = document.getElementById('missionStartDate');
+      const endDateInput = document.getElementById('missionEndDate');
+
+      const startDate = startDateInput ? new Date(startDateInput.value) : new Date();
+      const endDate = endDateInput ? new Date(endDateInput.value) : new Date();
+
+      if (endDate < startDate) {
+        if (typeof UIFeedback !== 'undefined') {
+          UIFeedback.Toast.warning('End date must be after start date', 3000);
+        }
+        return;
+      }
+
+      // Get unique months in range
+      const months = [];
+      const currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        const monthKey = `${currentDate.getFullYear()}-${currentDate.getMonth()}`;
+        if (!months.find(m => m.key === monthKey)) {
+          months.push({
+            key: monthKey,
+            date: new Date(currentDate)
+          });
+        }
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+
+      // Query environmental data for each month
+      const monthlyData = [];
+      for (const month of months) {
+        const envData = await EnvironmentAlmanac.getEnvironmentalData(
+          currentMapLocation.lat,
+          currentMapLocation.lon,
+          month.date
+        );
+        monthlyData.push(envData);
+      }
+
+      // Save the range data
+      const rangeData = {
+        type: 'range',
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        monthlyData: monthlyData,
+        summary: {
+          avgTemp: Math.round(monthlyData.reduce((sum, d) => sum + d.temperature.suggested_c, 0) / monthlyData.length),
+          avgWind: Math.round(monthlyData.reduce((sum, d) => sum + d.wind.suggested_ms, 0) / monthlyData.length),
+          maxTemp: Math.max(...monthlyData.map(d => d.temperature.avg_high_c)),
+          minTemp: Math.min(...monthlyData.map(d => d.temperature.avg_low_c))
+        }
+      };
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('ceradon_environmental_data', JSON.stringify(rangeData));
+      } catch (error) {
+        console.error('[MapViewer] Error saving environmental data to localStorage:', error);
+      }
+
+      // Emit event
+      if (typeof MissionProjectEvents !== 'undefined') {
+        MissionProjectEvents.emit(MissionProjectEvents.EVENTS.ENV_DATA_LOADED, {
+          environmentalData: rangeData,
+          location: currentMapLocation,
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      displayEnvironmentalDataRange(rangeData);
+
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.Toast.success(`Environmental data loaded for ${months.length} month(s)`, 3000);
+      }
     }
   } catch (error) {
     console.error('[MapViewer] Error getting environmental data:', error);
@@ -2190,6 +2530,82 @@ function displayEnvironmentalData(data) {
 }
 
 /**
+ * Display environmental data range for multi-day missions
+ */
+function displayEnvironmentalDataRange(rangeData) {
+  const displayDiv = document.getElementById('environmentalDataDisplay');
+  if (!displayDiv) return;
+
+  const startDate = new Date(rangeData.startDate);
+  const endDate = new Date(rangeData.endDate);
+  const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+  displayDiv.innerHTML = `
+    <div style="margin-top: 16px; padding: 16px; background: var(--card); border-radius: 8px;">
+      <p style="margin: 0 0 12px 0; font-weight: bold;">📊 Multi-Day Environmental Data</p>
+      <p class="small muted" style="margin-bottom: 12px;">
+        ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()} (${daysDiff} days, ${rangeData.monthlyData.length} month(s))
+      </p>
+
+      <div style="padding: 12px; margin-bottom: 12px; background: var(--panel); border-radius: 8px; border-left: 4px solid #667eea;">
+        <p style="margin: 0 0 8px 0; font-weight: bold;">Summary</p>
+        <table style="width: 100%; font-size: 14px;">
+          <tr>
+            <td style="padding: 4px 8px 4px 0;">Avg Temperature:</td>
+            <td style="padding: 4px 0;"><strong>${rangeData.summary.avgTemp}°C</strong></td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 8px 4px 0;">Temperature Range:</td>
+            <td style="padding: 4px 0;">${rangeData.summary.minTemp}°C to ${rangeData.summary.maxTemp}°C</td>
+          </tr>
+          <tr>
+            <td style="padding: 4px 8px 4px 0;">Avg Wind:</td>
+            <td style="padding: 4px 0;"><strong>${rangeData.summary.avgWind} m/s</strong></td>
+          </tr>
+        </table>
+      </div>
+
+      <p style="margin: 12px 0 8px 0; font-weight: bold;">Monthly Breakdown</p>
+      ${rangeData.monthlyData.map((monthData, idx) => `
+        <div style="padding: 12px; margin-bottom: 8px; background: var(--panel); border-radius: 8px;">
+          <p style="margin: 0 0 8px 0; font-weight: bold; color: var(--accent);">
+            Month ${idx + 1}: ${new Date(monthData.date).toLocaleDateString('default', { month: 'long', year: 'numeric' })}
+          </p>
+          <table style="width: 100%; font-size: 13px;">
+            <tr>
+              <td style="padding: 2px 8px 2px 0;">Temperature:</td>
+              <td style="padding: 2px 0;">${monthData.temperature.suggested_c}°C (${monthData.temperature.avg_low_c}°C - ${monthData.temperature.avg_high_c}°C)</td>
+            </tr>
+            <tr>
+              <td style="padding: 2px 8px 2px 0;">Wind:</td>
+              <td style="padding: 2px 0;">${monthData.wind.suggested_ms} m/s (gusts: ${monthData.wind.max_gust_ms} m/s)</td>
+            </tr>
+            ${monthData.warnings && monthData.warnings.length > 0 ? `
+              <tr>
+                <td colspan="2" style="padding: 4px 0;">
+                  ${monthData.warnings.map(w => `
+                    <span style="display: inline-block; padding: 2px 6px; margin: 2px; background: ${w.severity === 'critical' ? '#ff444422' : '#ffaa0022'}; border-left: 2px solid ${w.severity === 'critical' ? '#ff4444' : '#ffaa00'}; border-radius: 3px; font-size: 11px;">
+                      ${w.type}
+                    </span>
+                  `).join('')}
+                </td>
+              </tr>
+            ` : ''}
+          </table>
+        </div>
+      `).join('')}
+
+      <button class="btn primary" onclick="applyEnvironmentalDataToMission()" style="width: 100%; margin-top: 12px;">
+        Apply to Mission Planning
+      </button>
+    </div>
+  `;
+
+  // Store for later use
+  window.currentEnvironmentalData = rangeData;
+}
+
+/**
  * Apply environmental data to mission planning
  */
 function applyEnvironmentalDataToMission() {
@@ -2219,6 +2635,89 @@ function applyEnvironmentalDataToMission() {
 /**
  * List SRTM tiles
  */
+/**
+ * Handle SRTM .hgt file upload
+ */
+async function handleSRTMFileUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  // Reset the input so the same file can be uploaded again if needed
+  event.target.value = '';
+
+  if (!file.name.toLowerCase().endsWith('.hgt')) {
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.Toast.error('Please upload a valid .hgt SRTM file', 3000);
+    }
+    return;
+  }
+
+  try {
+    // Extract tile ID from filename (e.g., N37W122.hgt)
+    const filename = file.name.replace('.hgt', '').replace('.HGT', '');
+    const tileId = filename.toUpperCase();
+
+    // Validate tile ID format (e.g., N37W122)
+    const tileIdPattern = /^[NS]\d{2}[EW]\d{3}$/;
+    if (!tileIdPattern.test(tileId)) {
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.Toast.error('Invalid SRTM tile filename format. Expected format: N37W122.hgt', 4000);
+      }
+      return;
+    }
+
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.Toast.info(`Uploading ${tileId}... (this may take a moment)`, 3000);
+    }
+
+    // Read file as ArrayBuffer
+    const arrayBuffer = await file.arrayBuffer();
+    const dataView = new DataView(arrayBuffer);
+
+    // Determine tile type based on file size
+    // SRTM1: 3601x3601 samples = 25,934,402 bytes (2 bytes per sample)
+    // SRTM3: 1201x1201 samples = 2,884,802 bytes
+    const fileSize = arrayBuffer.byteLength;
+    let tileType, samples;
+
+    if (fileSize === 25934402) {
+      tileType = 'SRTM1';
+      samples = 3601;
+    } else if (fileSize === 2884802) {
+      tileType = 'SRTM3';
+      samples = 1201;
+    } else {
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.Toast.error(`Invalid file size (${fileSize} bytes). Expected SRTM1 or SRTM3 format.`, 4000);
+      }
+      return;
+    }
+
+    // Parse elevation data (big-endian 16-bit signed integers)
+    const elevationData = new Int16Array(samples * samples);
+    for (let i = 0; i < samples * samples; i++) {
+      // SRTM data is stored in big-endian format
+      elevationData[i] = dataView.getInt16(i * 2, false);
+    }
+
+    // Import tile into IndexedDB
+    await SRTMElevation.importTile(tileId, tileType, elevationData, 'user_upload');
+
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.Toast.success(`SRTM tile ${tileId} (${tileType}) uploaded successfully!`, 4000);
+    }
+
+    // Refresh tile list
+    handleListSRTMTiles();
+
+  } catch (error) {
+    console.error('[MapViewer] Error uploading SRTM tile:', error);
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.Toast.error('Failed to upload SRTM tile. Check console for details.', 4000);
+    }
+  }
+}
+
 async function handleListSRTMTiles() {
   try {
     const tiles = await SRTMElevation.listTiles();
