@@ -4,7 +4,7 @@
  */
 
 const PlatformDesigner = (() => {
-  const STORAGE_KEY = 'ceradon_platform_designs';
+  const STORAGE_KEY = 'cots_platform_designs';
 
   /**
    * Create empty platform design

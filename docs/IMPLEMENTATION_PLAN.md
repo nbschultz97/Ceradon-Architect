@@ -1,8 +1,8 @@
-# Ceradon Architect Stack - Implementation Plan
+# COTS Architect Stack - Implementation Plan
 
 ## Executive Summary
 
-This document outlines the implementation strategy for transforming the Ceradon Architect Stack from an orchestration hub into a fully offline-capable, unified mission-planning application for small teams in disconnected environments.
+This document outlines the implementation strategy for transforming the COTS Architect Stack from an orchestration hub into a fully offline-capable, unified mission-planning application for small teams in disconnected environments.
 
 **Current State:** Static hub with links to external tools (NOT offline-capable)
 **Target State:** Complete offline-first application with all planning modules built-in

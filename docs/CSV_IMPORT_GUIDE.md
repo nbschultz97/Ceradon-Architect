@@ -2,7 +2,7 @@
 
 ## Overview
 
-Ceradon Architect supports importing parts inventory from CSV files. Each part category has specific required and optional fields.
+COTS Architect supports importing parts inventory from CSV files. Each part category has specific required and optional fields.
 
 ## How to Import
 
@@ -192,5 +192,5 @@ See the full mapping table in [csv_importer.js](../assets/js/csv_importer.js) (M
 ## Need Help?
 
 - Check the [schema documentation](../schema/parts_library_schema.json) for detailed field specifications
-- Review the [sample parts catalog](../assets/data/sample_parts_catalog.json) for examples
+- Review the [sample parts catalog](../data/sample_parts_library.json) for examples
 - Report issues at https://github.com/nbschultz97/Ceradon-Architect/issues

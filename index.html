@@ -13,19 +13,19 @@
 </head>
 <body>
   <header class="top-nav">
-    <a href="/#/home" class="brand" style="text-decoration: none; color: inherit; cursor: pointer;">
+    <a href="#/home" class="brand" style="text-decoration: none; color: inherit; cursor: pointer;">
       <div class="logo-dot" aria-hidden="true"></div>
       <span class="wordmark">COTS Architect</span>
     </a>
     <nav aria-label="Primary">
       <ul class="nav-links">
-        <li><a href="/#/home" data-route="home">Home</a></li>
-        <li><a href="/#/library" data-route="library">Parts Library</a></li>
-        <li><a href="/#/platform" data-route="platform">Platform Designer</a></li>
-        <li><a href="/#/mission" data-route="mission">Mission Planner</a></li>
-        <li><a href="/#/comms" data-route="comms">Comms Validator</a></li>
-        <li><a href="/#/map" data-route="map">🗺️ Map & Environment</a></li>
-        <li><a href="/#/export" data-route="export">Export</a></li>
+        <li><a href="#/home" data-route="home">Home</a></li>
+        <li><a href="#/library" data-route="library">Parts Library</a></li>
+        <li><a href="#/platform" data-route="platform">Platform Designer</a></li>
+        <li><a href="#/mission" data-route="mission">Mission Planner</a></li>
+        <li><a href="#/comms" data-route="comms">Comms Validator</a></li>
+        <li><a href="#/map" data-route="map">🗺️ Map & Environment</a></li>
+        <li><a href="#/export" data-route="export">Export</a></li>
       </ul>
     </nav>
     <button class="toggle" id="themeToggle" aria-label="Toggle light or dark theme">🌙</button>
@@ -85,7 +85,7 @@
           <h1>Design. Validate. Deploy.</h1>
           <p class="lead">Build custom sUAS platforms, plan multi-day missions with logistics, and validate RF communications — entirely offline, entirely in your browser. No cloud, no APIs, no internet required.</p>
           <div class="hero-actions">
-            <a class="btn primary" href="/#/library">Start with Parts Library</a>
+            <a class="btn primary" href="#/library">Start with Parts Library</a>
             <button class="btn ghost" id="loadSampleMission">Load Sample Mission</button>
           </div>
           <p class="small muted">All data stays local. Export mission packages as JSON. Works in air-gapped environments.</p>
@@ -125,27 +125,27 @@
           <div class="qs-step">
             <strong>1. Parts Library</strong>
             <p class="small">Load COTS components or import your unit's inventory from CSV.</p>
-            <a class="btn subtle" href="/#/library">Open Parts Library →</a>
+            <a class="btn subtle" href="#/library">Open Parts Library →</a>
           </div>
           <div class="qs-step">
             <strong>2. Platform Designer</strong>
             <p class="small">Build platforms from parts, validate thrust-to-weight and flight time.</p>
-            <a class="btn subtle" href="/#/platform">Design Platform →</a>
+            <a class="btn subtle" href="#/platform">Design Platform →</a>
           </div>
           <div class="qs-step">
             <strong>3. Mission Planner</strong>
             <p class="small">Define phases, calculate battery swaps, generate packing lists.</p>
-            <a class="btn subtle" href="/#/mission">Plan Mission →</a>
+            <a class="btn subtle" href="#/mission">Plan Mission →</a>
           </div>
           <div class="qs-step">
             <strong>4. Comms Validator</strong>
             <p class="small">Check RF link budgets, validate line-of-sight, place relays.</p>
-            <a class="btn subtle" href="/#/comms">Validate Comms →</a>
+            <a class="btn subtle" href="#/comms">Validate Comms →</a>
           </div>
           <div class="qs-step">
             <strong>5. Export</strong>
             <p class="small">Download complete mission package as JSON for field deployment.</p>
-            <a class="btn subtle" href="/#/export">Export Package →</a>
+            <a class="btn subtle" href="#/export">Export Package →</a>
           </div>
         </div>
       </div>
@@ -275,7 +275,7 @@
         <div class="card">
           <h3>Environment</h3>
           <p class="small muted" style="margin-bottom: 12px;">
-            💡 <strong>Tip:</strong> Use the <a href="/#/map" style="color: #667eea; text-decoration: underline;">Map & Environment module</a> to auto-populate elevation and get temperature suggestions based on your mission location.
+            💡 <strong>Tip:</strong> Use the <a href="#/map" style="color: #667eea; text-decoration: underline;">Map & Environment module</a> to auto-populate elevation and get temperature suggestions based on your mission location.
           </p>
           <div class="form-grid">
             <label>Altitude (m)
@@ -350,7 +350,7 @@
           <h3>🗺️ Mission Environment Setup</h3>
           <p class="small" style="margin-bottom: 12px;">Before planning logistics, select your mission location and query environmental data for accurate physics calculations.</p>
           <div class="action-row">
-            <a href="/#/map" class="btn primary">
+            <a href="#/map" class="btn primary">
               📍 Select Location on Map
             </a>
             <button class="btn ghost" onclick="alert('First select a location on the Map, then query environmental data for temperature/wind suggestions.')">
@@ -604,7 +604,7 @@
       <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 32px; margin-bottom: 24px;">
         <!-- About -->
         <div>
-          <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">Ceradon Architect</h4>
+          <h4 style="margin: 0 0 12px 0; font-size: 16px; font-weight: 600;">COTS Architect</h4>
           <p style="margin: 0 0 12px 0; font-size: 14px; color: var(--text-muted); line-height: 1.6;">
             Offline-first mission planning for air-gapped, contested environments. Design platforms, plan logistics, validate communications — entirely in your browser with zero cloud dependencies.
           </p>
@@ -689,6 +689,7 @@
 
   <!-- Then load MissionProject store and main app -->
   <script src="assets/js/mission_project.js"></script>
+  <script src="assets/js/desktop_session.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

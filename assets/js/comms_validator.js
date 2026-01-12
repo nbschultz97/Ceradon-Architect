@@ -5,7 +5,7 @@
  */
 
 const CommsValidator = (() => {
-  const STORAGE_KEY = 'ceradon_comms_analyses';
+  const STORAGE_KEY = 'cots_comms_analyses';
 
   // Speed of light (m/s)
   const SPEED_OF_LIGHT = 299792458;

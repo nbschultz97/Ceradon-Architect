@@ -1,6 +1,6 @@
 # MissionProject schema v2.0.0
 
-MissionProject is the neutral JSON contract shared by every Ceradon Architect planner. Version `2.0.0` lives in this repo as `schema/mission_project_schema_v2.json` and is the single source of truth for downstream tools.
+MissionProject is the neutral JSON contract shared by every COTS Architect planner. Version `2.0.0` lives in this repo as `schema/mission_project_schema_v2.json` and is the single source of truth for downstream tools.
 
 ## Top-level keys
 

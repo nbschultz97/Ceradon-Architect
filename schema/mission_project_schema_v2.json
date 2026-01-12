@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "MissionProject",
-  "description": "Ceradon Architect MissionProject schema v2.0.0. Shared JSON contract across Mission, Node, UxS, Mesh, and KitSmith planners.",
+  "description": "COTS Architect MissionProject schema v2.0.0. Shared JSON contract across Mission, Node, UxS, Mesh, and KitSmith planners.",
   "type": "object",
   "required": ["schemaVersion", "meta", "mission", "environment"],
   "properties": {

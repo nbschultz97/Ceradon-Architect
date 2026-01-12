@@ -53,6 +53,38 @@ function handleHashChange() {
   setActiveRoute(hash);
 }
 
+function migrateLegacyStorage() {
+  const migrations = [
+    ['ceradon_theme', 'cots_theme'],
+    ['ceradon_mission_project', 'cots_mission_project'],
+    ['ceradon_mission_project_updated_at', 'cots_mission_project_updated_at'],
+    ['ceradon_mission_plans', 'cots_mission_plans'],
+    ['ceradon_platform_designs', 'cots_platform_designs'],
+    ['ceradon_comms_analyses', 'cots_comms_analyses'],
+    ['ceradon_environmental_data', 'cots_environmental_data'],
+    ['ceradon_selected_location', 'cots_selected_location'],
+    ['ceradon_map_locations', 'cots_map_locations'],
+    ['ceradon_elevation_cache', 'cots_elevation_cache'],
+    ['ceradon_last_event', 'cots_last_event'],
+    ['ceradon_parts_library', 'cots_parts_library'],
+    ['ceradon_workflow_progress', 'cots_workflow_progress']
+  ];
+
+  try {
+    migrations.forEach(([fromKey, toKey]) => {
+      const legacyValue = localStorage.getItem(fromKey);
+      if (legacyValue !== null && localStorage.getItem(toKey) === null) {
+        localStorage.setItem(toKey, legacyValue);
+      }
+      if (legacyValue !== null) {
+        localStorage.removeItem(fromKey);
+      }
+    });
+  } catch (error) {
+    console.warn('Legacy storage migration skipped:', error);
+  }
+}
+
 // ============================================================================
 // THEME TOGGLE
 // ============================================================================
@@ -61,7 +93,7 @@ function initThemeToggle() {
   const toggle = document.getElementById('themeToggle');
   const html = document.documentElement;
 
-  const savedTheme = localStorage.getItem('ceradon_theme') || 'dark';
+  const savedTheme = localStorage.getItem('cots_theme') || 'dark';
   html.setAttribute('data-theme', savedTheme);
   toggle.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
 
@@ -70,7 +102,7 @@ function initThemeToggle() {
     const next = current === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     toggle.textContent = next === 'dark' ? '🌙' : '☀️';
-    localStorage.setItem('ceradon_theme', next);
+    localStorage.setItem('cots_theme', next);
   });
 }
 
@@ -194,7 +226,10 @@ function handleProjectImport(event) {
 
 function clearProject() {
   if (confirm('Clear current project? This will remove all local data.')) {
+    localStorage.removeItem('cots_mission_project');
+    localStorage.removeItem('cots_mission_project_updated_at');
     localStorage.removeItem('ceradon_mission_project');
+    localStorage.removeItem('ceradon_mission_project_updated_at');
     updateProjectStatus();
   }
 }
@@ -473,8 +508,8 @@ function initPlatformDesigner() {
 
   // Check for environmental data from map and auto-populate if not already set
   try {
-    const envData = localStorage.getItem('ceradon_environmental_data');
-    const location = localStorage.getItem('ceradon_selected_location');
+    const envData = localStorage.getItem('cots_environmental_data');
+    const location = localStorage.getItem('cots_selected_location');
 
     if (envData && location) {
       const parsedEnvData = JSON.parse(envData);
@@ -624,7 +659,7 @@ async function loadComponentSelectors() {
     if (typeof PartsLibrary === 'undefined') {
       container.innerHTML = `
         <p class="small muted">Parts Library not loaded. Load parts first.</p>
-        <a class="btn subtle" href="/#/library">Go to Parts Library →</a>
+        <a class="btn subtle" href="#/library">Go to Parts Library →</a>
       `;
       return;
     }
@@ -1212,8 +1247,8 @@ function initMissionPlanner() {
 
   // Check for existing location data from localStorage
   try {
-    const location = localStorage.getItem('ceradon_selected_location');
-    const envData = localStorage.getItem('ceradon_environmental_data');
+    const location = localStorage.getItem('cots_selected_location');
+    const envData = localStorage.getItem('cots_environmental_data');
 
     if (location && currentMissionPlan) {
       const parsedLocation = JSON.parse(location);
@@ -1404,7 +1439,7 @@ function calculateMissionLogistics() {
       <div style="padding: 12px; background: #ffaa00; color: #000; border-radius: 8px;">
         <p class="small"><strong>⚠️ No Platform Designs Found</strong></p>
         <p class="small">Create and save platform designs in the Platform Designer first.</p>
-        <a class="btn subtle" href="/#/platform" style="margin-top: 8px;">Go to Platform Designer →</a>
+        <a class="btn subtle" href="#/platform" style="margin-top: 8px;">Go to Platform Designer →</a>
       </div>
     `;
     return;
@@ -2032,7 +2067,7 @@ async function exportMissionJSON() {
     const exportPackage = {
       schemaVersion: '2.0.0',
       exported: new Date().toISOString(),
-      tool: 'Ceradon Architect - Offline Mission Planner',
+      tool: 'COTS Architect - Offline Mission Planner',
       data: {
         partsLibrary: partsLibrary,
         platforms: platforms,
@@ -2053,7 +2088,7 @@ async function exportMissionJSON() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `ceradon_mission_package_${Date.now()}.json`;
+    a.download = `cots_mission_package_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
 
@@ -2318,7 +2353,7 @@ async function handleGetEnvironmentalData() {
 
       // Save to localStorage for cross-module persistence
       try {
-        localStorage.setItem('ceradon_environmental_data', JSON.stringify(envData));
+        localStorage.setItem('cots_environmental_data', JSON.stringify(envData));
       } catch (error) {
         console.error('[MapViewer] Error saving environmental data to localStorage:', error);
       }
@@ -2393,7 +2428,7 @@ async function handleGetEnvironmentalData() {
 
       // Save to localStorage
       try {
-        localStorage.setItem('ceradon_environmental_data', JSON.stringify(rangeData));
+        localStorage.setItem('cots_environmental_data', JSON.stringify(rangeData));
       } catch (error) {
         console.error('[MapViewer] Error saving environmental data to localStorage:', error);
       }
@@ -2763,6 +2798,8 @@ async function handleListSRTMTiles() {
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('COTS Architect initializing...');
+
+  migrateLegacyStorage();
 
   initThemeToggle();
   initVersionBadges();

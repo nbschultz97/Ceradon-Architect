@@ -33,7 +33,7 @@ const MissionProjectEvents = (() => {
     window.dispatchEvent(event);
 
     // Also emit to localStorage for cross-tab sync
-    localStorage.setItem('ceradon_last_event', JSON.stringify({
+    localStorage.setItem('cots_last_event', JSON.stringify({
       type: eventType,
       detail: detail,
       timestamp: new Date().toISOString()
@@ -71,28 +71,28 @@ const MissionProjectEvents = (() => {
   // Cross-tab storage event listener
   const initStorageSync = () => {
     window.addEventListener('storage', (event) => {
-      if (event.key === 'ceradon_platform_designs' && event.newValue !== event.oldValue) {
+      if (event.key === 'cots_platform_designs' && event.newValue !== event.oldValue) {
         emit(EVENTS.PLATFORM_DESIGN_UPDATED, {
           source: 'storage_sync',
           designs: JSON.parse(event.newValue || '[]')
         });
       }
 
-      if (event.key === 'ceradon_mission_plans' && event.newValue !== event.oldValue) {
+      if (event.key === 'cots_mission_plans' && event.newValue !== event.oldValue) {
         emit(EVENTS.MISSION_PLAN_UPDATED, {
           source: 'storage_sync',
           plans: JSON.parse(event.newValue || '[]')
         });
       }
 
-      if (event.key === 'ceradon_comms_analyses' && event.newValue !== event.oldValue) {
+      if (event.key === 'cots_comms_analyses' && event.newValue !== event.oldValue) {
         emit(EVENTS.COMMS_ANALYSIS_UPDATED, {
           source: 'storage_sync',
           analyses: JSON.parse(event.newValue || '[]')
         });
       }
 
-      if (event.key === 'ceradon_mission_project' && event.newValue !== event.oldValue) {
+      if (event.key === 'cots_mission_project' && event.newValue !== event.oldValue) {
         emit(EVENTS.MISSION_PROJECT_UPDATED, {
           source: 'storage_sync',
           project: JSON.parse(event.newValue || '{}')

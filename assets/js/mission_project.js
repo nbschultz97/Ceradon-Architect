@@ -1,5 +1,5 @@
 // MissionProject schema and persistence helpers
-// Keeps mission state consistent across Ceradon Architect tools.
+// Keeps mission state consistent across COTS Architect tools.
 // Downstream tool responsibilities:
 // - Node Architect: populates nodes[], RF/power envelopes, environment + constraint hints.
 // - UxS Architect: populates platforms[], platform metrics, sortie timing, and lift/payload checks.
@@ -10,8 +10,10 @@
 const MISSION_PROJECT_SCHEMA_VERSION = '2.0.0';
 
 const MissionProjectStore = (() => {
-  const STORAGE_KEY = 'ceradon_mission_project';
-  const UPDATED_AT_KEY = 'ceradon_mission_project_updated_at';
+  const STORAGE_KEY = 'cots_mission_project';
+  const UPDATED_AT_KEY = 'cots_mission_project_updated_at';
+  const LEGACY_STORAGE_KEY = 'ceradon_mission_project';
+  const LEGACY_UPDATED_AT_KEY = 'ceradon_mission_project_updated_at';
 
   const createEmptyMissionProject = () => ({
     schemaVersion: MISSION_PROJECT_SCHEMA_VERSION,
@@ -77,7 +79,24 @@ const MissionProjectStore = (() => {
 
   const ensureArray = (value) => (Array.isArray(value) ? value : []);
 
-  const hasMissionProject = () => Boolean(localStorage.getItem(STORAGE_KEY));
+  const hasMissionProject = () => Boolean(localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY));
+
+  const migrateLegacyProject = () => {
+    if (localStorage.getItem(STORAGE_KEY)) {
+      return;
+    }
+    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (!legacy) {
+      return;
+    }
+    localStorage.setItem(STORAGE_KEY, legacy);
+    const legacyUpdated = localStorage.getItem(LEGACY_UPDATED_AT_KEY);
+    if (legacyUpdated) {
+      localStorage.setItem(UPDATED_AT_KEY, legacyUpdated);
+    }
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_UPDATED_AT_KEY);
+  };
 
   const tagOrigin = (collection, fallback = 'hub') => ensureArray(collection).map((item, index) => ({
     ...item,
@@ -309,6 +328,7 @@ const MissionProjectStore = (() => {
   };
 
   const loadMissionProject = () => {
+    migrateLegacyProject();
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return createEmptyMissionProject();
 
@@ -341,10 +361,12 @@ const MissionProjectStore = (() => {
   const clearMissionProject = () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(UPDATED_AT_KEY);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_UPDATED_AT_KEY);
     return createEmptyMissionProject();
   };
 
-  const getLastUpdated = () => localStorage.getItem(UPDATED_AT_KEY);
+  const getLastUpdated = () => localStorage.getItem(UPDATED_AT_KEY) || localStorage.getItem(LEGACY_UPDATED_AT_KEY);
 
   const exportMissionProject = (fileName = 'mission_project.json') => {
     const project = loadMissionProject();
@@ -567,7 +589,7 @@ const MissionProjectStore = (() => {
         ...ensureArray(project.nodes).filter(n => n.role === 'relay').map(n => n.name)
       ].join(', ') || 'Equipment list pending',
       narrative: `Planning ${project.meta?.scenario || 'mission'} with ${ensureArray(project.platforms).length} platforms across ${project.mission?.phases?.length || 0} phases.`,
-      reported_by: 'CERADON_ARCHITECT'
+      reported_by: 'COTS_ARCHITECT'
     };
 
     return report;
@@ -678,7 +700,7 @@ const MissionProjectStore = (() => {
         description: ensureArray(project.platforms).map(p => `${p.name} (${p.type})`).join(', ')
       },
       narrative: `Mission: ${project.meta?.scenario || project.meta?.description || 'TBD'}. Planning ${ensureArray(project.platforms).length} UxS platforms with ${project.meta?.team?.size || 0} operators for ${project.meta?.durationHours || 0}-hour operation.`,
-      reported_by: 'CERADON_ARCHITECT'
+      reported_by: 'COTS_ARCHITECT'
     };
 
     return report;
@@ -785,7 +807,7 @@ const MissionProjectStore = (() => {
       line15_crew: 'NONE',
       line16_ventilation: 'N/A',
       notes: 'This is a TEMPLATE generated from mission planning data. Update fields 5-16 based on actual situation.',
-      reported_by: 'CERADON_ARCHITECT'
+      reported_by: 'COTS_ARCHITECT'
     };
 
     return report;
