@@ -1,4 +1,4 @@
-# Ceradon Architect - Offline Mission Planning Tool
+# COTS Architect - Offline Mission Planning Tool
 
 ![Version](https://img.shields.io/badge/version-0.4.0--alpha.2-blue)
 ![Stage](https://img.shields.io/badge/stage-alpha-orange)
@@ -8,7 +8,7 @@
 
 **Fully Offline Mission Planning for Air-Gapped Environments**
 
-Ceradon Architect is a professional, offline-first web application for sUAS mission planning in contested environments. Build custom platforms from COTS components, plan multi-day missions with logistics, and validate RF communications — entirely in your browser with **zero cloud dependencies**.
+COTS Architect is a professional, offline-first web application for sUAS mission planning in contested environments. Build custom platforms from COTS components, plan multi-day missions with logistics, and validate RF communications — entirely in your browser with **zero cloud dependencies**.
 
 Maintained by **Noah Schultz (individual)**.
 
@@ -86,14 +86,48 @@ python -m http.server 8000
 # Open http://localhost:8000
 ```
 
+## Desktop App (Windows)
+
+You can package this repo as a Windows desktop app with an installer and desktop shortcut. The desktop build auto-saves MissionProject JSON to a timestamped file for each session so you can open older sessions later.
+
+### Build installer (connected machine)
+1. Install Node.js LTS.
+2. From the repo root:
+
+```bash
+npm install
+npm run desktop:dist
+```
+
+The installer will be created in `dist-desktop`. Copy the installer to your air-gapped machine and run it.
+
+For local desktop testing:
+
+```bash
+npm run desktop:dev
+```
+
+Debug tools:
+- Press `Ctrl+Shift+I` inside the desktop app to open DevTools.
+- Or launch with `COTS_DEBUG=1` (or `CERADON_DEBUG=1`) to auto-open DevTools.
+
+### Session files
+Each app launch creates a new session file at:
+
+```
+%USERPROFILE%\Documents\COTS-Architect\Sessions\session_YYYYMMDD_HHMMSS.json
+```
+
+To open an older session, use the **Import JSON** button on the Home screen and select the file.
+
 Navigate with hash routes:
-- `/#/home` - Overview and quick start
-- `/#/library` - Parts Library (manage COTS components)
-- `/#/platform` - Platform Designer (build and validate platforms)
-- `/#/mission` - Mission Planner (phases, logistics, packing lists)
-- `/#/comms` - Comms Validator (RF link budgets, relay placement)
-- `/#/map` - **NEW** Map Viewer (GIS, location picker, environmental almanac)
-- `/#/export` - Export mission packages (JSON, GeoJSON, CoT)
+- `#/home` - Overview and quick start
+- `#/library` - Parts Library (manage COTS components)
+- `#/platform` - Platform Designer (build and validate platforms)
+- `#/mission` - Mission Planner (phases, logistics, packing lists)
+- `#/comms` - Comms Validator (RF link budgets, relay placement)
+- `#/map` - **NEW** Map Viewer (GIS, location picker, environmental almanac)
+- `#/export` - Export mission packages (JSON, GeoJSON, CoT)
 
 ### Demo Site vs Production Deployment
 
@@ -535,7 +569,7 @@ The site is fully static and GitHub Pages-compatible:
 
 ## Security Notes
 
-Ceradon Architect is built to avoid external dependencies and keep data local to the browser. The project includes a non-certifying, self-review checklist in [SECURITY_AUDIT_v0.3.md](SECURITY_AUDIT_v0.3.md); it is not an accreditation or operational approval.
+COTS Architect is built to avoid external dependencies and keep data local to the browser. The project includes a non-certifying, self-review checklist in [SECURITY_AUDIT_v0.3.md](SECURITY_AUDIT_v0.3.md); it is not an accreditation or operational approval.
 
 **Security Highlights:**
 - ✅ **Zero External Dependencies** - No CDN calls, API requests, or cloud services when deployed offline

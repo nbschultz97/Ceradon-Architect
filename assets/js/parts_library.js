@@ -6,7 +6,8 @@
  */
 
 const PARTS_LIBRARY_VERSION = '1.0.0';
-const DB_NAME = 'CeradonPartsLibrary';
+const DB_NAME = 'COTSPartsLibrary';
+const LEGACY_DB_NAME = 'CeradonPartsLibrary';
 const DB_VERSION = 1;
 
 const PartsLibrary = (() => {
@@ -27,6 +28,101 @@ const PartsLibrary = (() => {
   /**
    * Initialize IndexedDB
    */
+  const listDatabases = async () => {
+    if (typeof indexedDB.databases !== 'function') {
+      return [];
+    }
+    try {
+      return await indexedDB.databases();
+    } catch (error) {
+      return [];
+    }
+  };
+
+  const hasAnyRecords = (database) => new Promise((resolve) => {
+    const storeNames = Array.from(database.objectStoreNames);
+    if (!storeNames.length) {
+      resolve(false);
+      return;
+    }
+
+    let pending = storeNames.length;
+    let hasData = false;
+    storeNames.forEach((storeName) => {
+      const tx = database.transaction(storeName, 'readonly');
+      const store = tx.objectStore(storeName);
+      const countRequest = store.count();
+      countRequest.onsuccess = () => {
+        if (countRequest.result > 0) {
+          hasData = true;
+        }
+      };
+      const finish = () => {
+        pending -= 1;
+        if (pending === 0) {
+          resolve(hasData);
+        }
+      };
+      tx.oncomplete = finish;
+      tx.onerror = finish;
+      tx.onabort = finish;
+    });
+  });
+
+  const readAllFromStore = (database, storeName) => new Promise((resolve) => {
+    const tx = database.transaction(storeName, 'readonly');
+    const store = tx.objectStore(storeName);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => resolve([]);
+  });
+
+  const writeAllToStore = (database, storeName, records) => new Promise((resolve) => {
+    if (!records || records.length === 0) {
+      resolve();
+      return;
+    }
+    const tx = database.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    records.forEach(record => store.put(record));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  });
+
+  const migrateLegacyLibrary = async (database) => {
+    if (LEGACY_DB_NAME === DB_NAME) {
+      return;
+    }
+    const dbs = await listDatabases();
+    const legacyExists = dbs.some((entry) => entry && entry.name === LEGACY_DB_NAME);
+    if (!legacyExists) {
+      return;
+    }
+    const hasData = await hasAnyRecords(database);
+    if (hasData) {
+      return;
+    }
+
+    const legacyRequest = indexedDB.open(LEGACY_DB_NAME, DB_VERSION);
+    const legacyDb = await new Promise((resolve) => {
+      legacyRequest.onsuccess = () => resolve(legacyRequest.result);
+      legacyRequest.onerror = () => resolve(null);
+      legacyRequest.onupgradeneeded = () => resolve(null);
+    });
+
+    if (!legacyDb) {
+      return;
+    }
+
+    const legacyStores = Array.from(legacyDb.objectStoreNames);
+    for (const storeName of legacyStores) {
+      const records = await readAllFromStore(legacyDb, storeName);
+      await writeAllToStore(database, storeName, records);
+    }
+
+    legacyDb.close();
+  };
+
   const initDB = () => {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -34,7 +130,7 @@ const PartsLibrary = (() => {
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         db = request.result;
-        resolve(db);
+        migrateLegacyLibrary(db).finally(() => resolve(db));
       };
 
       request.onupgradeneeded = (event) => {
@@ -432,7 +528,7 @@ const PartsLibrary = (() => {
    */
   const loadSampleCatalog = async () => {
     try {
-      const response = await fetch('assets/data/sample_parts_catalog.json');
+      const response = await fetch('data/sample_parts_library.json');
       if (!response.ok) {
         throw new Error('Failed to load sample catalog');
       }

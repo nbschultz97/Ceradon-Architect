@@ -5,8 +5,8 @@
  */
 
 const MapViewer = (() => {
-  const STORAGE_KEY = 'ceradon_map_locations';
-  const ELEVATION_CACHE_KEY = 'ceradon_elevation_cache';
+  const STORAGE_KEY = 'cots_map_locations';
+  const ELEVATION_CACHE_KEY = 'cots_elevation_cache';
 
   // Default map center (global overview)
   const DEFAULT_CENTER = { lat: 30, lon: 0, zoom: 3 };
@@ -150,7 +150,7 @@ const MapViewer = (() => {
 
     // Save to localStorage for cross-module persistence
     try {
-      localStorage.setItem('ceradon_selected_location', JSON.stringify(selectedLocation));
+      localStorage.setItem('cots_selected_location', JSON.stringify(selectedLocation));
     } catch (error) {
       console.error('[MapViewer] Error saving location to localStorage:', error);
     }

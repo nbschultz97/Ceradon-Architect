@@ -1,4 +1,4 @@
-# Ceradon Architect v0.3 Security Hardening & Baseline Review
+# COTS Architect v0.3 Security Hardening & Baseline Review
 
 **Date:** 2026-01-08
 **Branch:** `claude/v0.3-security-hardening-V7JFt`
@@ -292,7 +292,7 @@
 
 ### ✅ v0.3 BASELINE CERTIFICATION
 
-**The Ceradon Architect Stack v0.3 is:**
+**The COTS Architect Stack v0.3 is:**
 - ✅ Functionally complete for mission planning
 - ✅ Secure for air-gapped deployment
 - ✅ Client-agnostic and ready for generic demonstration

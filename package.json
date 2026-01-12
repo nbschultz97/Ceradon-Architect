@@ -1,0 +1,47 @@
+{
+  "name": "cots-architect-desktop",
+  "version": "0.4.0-alpha.2",
+  "private": true,
+  "main": "desktop/main.js",
+  "scripts": {
+    "desktop:dev": "electron .",
+    "desktop:dist": "electron-builder --win --x64"
+  },
+  "devDependencies": {
+    "electron": "^29.1.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.cots.architect",
+    "productName": "COTS Architect",
+    "directories": {
+      "output": "dist-desktop"
+    },
+    "files": [
+      "desktop/**/*",
+      "index.html",
+      "assets/**/*",
+      "data/**/*",
+      "docs/**/*",
+      "schema/**/*",
+      "version.json",
+      "LICENSE",
+      "README.md",
+      "CHANGELOG.md",
+      "DISCLAIMER.md",
+      "SECURITY.md",
+      "SECURITY_AUDIT_v0.3.md"
+    ],
+    "win": {
+      "target": "nsis",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "COTS Architect"
+    }
+  }
+}

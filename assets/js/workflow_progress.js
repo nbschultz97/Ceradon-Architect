@@ -99,7 +99,7 @@ const WorkflowProgress = (() => {
 
       case 'mission': {
         // Check if mission plans exist
-        const missionKey = 'ceradon_mission_plans';
+        const missionKey = 'cots_mission_plans';
         const stored = localStorage.getItem(missionKey);
         if (!stored) return ModuleState.EMPTY;
 
@@ -117,7 +117,7 @@ const WorkflowProgress = (() => {
 
       case 'comms': {
         // Check if comms analyses exist
-        const commsKey = 'ceradon_comms_analyses';
+        const commsKey = 'cots_comms_analyses';
         const stored = localStorage.getItem(commsKey);
         if (!stored) return ModuleState.EMPTY;
 
@@ -197,15 +197,15 @@ const WorkflowProgress = (() => {
    */
   const handleProgressStepClick = (module) => {
     const routes = {
-      library: '/#/library',
-      platform: '/#/platform',
-      mission: '/#/mission',
-      comms: '/#/comms',
-      export: '/#/export'
+      library: '#/library',
+      platform: '#/platform',
+      mission: '#/mission',
+      comms: '#/comms',
+      export: '#/export'
     };
 
     if (routes[module]) {
-      window.location.hash = routes[module].replace('/#/', '');
+      window.location.hash = routes[module];
     }
   };
 
@@ -227,7 +227,7 @@ const WorkflowProgress = (() => {
 
     // Listen to storage changes to update progress
     window.addEventListener('storage', (e) => {
-      if (e.key && (e.key.includes('ceradon') || e.key === 'MissionProject')) {
+      if (e.key && ((e.key.includes('cots') || e.key.includes('ceradon')) || e.key === 'MissionProject')) {
         autoDetectStates();
         updateProgressBar();
       }

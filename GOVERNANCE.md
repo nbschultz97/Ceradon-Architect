@@ -1,7 +1,7 @@
 # Governance
 
 ## Maintainer
-Ceradon Architect is maintained by **Noah Schultz (individual)**.
+COTS Architect is maintained by **Noah Schultz (individual)**.
 
 ## Decision making
 - The maintainer makes final decisions on roadmap, releases, and governance.

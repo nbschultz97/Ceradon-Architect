@@ -5,7 +5,7 @@
  */
 
 const MissionPlanner = (() => {
-  const STORAGE_KEY = 'ceradon_mission_plans';
+  const STORAGE_KEY = 'cots_mission_plans';
 
   // Standard mission phase types
   const PHASE_TYPES = {

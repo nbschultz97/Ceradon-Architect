@@ -5,7 +5,8 @@
  */
 
 const SRTMElevation = (() => {
-  const DB_NAME = 'ceradon_srtm_tiles';
+  const DB_NAME = 'cots_srtm_tiles';
+  const LEGACY_DB_NAME = 'ceradon_srtm_tiles';
   const DB_VERSION = 1;
   const STORE_NAME = 'elevation_tiles';
 
@@ -20,6 +21,75 @@ const SRTMElevation = (() => {
   /**
    * Initialize IndexedDB for SRTM tile storage
    */
+  const listDatabases = async () => {
+    if (typeof indexedDB.databases !== 'function') {
+      return [];
+    }
+    try {
+      return await indexedDB.databases();
+    } catch (error) {
+      return [];
+    }
+  };
+
+  const storeHasData = (database) => new Promise((resolve) => {
+    const tx = database.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.count();
+    request.onsuccess = () => resolve(request.result > 0);
+    request.onerror = () => resolve(false);
+  });
+
+  const readAllFromStore = (database) => new Promise((resolve) => {
+    const tx = database.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const request = store.getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => resolve([]);
+  });
+
+  const writeAllToStore = (database, records) => new Promise((resolve) => {
+    if (!records || records.length === 0) {
+      resolve();
+      return;
+    }
+    const tx = database.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    records.forEach(record => store.put(record));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => resolve();
+  });
+
+  const migrateLegacyTiles = async (database) => {
+    if (LEGACY_DB_NAME === DB_NAME) {
+      return;
+    }
+    const dbs = await listDatabases();
+    const legacyExists = dbs.some((entry) => entry && entry.name === LEGACY_DB_NAME);
+    if (!legacyExists) {
+      return;
+    }
+    const hasData = await storeHasData(database);
+    if (hasData) {
+      return;
+    }
+
+    const legacyRequest = indexedDB.open(LEGACY_DB_NAME, DB_VERSION);
+    const legacyDb = await new Promise((resolve) => {
+      legacyRequest.onsuccess = () => resolve(legacyRequest.result);
+      legacyRequest.onerror = () => resolve(null);
+      legacyRequest.onupgradeneeded = () => resolve(null);
+    });
+
+    if (!legacyDb) {
+      return;
+    }
+
+    const records = await readAllFromStore(legacyDb);
+    await writeAllToStore(database, records);
+    legacyDb.close();
+  };
+
   const initDB = () => {
     return new Promise((resolve, reject) => {
       if (db) {
@@ -37,7 +107,7 @@ const SRTMElevation = (() => {
       request.onsuccess = () => {
         db = request.result;
         console.log('[SRTM] Database initialized');
-        resolve(db);
+        migrateLegacyTiles(db).finally(() => resolve(db));
       };
 
       request.onupgradeneeded = (event) => {

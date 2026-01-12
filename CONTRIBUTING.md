@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for contributing to Ceradon Architect.
+Thanks for contributing to COTS Architect.
 
 ## Local development
 This repo is a static single-page app. Serve it locally with:

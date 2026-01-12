@@ -1,6 +1,6 @@
 # Disclaimer
 
-Ceradon Architect is an open-source demo maintained by **Noah Schultz (individual)**.
+COTS Architect is an open-source demo maintained by **Noah Schultz (individual)**.
 
 - **No endorsement:** Not affiliated with or endorsed by DoD/USG.
 - **Demo-only content:** Data and scenarios are example placeholders and do not represent real operations.

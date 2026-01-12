@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "PartsLibrary",
-  "description": "Ceradon Architect Parts Library schema v1.0.0. COTS component catalog for offline platform design.",
+  "description": "COTS Architect Parts Library schema v1.0.0. COTS component catalog for offline platform design.",
   "type": "object",
   "properties": {
     "schemaVersion": {
