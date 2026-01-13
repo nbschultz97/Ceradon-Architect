@@ -369,7 +369,41 @@ async function handleCSVImport(event) {
     }
   } catch (error) {
     console.error('Failed to import CSV:', error);
-    alert(`Failed to import CSV:\n\n${error.message}\n\nCheck the console for more details.`);
+    console.error('Full error details:', error);
+    console.error('Import result:', result);
+
+    // Create detailed error message
+    const errorDetails = `=== CSV Import Error ===
+Error Message: ${error.message}
+File Name: ${file.name}
+File Size: ${file.size} bytes
+Timestamp: ${new Date().toISOString()}
+
+Stack Trace:
+${error.stack || 'No stack trace available'}
+
+Result Object:
+${JSON.stringify(result, null, 2)}
+
+Please copy this entire message when reporting the issue.`;
+
+    // Show error with copy button
+    const copyToClipboard = confirm(
+      `Failed to import CSV:\n\n${error.message}\n\n` +
+      `Click OK to copy error details to clipboard for debugging.\n` +
+      `Click Cancel to close this message.`
+    );
+
+    if (copyToClipboard) {
+      navigator.clipboard.writeText(errorDetails).then(() => {
+        alert('Error details copied to clipboard! You can now paste them for debugging.');
+      }).catch(() => {
+        // Fallback: show error details in console
+        console.log('\n\n' + errorDetails + '\n\n');
+        alert('Could not copy to clipboard. Error details are in the console (press Ctrl+Shift+I).');
+      });
+    }
+
     updatePartsStatus('Import failed');
   }
 
@@ -426,40 +460,27 @@ function handleDownloadCSVTemplate() {
     return;
   }
 
-  const categorySelect = document.getElementById('templateCategory');
-  if (!categorySelect) {
-    alert('Template category selector not found.');
-    return;
-  }
-
-  const category = categorySelect.value;
-
   try {
-    if (category === 'multi') {
-      // Generate multi-category template
-      const template = 'category,name,manufacturer,part_number,quantity,weight_g,cost_usd,link,notes\n' +
-        'airframe,5" Racing Frame,GEPRC,GEP-MK4,2,95,45,https://example.com/frame,Carbon fiber frame\n' +
-        'motor,2207 1750KV,T-Motor,F60-PRO-IV,8,31,25,https://example.com/motor,4S compatible\n' +
-        'battery,4S 1300mAh,CNHL,MiniStar-4S-1300,10,165,22,https://example.com/battery,100C discharge\n' +
-        'esc,35A BLHeli_32,Tekko32,F3-35A,4,5,18,https://example.com/esc,DShot1200 support\n' +
-        'flight_controller,F7 FC,Holybro,Kakute-F7,2,8,55,https://example.com/fc,8K gyro loop\n' +
-        'radio,ELRS 915MHz,ExpressLRS,EP2-915,2,3,25,https://example.com/radio,1W output power\n' +
-        'sensor,FPV Camera,Caddx,Ratel-2,2,5,35,https://example.com/camera,1200TVL\n' +
-        'accessory,XT60 Connectors,Amass,XT60-10PK,1,20,8,https://example.com/connectors,10-pack';
+    // Always generate multi-category template
+    const template = 'category,name,manufacturer,part_number,quantity,weight_g,cost_usd,link,notes\n' +
+      'airframe,5" Racing Frame,GEPRC,GEP-MK4,2,95,45,https://example.com/frame,Carbon fiber frame\n' +
+      'motor,2207 1750KV,T-Motor,F60-PRO-IV,8,31,25,https://example.com/motor,4S compatible\n' +
+      'battery,4S 1300mAh,CNHL,MiniStar-4S-1300,10,165,22,https://example.com/battery,100C discharge\n' +
+      'esc,35A BLHeli_32,Tekko32,F3-35A,4,5,18,https://example.com/esc,DShot1200 support\n' +
+      'flight_controller,F7 FC,Holybro,Kakute-F7,2,8,55,https://example.com/fc,8K gyro loop\n' +
+      'radio,ELRS 915MHz,ExpressLRS,EP2-915,2,3,25,https://example.com/radio,1W output power\n' +
+      'sensor,FPV Camera,Caddx,Ratel-2,2,5,35,https://example.com/camera,1200TVL\n' +
+      'accessory,XT60 Connectors,Amass,XT60-10PK,1,20,8,https://example.com/connectors,10-pack';
 
-      const blob = new Blob([template], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'multi_category_inventory_template.csv';
-      link.click();
-      URL.revokeObjectURL(url);
+    const blob = new Blob([template], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'multi_category_inventory_template.csv';
+    link.click();
+    URL.revokeObjectURL(url);
 
-      console.log('Downloaded multi-category CSV template');
-    } else {
-      CSVImporter.downloadTemplate(category);
-      console.log(`Downloaded CSV template for category: ${category}`);
-    }
+    console.log('Downloaded multi-category CSV template');
   } catch (error) {
     console.error('Failed to download CSV template:', error);
     alert('Failed to download CSV template. Check console for details.');

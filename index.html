@@ -203,31 +203,15 @@
         <div class="card">
           <h3>Import / Export</h3>
           <div class="action-row">
-            <button class="btn primary" id="importCSV">📥 Import Multi-Category CSV</button>
+            <button class="btn primary" id="importCSV">📥 Import CSV</button>
             <button class="btn ghost" id="loadSampleParts">Load Sample Catalog</button>
             <button class="btn subtle" id="exportPartsJSON">Export as JSON</button>
+            <button class="btn ghost" id="downloadCSVTemplate" style="margin-left: auto;">📄 Download Template</button>
             <input type="file" id="csvFileInput" accept=".csv" hidden>
           </div>
-          <div class="action-row" style="margin-top: 12px;">
-            <label style="flex: 1;">CSV Template Category
-              <select id="templateCategory">
-                <option value="multi">🆕 Multi-Category Template (All Types in One File)</option>
-                <option value="airframes">Airframes</option>
-                <option value="motors">Motors</option>
-                <option value="escs">ESCs</option>
-                <option value="batteries">Batteries</option>
-                <option value="flight_controllers">Flight Controllers</option>
-                <option value="radios">Radios</option>
-                <option value="sensors">Sensors</option>
-                <option value="accessories">Accessories</option>
-              </select>
-            </label>
-            <button class="btn ghost" id="downloadCSVTemplate" style="margin-top: 20px;">Download CSV Template</button>
-          </div>
           <p class="small muted" style="margin-top: 12px;">
-            <strong>📌 New:</strong> Import your entire unit inventory from ONE CSV file! Add a "category" column (airframe, motor, battery, etc.) and the system automatically distributes parts.
-            <a href="docs/MULTI_SHEET_IMPORT_GUIDE.md" target="_blank" style="color: #667eea; text-decoration: underline;">Multi-Sheet Import Guide</a> |
-            <a href="docs/CSV_IMPORT_GUIDE.md" target="_blank" style="color: #667eea; text-decoration: underline;">CSV Import Guide</a>
+            <strong>💡 Tip:</strong> Import your entire unit inventory from ONE CSV file! Add a "category" column (airframe, motor, battery, esc, radio, etc.) and the system automatically distributes parts.
+            <a href="docs/MULTI_SHEET_IMPORT_GUIDE.md" target="_blank" style="color: #667eea; text-decoration: underline;">Import Guide</a>
           </p>
           <p class="small muted" id="partsLibraryStatus">No parts loaded. Import a CSV or load sample catalog.</p>
         </div>

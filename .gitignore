@@ -2,3 +2,12 @@ node_modules/
 dist-desktop/
 desktop/.cache/
 *.log
+
+# Customer data - DO NOT COMMIT
+Customer Inventory/
+customer_*/
+*_inventory.csv
+*_inventory.xlsx
+
+# Temp files
+tmpclaude-*
