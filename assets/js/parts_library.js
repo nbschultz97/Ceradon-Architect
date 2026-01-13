@@ -451,18 +451,19 @@ const PartsLibrary = (() => {
     const errors = [];
 
     // Basic validation - check required fields based on category
+    // Note: id and weight_g are optional (id is auto-generated, weight_g may not be known)
     const requiredFields = {
-      airframes: ['id', 'name', 'type', 'weight_g'],
-      motors: ['id', 'name', 'kv', 'weight_g', 'max_thrust_g'],
-      escs: ['id', 'name', 'max_current_a', 'weight_g'],
-      batteries: ['id', 'name', 'chemistry', 'voltage_nominal_v', 'capacity_mah', 'weight_g'],
-      flight_controllers: ['id', 'name', 'weight_g'],
-      radios: ['id', 'name', 'type', 'frequency_band', 'weight_g'],
-      sensors: ['id', 'name', 'type', 'weight_g'],
-      accessories: ['id', 'name', 'category', 'weight_g']
+      airframes: ['name', 'type'],
+      motors: ['name'],
+      escs: ['name'],
+      batteries: ['name'],
+      flight_controllers: ['name'],
+      radios: ['name'],
+      sensors: ['name'],
+      accessories: ['name']
     };
 
-    const required = requiredFields[category] || ['id', 'name'];
+    const required = requiredFields[category] || ['name'];
 
     required.forEach(field => {
       if (part[field] === undefined || part[field] === null || part[field] === '') {
@@ -470,10 +471,10 @@ const PartsLibrary = (() => {
       }
     });
 
-    // Validate numeric fields are positive
+    // Validate numeric fields are positive (if provided)
     const numericFields = ['weight_g', 'cost_usd', 'max_current_a', 'capacity_mah'];
     numericFields.forEach(field => {
-      if (part[field] !== undefined && part[field] < 0) {
+      if (part[field] !== undefined && part[field] !== null && part[field] !== '' && part[field] < 0) {
         errors.push(`${field} must be non-negative`);
       }
     });
