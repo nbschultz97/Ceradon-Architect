@@ -2886,6 +2886,26 @@ function initInventoryEditor() {
   if (closeBtn) closeBtn.addEventListener('click', closePartEditorModal);
   if (cancelBtn) cancelBtn.addEventListener('click', closePartEditorModal);
 
+  // Close modal when clicking outside
+  const modal = document.getElementById('partEditorModal');
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closePartEditorModal();
+      }
+    });
+  }
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('partEditorModal');
+      if (modal && !modal.hidden) {
+        closePartEditorModal();
+      }
+    }
+  });
+
   // Save part form
   const partForm = document.getElementById('partEditorForm');
   if (partForm) {
