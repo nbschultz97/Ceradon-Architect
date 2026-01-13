@@ -14,6 +14,7 @@
   "build": {
     "appId": "com.cots.architect",
     "productName": "COTS Architect",
+    "icon": "assets/LOGO.png",
     "directories": {
       "output": "dist-desktop"
     },
