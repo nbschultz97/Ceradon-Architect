@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>COTS Architect - Offline Mission Planning</title>
+  <link rel="icon" type="image/png" href="assets/LOGO.png">
   <link rel="stylesheet" href="assets/css/styles.css">
   <!-- Leaflet CSS for offline mapping -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -13,8 +14,8 @@
 </head>
 <body>
   <header class="top-nav">
-    <a href="#/home" class="brand" style="text-decoration: none; color: inherit; cursor: pointer;">
-      <div class="logo-dot" aria-hidden="true"></div>
+    <a href="#/home" class="brand" style="text-decoration: none; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+      <img src="assets/LOGO.png" alt="COTS Architect Logo" class="brand-logo" style="height: 32px; width: auto;">
       <span class="wordmark">COTS Architect</span>
     </a>
     <nav aria-label="Primary">
@@ -33,7 +34,7 @@
 
   <div class="version-strip" aria-label="Application version and status">
     <span class="pill" id="appVersionBadge" data-app-version></span>
-    <span class="pill warning" style="background: #ff9800; color: #000;">ONLINE DEMO - NOT FOR PRODUCTION</span>
+    <span class="pill warning" style="background: #ff9800; color: #000;">COTS ARCHITECT ONLINE DEMO - NOT FOR PRODUCTION</span>
     <span class="pill subtle" id="schemaHeaderBadge" data-schema-version></span>
   </div>
 
@@ -81,6 +82,9 @@
     <section id="home" class="view" aria-label="Home view">
       <div class="hero">
         <div>
+          <div style="text-align: center; margin-bottom: 24px;">
+            <img src="assets/LOGO.png" alt="COTS Architect Logo" style="max-width: 200px; height: auto; filter: drop-shadow(0 4px 12px rgba(102, 126, 234, 0.3));">
+          </div>
           <p class="eyebrow">Offline Mission Planning Tool</p>
           <h1>Design. Validate. Deploy.</h1>
           <p class="lead">Build custom sUAS platforms, plan multi-day missions with logistics, and validate RF communications — entirely offline, entirely in your browser. No cloud, no APIs, no internet required.</p>
