@@ -513,11 +513,15 @@ async function loadPartsLibraryUI() {
     }
 
     grid.innerHTML = allParts.map(part => `
-      <div class="part-card">
-        <strong>${part.name || part.model || 'Unnamed Part'}</strong>
+      <div class="part-card" data-part-id="${part.id}" data-part-category="${part.category}">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+          <strong>${part.name || part.model || 'Unnamed Part'}</strong>
+          <button class="btn subtle" style="padding: 4px 8px; font-size: 12px;" onclick="openPartEditor('${part.id}', '${part.category}')">✏️ Edit</button>
+        </div>
         <p class="small muted">${part.category || 'Unknown'}</p>
-        <p class="small">${part.manufacturer || ''} ${part.model || ''}</p>
+        <p class="small">${part.manufacturer || ''} ${part.part_number || ''}</p>
         <div class="part-specs">
+          ${part.quantity ? `<span>Qty: ${part.quantity}</span>` : ''}
           ${part.weight_g ? `<span>${part.weight_g}g</span>` : ''}
           ${part.cost_usd ? `<span>$${part.cost_usd}</span>` : ''}
         </div>
@@ -2864,6 +2868,351 @@ async function handleListSRTMTiles() {
 }
 
 // ============================================================================
+// INVENTORY EDITOR
+// ============================================================================
+
+let currentEditingPart = null;
+
+function initInventoryEditor() {
+  // Add New Part button
+  const addNewPartBtn = document.getElementById('addNewPart');
+  if (addNewPartBtn) {
+    addNewPartBtn.addEventListener('click', () => openPartEditor(null, 'accessories'));
+  }
+
+  // Close modal buttons
+  const closeBtn = document.getElementById('closePartEditor');
+  const cancelBtn = document.getElementById('cancelPartEdit');
+  if (closeBtn) closeBtn.addEventListener('click', closePartEditorModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closePartEditorModal);
+
+  // Save part form
+  const partForm = document.getElementById('partEditorForm');
+  if (partForm) {
+    partForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await savePartChanges();
+    });
+  }
+
+  // Delete part button
+  const deleteBtn = document.getElementById('deletePartBtn');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => await deletePart());
+  }
+
+  // Auto-fill from link button
+  const autoFillBtn = document.getElementById('autoFillFromLink');
+  if (autoFillBtn) {
+    autoFillBtn.addEventListener('click', async () => await autoFillFromLink());
+  }
+
+  // Category change handler (for category-specific fields)
+  const categorySelect = document.getElementById('editPartCategorySelect');
+  if (categorySelect) {
+    categorySelect.addEventListener('change', updateCategorySpecificFields);
+  }
+}
+
+async function openPartEditor(partId, category) {
+  const modal = document.getElementById('partEditorModal');
+  const title = document.getElementById('partEditorTitle');
+  const deleteBtn = document.getElementById('deletePartBtn');
+
+  if (!modal) return;
+
+  // Reset form
+  document.getElementById('partEditorForm').reset();
+  currentEditingPart = null;
+
+  if (partId) {
+    // Edit existing part
+    title.textContent = 'Edit Part';
+    deleteBtn.style.display = 'block';
+
+    try {
+      const part = await PartsLibrary.getPart(category, partId);
+      if (!part) {
+        alert('Part not found');
+        return;
+      }
+
+      currentEditingPart = { ...part, category };
+
+      // Populate form
+      document.getElementById('editPartId').value = part.id || '';
+      document.getElementById('editPartCategory').value = category;
+      document.getElementById('editPartName').value = part.name || '';
+      document.getElementById('editPartCategorySelect').value = category;
+      document.getElementById('editPartManufacturer').value = part.manufacturer || '';
+      document.getElementById('editPartNumber').value = part.part_number || '';
+      document.getElementById('editPartQuantity').value = part.quantity || '';
+      document.getElementById('editPartWeight').value = part.weight_g || '';
+      document.getElementById('editPartCost').value = part.cost_usd || '';
+      document.getElementById('editPartAvailability').value = part.availability || '';
+      document.getElementById('editPartLink').value = part.link || '';
+      document.getElementById('editPartNotes').value = part.notes || '';
+
+      updateCategorySpecificFields();
+    } catch (error) {
+      console.error('Failed to load part:', error);
+      alert('Failed to load part details');
+      return;
+    }
+  } else {
+    // Add new part
+    title.textContent = 'Add New Part';
+    deleteBtn.style.display = 'none';
+    document.getElementById('editPartCategorySelect').value = category;
+    updateCategorySpecificFields();
+  }
+
+  modal.hidden = false;
+}
+
+function closePartEditorModal() {
+  const modal = document.getElementById('partEditorModal');
+  if (modal) {
+    modal.hidden = true;
+  }
+  currentEditingPart = null;
+}
+
+async function savePartChanges() {
+  const partId = document.getElementById('editPartId').value;
+  const oldCategory = document.getElementById('editPartCategory').value;
+  const newCategory = document.getElementById('editPartCategorySelect').value;
+
+  const partData = {
+    id: partId || undefined,
+    name: document.getElementById('editPartName').value,
+    manufacturer: document.getElementById('editPartManufacturer').value,
+    part_number: document.getElementById('editPartNumber').value,
+    quantity: parseFloat(document.getElementById('editPartQuantity').value) || undefined,
+    weight_g: parseFloat(document.getElementById('editPartWeight').value) || undefined,
+    cost_usd: parseFloat(document.getElementById('editPartCost').value) || undefined,
+    availability: document.getElementById('editPartAvailability').value || undefined,
+    link: document.getElementById('editPartLink').value,
+    notes: document.getElementById('editPartNotes').value
+  };
+
+  // Add category-specific fields
+  if (newCategory === 'motors') {
+    const kv = document.getElementById('editPartKV');
+    const thrust = document.getElementById('editPartMaxThrust');
+    if (kv && kv.value) partData.kv = parseFloat(kv.value);
+    if (thrust && thrust.value) partData.max_thrust_g = parseFloat(thrust.value);
+  } else if (newCategory === 'batteries') {
+    const cells = document.getElementById('editPartCells');
+    const capacity = document.getElementById('editPartCapacity');
+    const voltage = document.getElementById('editPartVoltage');
+    const cRating = document.getElementById('editPartCRating');
+    if (cells && cells.value) partData.cells = parseInt(cells.value);
+    if (capacity && capacity.value) partData.capacity_mah = parseFloat(capacity.value);
+    if (voltage && voltage.value) partData.voltage_nominal_v = parseFloat(voltage.value);
+    if (cRating && cRating.value) partData.c_rating = parseFloat(cRating.value);
+  } else if (newCategory === 'escs') {
+    const current = document.getElementById('editPartMaxCurrent');
+    const firmware = document.getElementById('editPartFirmware');
+    if (current && current.value) partData.max_current_a = parseFloat(current.value);
+    if (firmware && firmware.value) partData.firmware = firmware.value;
+  }
+
+  try {
+    if (partId && oldCategory !== newCategory) {
+      // Category changed - delete from old category and add to new
+      await PartsLibrary.deletePart(oldCategory, partId);
+      partData.id = undefined; // Generate new ID for new category
+      await PartsLibrary.addPart(newCategory, partData);
+    } else {
+      // Same category - just add/update
+      await PartsLibrary.addPart(newCategory, partData);
+    }
+
+    closePartEditorModal();
+    await loadPartsLibraryUI();
+
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.Toast.success('Part saved successfully', 2000);
+    }
+  } catch (error) {
+    console.error('Failed to save part:', error);
+    alert(`Failed to save part: ${error.message}`);
+  }
+}
+
+async function deletePart() {
+  if (!currentEditingPart) return;
+
+  const confirmed = confirm(`Are you sure you want to delete "${currentEditingPart.name}"?\n\nThis action cannot be undone.`);
+  if (!confirmed) return;
+
+  try {
+    await PartsLibrary.deletePart(currentEditingPart.category, currentEditingPart.id);
+    closePartEditorModal();
+    await loadPartsLibraryUI();
+
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.Toast.success('Part deleted successfully', 2000);
+    }
+  } catch (error) {
+    console.error('Failed to delete part:', error);
+    alert(`Failed to delete part: ${error.message}`);
+  }
+}
+
+async function autoFillFromLink() {
+  const linkInput = document.getElementById('editPartLink');
+  const link = linkInput.value;
+
+  if (!link) {
+    alert('Please enter a product link first');
+    return;
+  }
+
+  // Basic validation
+  try {
+    new URL(link);
+  } catch {
+    alert('Invalid URL format');
+    return;
+  }
+
+  const btn = document.getElementById('autoFillFromLink');
+  const originalText = btn.textContent;
+  btn.textContent = '⏳ Scraping...';
+  btn.disabled = true;
+
+  try {
+    // Use a simple scraping approach - fetch the page and extract basic info
+    const response = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(link)}`);
+    const html = await response.text();
+
+    // Parse HTML for common product info patterns
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+
+    // Try to extract title
+    const titleElement = doc.querySelector('h1, .product-title, [class*="title"]');
+    if (titleElement && !document.getElementById('editPartName').value) {
+      document.getElementById('editPartName').value = titleElement.textContent.trim();
+    }
+
+    // Try to extract price
+    const priceElement = doc.querySelector('[class*="price"]:not([class*="was"])');
+    if (priceElement && !document.getElementById('editPartCost').value) {
+      const priceMatch = priceElement.textContent.match(/\$?([\d,]+\.?\d*)/);
+      if (priceMatch) {
+        document.getElementById('editPartCost').value = parseFloat(priceMatch[1].replace(/,/g, ''));
+      }
+    }
+
+    // Try to extract weight from description/specs
+    const bodyText = doc.body.textContent;
+    const weightMatch = bodyText.match(/(\d+\.?\d*)\s*(g|grams?)\b/i);
+    if (weightMatch && !document.getElementById('editPartWeight').value) {
+      document.getElementById('editPartWeight').value = parseFloat(weightMatch[1]);
+    }
+
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.Toast.success('Auto-filled available fields from product page', 3000);
+    } else {
+      alert('Auto-filled available fields from product page');
+    }
+  } catch (error) {
+    console.error('Auto-fill failed:', error);
+    alert('Failed to scrape product page. You may need to fill in details manually.\n\nNote: Some websites block automated scraping.');
+  } finally {
+    btn.textContent = originalText;
+    btn.disabled = false;
+  }
+}
+
+function updateCategorySpecificFields() {
+  const category = document.getElementById('editPartCategorySelect').value;
+  const container = document.getElementById('categorySpecificFields');
+
+  if (!container) return;
+
+  // Clear existing fields
+  container.innerHTML = '';
+
+  // Add category-specific fields based on category
+  const categoryFields = {
+    motors: `
+      <h4 style="margin: 16px 0 8px;">Motor-Specific Fields</h4>
+      <div class="form-grid">
+        <label>KV Rating
+          <input type="number" id="editPartKV" placeholder="e.g., 1750">
+        </label>
+        <label>Max Thrust (grams)
+          <input type="number" id="editPartMaxThrust" placeholder="e.g., 1850">
+        </label>
+      </div>
+    `,
+    batteries: `
+      <h4 style="margin: 16px 0 8px;">Battery-Specific Fields</h4>
+      <div class="form-grid">
+        <label>Cells (S)
+          <input type="number" id="editPartCells" placeholder="e.g., 4">
+        </label>
+        <label>Capacity (mAh)
+          <input type="number" id="editPartCapacity" placeholder="e.g., 1300">
+        </label>
+        <label>Voltage (V)
+          <input type="number" id="editPartVoltage" placeholder="e.g., 14.8" step="0.1">
+        </label>
+        <label>C Rating
+          <input type="number" id="editPartCRating" placeholder="e.g., 100">
+        </label>
+      </div>
+    `,
+    escs: `
+      <h4 style="margin: 16px 0 8px;">ESC-Specific Fields</h4>
+      <div class="form-grid">
+        <label>Max Current (A)
+          <input type="number" id="editPartMaxCurrent" placeholder="e.g., 35">
+        </label>
+        <label>Firmware
+          <input type="text" id="editPartFirmware" placeholder="e.g., BLHeli_32">
+        </label>
+      </div>
+    `
+  };
+
+  if (categoryFields[category]) {
+    container.innerHTML = categoryFields[category];
+
+    // Populate values if editing existing part
+    if (currentEditingPart) {
+      if (category === 'motors') {
+        const kvInput = document.getElementById('editPartKV');
+        const thrustInput = document.getElementById('editPartMaxThrust');
+        if (kvInput && currentEditingPart.kv) kvInput.value = currentEditingPart.kv;
+        if (thrustInput && currentEditingPart.max_thrust_g) thrustInput.value = currentEditingPart.max_thrust_g;
+      } else if (category === 'batteries') {
+        const cellsInput = document.getElementById('editPartCells');
+        const capacityInput = document.getElementById('editPartCapacity');
+        const voltageInput = document.getElementById('editPartVoltage');
+        const cRatingInput = document.getElementById('editPartCRating');
+        if (cellsInput && currentEditingPart.cells) cellsInput.value = currentEditingPart.cells;
+        if (capacityInput && currentEditingPart.capacity_mah) capacityInput.value = currentEditingPart.capacity_mah;
+        if (voltageInput && currentEditingPart.voltage_nominal_v) voltageInput.value = currentEditingPart.voltage_nominal_v;
+        if (cRatingInput && currentEditingPart.c_rating) cRatingInput.value = currentEditingPart.c_rating;
+      } else if (category === 'escs') {
+        const currentInput = document.getElementById('editPartMaxCurrent');
+        const firmwareInput = document.getElementById('editPartFirmware');
+        if (currentInput && currentEditingPart.max_current_a) currentInput.value = currentEditingPart.max_current_a;
+        if (firmwareInput && currentEditingPart.firmware) firmwareInput.value = currentEditingPart.firmware;
+      }
+    }
+  }
+}
+
+// Make openPartEditor global so it can be called from HTML onclick
+window.openPartEditor = openPartEditor;
+
+// ============================================================================
 // INITIALIZATION
 // ============================================================================
 
@@ -2904,6 +3253,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (typeof WorkflowProgress !== 'undefined') {
     WorkflowProgress.init();
   }
+
+  // Set up inventory editor event listeners
+  initInventoryEditor();
 
   // Set up routing
   window.addEventListener('hashchange', handleHashChange);
