@@ -240,12 +240,105 @@
 
         <div class="card">
           <h3>Parts Catalog</h3>
+          <div class="action-row" style="margin-bottom: 16px;">
+            <button class="btn primary" id="addNewPart">➕ Add New Part</button>
+            <button class="btn ghost" id="bulkEditParts" disabled>Bulk Edit (Coming Soon)</button>
+          </div>
           <div id="partsGrid" class="parts-grid">
             <p class="small muted">No parts to display. Import or load sample catalog.</p>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- PART EDITOR MODAL -->
+    <div id="partEditorModal" class="modal" hidden>
+      <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+          <h3 id="partEditorTitle">Edit Part</h3>
+          <button class="btn subtle" id="closePartEditor" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="partEditorForm">
+            <input type="hidden" id="editPartId">
+            <input type="hidden" id="editPartCategory">
+
+            <div class="form-grid">
+              <label>Part Name <span style="color: #e53e3e;">*</span>
+                <input type="text" id="editPartName" placeholder="e.g., 2207 1750KV Motor" required>
+              </label>
+              <label>Category <span style="color: #e53e3e;">*</span>
+                <select id="editPartCategorySelect" required>
+                  <option value="airframes">Airframe</option>
+                  <option value="motors">Motor</option>
+                  <option value="escs">ESC</option>
+                  <option value="batteries">Battery</option>
+                  <option value="flight_controllers">Flight Controller</option>
+                  <option value="radios">Radio</option>
+                  <option value="sensors">Sensor</option>
+                  <option value="accessories">Accessory</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>Manufacturer
+                <input type="text" id="editPartManufacturer" placeholder="e.g., T-Motor">
+              </label>
+              <label>Part Number
+                <input type="text" id="editPartNumber" placeholder="e.g., F60-PRO-IV">
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>Quantity
+                <input type="number" id="editPartQuantity" placeholder="e.g., 8" min="0">
+              </label>
+              <label>Weight (grams)
+                <input type="number" id="editPartWeight" placeholder="e.g., 31.5" step="0.1" min="0">
+              </label>
+            </div>
+
+            <div class="form-grid">
+              <label>Cost (USD)
+                <input type="number" id="editPartCost" placeholder="e.g., 25.99" step="0.01" min="0">
+              </label>
+              <label>Availability
+                <select id="editPartAvailability">
+                  <option value="">Not specified</option>
+                  <option value="in-stock">In Stock</option>
+                  <option value="on-order">On Order</option>
+                  <option value="unavailable">Unavailable</option>
+                  <option value="discontinued">Discontinued</option>
+                </select>
+              </label>
+            </div>
+
+            <label>Product Link
+              <input type="url" id="editPartLink" placeholder="https://...">
+            </label>
+
+            <div class="action-row" style="margin-bottom: 12px;">
+              <button type="button" class="btn ghost" id="autoFillFromLink">🔍 Auto-Fill from Link</button>
+              <span class="small muted" style="margin-left: auto;">Scrapes product page for specs</span>
+            </div>
+
+            <label>Notes
+              <textarea id="editPartNotes" rows="3" placeholder="Additional notes or specifications..."></textarea>
+            </label>
+
+            <!-- Category-specific fields (shown conditionally) -->
+            <div id="categorySpecificFields"></div>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn danger" id="deletePartBtn" style="margin-right: auto;">🗑️ Delete Part</button>
+          <button type="button" class="btn ghost" id="cancelPartEdit">Cancel</button>
+          <button type="submit" form="partEditorForm" class="btn primary" id="savePartBtn">Save Changes</button>
+        </div>
+      </div>
+    </div>
 
     <!-- PLATFORM DESIGNER -->
     <section id="platform" class="view" aria-label="Platform Designer" hidden>
