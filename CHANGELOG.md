@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nothing yet
 
 ### Web Playground
-- Nothing yet
+- Fixed map viewer boot to degrade gracefully when Leaflet fails to load, avoiding a blank page on the demo.
+- Updated demo footer resource links to point at the current repository for accurate changelog and docs access.
 
 ---
 
