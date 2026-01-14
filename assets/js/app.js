@@ -5,6 +5,85 @@ const APP_VERSION = 'COTS Architect v0.4.0-alpha.2';
 const SCHEMA_VERSION = 'MissionProject v2.0.0';
 
 // ============================================================================
+// ELECTRON-COMPATIBLE PROMPT REPLACEMENT
+// ============================================================================
+
+/**
+ * Custom prompt replacement that works in Electron
+ * Uses a simple inline dialog since Electron blocks window.prompt()
+ */
+function electronPrompt(message, defaultValue = '') {
+  // Create modal overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+
+  // Create dialog
+  const dialog = document.createElement('div');
+  dialog.style.cssText = 'background: var(--surface); padding: 24px; border-radius: 8px; min-width: 400px; box-shadow: 0 4px 24px rgba(0,0,0,0.5);';
+
+  const messageEl = document.createElement('p');
+  messageEl.textContent = message;
+  messageEl.style.cssText = 'margin: 0 0 16px 0; color: var(--text); white-space: pre-line;';
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = defaultValue;
+  input.style.cssText = 'width: 100%; padding: 8px; margin-bottom: 16px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px;';
+
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.cssText = 'display: flex; gap: 8px; justify-content: flex-end;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.className = 'btn ghost';
+
+  const okBtn = document.createElement('button');
+  okBtn.textContent = 'OK';
+  okBtn.className = 'btn primary';
+
+  buttonContainer.appendChild(cancelBtn);
+  buttonContainer.appendChild(okBtn);
+
+  dialog.appendChild(messageEl);
+  dialog.appendChild(input);
+  dialog.appendChild(buttonContainer);
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+
+  input.focus();
+  input.select();
+
+  return new Promise((resolve) => {
+    const cleanup = () => {
+      document.body.removeChild(overlay);
+    };
+
+    okBtn.onclick = () => {
+      cleanup();
+      resolve(input.value);
+    };
+
+    cancelBtn.onclick = () => {
+      cleanup();
+      resolve(null);
+    };
+
+    input.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        cleanup();
+        resolve(input.value);
+      } else if (e.key === 'Escape') {
+        cleanup();
+        resolve(null);
+      }
+    };
+  });
+}
+
+// Use custom prompt in Electron, native prompt in browser
+const safePrompt = typeof window.desktopSession !== 'undefined' ? electronPrompt : window.prompt.bind(window);
+
+// ============================================================================
 // ROUTING
 // ============================================================================
 
@@ -984,7 +1063,7 @@ function restorePlatformDesignerState() {
   }
 
   // Refresh component selection display
-  updateComponentSelectionDisplay();
+  updateSelectedComponentsDisplay();
 }
 
 async function loadComponentSelectors() {
@@ -1228,12 +1307,12 @@ function validateCurrentPlatform() {
   resultsDiv.innerHTML = html;
 }
 
-function saveCurrentPlatform() {
+async function saveCurrentPlatform() {
   if (!currentPlatformDesign) return;
 
   // Ensure platform has a name
   if (!currentPlatformDesign.name || currentPlatformDesign.name === 'Untitled Platform') {
-    const name = prompt('Enter a name for this platform:');
+    const name = await safePrompt('Enter a name for this platform:');
     if (!name) return;
     currentPlatformDesign.name = name;
   }
@@ -1880,13 +1959,13 @@ function renderPhaseEditor() {
   `).join('');
 }
 
-function addMissionPhase() {
+async function addMissionPhase() {
   if (!currentMissionPlan) return;
 
-  const phaseName = prompt('Phase name (e.g., "Infiltration", "On-Station Ops"):');
+  const phaseName = await safePrompt('Phase name (e.g., "Infiltration", "On-Station Ops"):');
   if (!phaseName) return;
 
-  const duration = prompt('Duration in hours:', '2');
+  const duration = await safePrompt('Duration in hours:', '2');
   if (!duration) return;
 
   const phase = {
@@ -2170,19 +2249,19 @@ function renderNodesEditor() {
   `).join('');
 }
 
-function addCommsNode() {
+async function addCommsNode() {
   if (!currentCommsAnalysis) return;
 
-  const nodeName = prompt('Node name (e.g., "GCS", "Relay-1", "UAV-1"):');
+  const nodeName = await safePrompt('Node name (e.g., "GCS", "Relay-1", "UAV-1"):');
   if (!nodeName) return;
 
-  const lat = prompt('Latitude (decimal degrees):', '0.0');
+  const lat = await safePrompt('Latitude (decimal degrees):', '0.0');
   if (lat === null) return;
 
-  const lon = prompt('Longitude (decimal degrees):', '0.0');
+  const lon = await safePrompt('Longitude (decimal degrees):', '0.0');
   if (lon === null) return;
 
-  const heightAGL = prompt('Height above ground level (meters):', '2');
+  const heightAGL = await safePrompt('Height above ground level (meters):', '2');
   if (heightAGL === null) return;
 
   const node = {
@@ -2255,7 +2334,7 @@ function initCommsMap() {
   commsMapCtx = commsMapCanvas.getContext('2d');
 
   // Click handler to place nodes
-  commsMapCanvas.addEventListener('click', (e) => {
+  commsMapCanvas.addEventListener('click', async (e) => {
     const rect = commsMapCanvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -2271,16 +2350,16 @@ function initCommsMap() {
       'Relay': 'transceiver'
     };
 
-    const typeName = prompt('Node type:\n1. GCS (Ground Control Station)\n2. UAV (Unmanned Aerial Vehicle)\n3. Relay (Communication Relay)\n\nEnter 1, 2, or 3:', '1');
+    const typeName = await safePrompt('Node type:\n1. GCS (Ground Control Station)\n2. UAV (Unmanned Aerial Vehicle)\n3. Relay (Communication Relay)\n\nEnter 1, 2, or 3:', '1');
     if (!typeName) return;
 
     const typeMap = { '1': 'GCS', '2': 'UAV', '3': 'Relay' };
     const selectedType = typeMap[typeName] || 'GCS';
 
-    const nodeName = prompt(`${selectedType} name:`, `${selectedType}-${currentCommsAnalysis.nodes.length + 1}`);
+    const nodeName = await safePrompt(`${selectedType} name:`, `${selectedType}-${currentCommsAnalysis.nodes.length + 1}`);
     if (!nodeName) return;
 
-    const heightAGL = prompt('Height above ground level (meters):', selectedType === 'GCS' ? '2' : selectedType === 'UAV' ? '100' : '50');
+    const heightAGL = await safePrompt('Height above ground level (meters):', selectedType === 'GCS' ? '2' : selectedType === 'UAV' ? '100' : '50');
     if (heightAGL === null) return;
 
     // Create node
