@@ -2911,7 +2911,13 @@ function initMapViewer() {
         onLocationSelect: handleMapLocationSelect
       });
 
-      console.log('[MapViewer] Map initialized successfully');
+      if (!mapViewerInstance) {
+        if (typeof UIFeedback !== 'undefined') {
+          UIFeedback.Toast.warning('Map viewer unavailable. Leaflet did not load.', 5000);
+        }
+      } else {
+        console.log('[MapViewer] Map initialized successfully');
+      }
     } catch (error) {
       console.error('[MapViewer] Failed to initialize map:', error);
       return;

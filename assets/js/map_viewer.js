@@ -26,6 +26,21 @@ const MapViewer = (() => {
       return null;
     }
 
+    if (typeof window.L === 'undefined') {
+      console.error('[MapViewer] Leaflet dependency not loaded. Map viewer disabled.');
+      container.innerHTML = `
+        <div style="display: grid; place-items: center; text-align: center; padding: 24px; height: 100%; color: #ff9800;">
+          <div>
+            <p style="margin: 0 0 8px 0; font-weight: 600;">Map viewer unavailable</p>
+            <p style="margin: 0; font-size: 13px; color: var(--text-muted);">
+              Leaflet failed to load. Confirm the demo has internet access or bundle Leaflet for offline use.
+            </p>
+          </div>
+        </div>
+      `;
+      return null;
+    }
+
     // Load last viewed location or use default
     const lastLocation = loadLastLocation() || DEFAULT_CENTER;
     const center = options.center || lastLocation;
