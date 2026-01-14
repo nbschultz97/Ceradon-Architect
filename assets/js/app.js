@@ -784,13 +784,6 @@ function exportPlatformExcel() {
 function comparePlatforms() {
   alert('Platform comparison feature coming soon!\n\nThis will allow you to:\n- Select 2-3 saved platforms\n- Compare specs side-by-side\n- See performance differences\n- Choose the best option for your mission');
 }
-    const text = card.textContent.toLowerCase();
-    const matchesSearch = !searchTerm || text.includes(searchTerm);
-    const matchesCategory = category === 'all' || card.querySelector('.small.muted')?.textContent === category;
-
-    card.style.display = matchesSearch && matchesCategory ? 'block' : 'none';
-  });
-}
 
 function updatePartsStatus(message) {
   const status = document.getElementById('partsLibraryStatus');

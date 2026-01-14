@@ -11,6 +11,12 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""/>
   <!-- Air-gap compliant: No external CDN dependencies -->
+  <style>
+    /* Hide web-only elements when running in Electron desktop app */
+    body.desktop-mode .web-only {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
   <header class="top-nav">
@@ -33,7 +39,7 @@
 
   <div class="version-strip" aria-label="Application version and status">
     <span class="pill" id="appVersionBadge" data-app-version></span>
-    <span class="pill warning" style="background: #ff9800; color: #000;">COTS ARCHITECT ONLINE DEMO - NOT FOR PRODUCTION</span>
+    <span class="pill warning web-only" style="background: #ff9800; color: #000;">COTS ARCHITECT ONLINE DEMO - NOT FOR PRODUCTION</span>
     <span class="pill subtle" id="schemaHeaderBadge" data-schema-version></span>
   </div>
 
@@ -91,7 +97,7 @@
             <a class="btn primary" href="#/library">Start with Parts Library</a>
             <button class="btn ghost" id="loadSampleMission">Load Sample Mission</button>
           </div>
-          <div id="desktopDownloadCTA" style="margin-top: 16px; padding: 16px; background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border: 2px solid #667eea; border-radius: 8px; text-align: center;">
+          <div id="desktopDownloadCTA" class="web-only" style="margin-top: 16px; padding: 16px; background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border: 2px solid #667eea; border-radius: 8px; text-align: center;">
             <p style="margin: 0 0 12px 0; font-weight: 600; color: var(--accent);">
               💻 Looking for the Production Desktop App?
             </p>

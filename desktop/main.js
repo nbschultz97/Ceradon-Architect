@@ -72,7 +72,11 @@ const createWindow = () => {
     }
   });
 
-  window.once('ready-to-show', () => window.show());
+  window.once('ready-to-show', () => {
+    window.show();
+    // Auto-open DevTools to debug issues
+    window.webContents.openDevTools({ mode: 'detach' });
+  });
 
   if (process.env.COTS_DEBUG === '1') {
     window.webContents.openDevTools({ mode: 'detach' });
