@@ -34,6 +34,7 @@
         <li><a href="#/export" data-route="export">Export</a></li>
       </ul>
     </nav>
+    <button class="toggle" id="settingsToggle" aria-label="Open settings" title="Settings">⚙️</button>
     <button class="toggle" id="themeToggle" aria-label="Toggle light or dark theme">🌙</button>
   </header>
 
@@ -752,12 +753,150 @@
         </div>
 
         <div class="card">
+          <h3>Mission Cards</h3>
+          <p class="small muted">Generate printable mission cards with phase details, timings, and equipment requirements. Perfect for field operations.</p>
+          <div class="action-row">
+            <button class="btn primary btn-icon" id="exportMissionCardsPDF">📄 Export as PDF</button>
+            <button class="btn ghost btn-icon" id="printMissionCards">🖨️ Print Cards</button>
+            <button class="btn subtle btn-icon" id="exportMissionCardsJSON">💾 Export as JSON</button>
+          </div>
+        </div>
+
+        <div class="card">
           <h3>Mission Project Viewer</h3>
           <textarea id="jsonViewer" class="json-editor" rows="20" readonly></textarea>
         </div>
       </div>
     </section>
   </main>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal" hidden>
+    <div class="modal-content" style="max-width: 700px; max-height: 85vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h2 style="margin: 0;">⚙️ Settings</h2>
+        <button class="modal-close" id="closeSettings" aria-label="Close settings">×</button>
+      </div>
+      <div class="modal-body">
+        <!-- Units Section -->
+        <div class="card">
+          <h3>Units & Measurements</h3>
+          <div class="form-group">
+            <label for="settingsDistanceUnit">Distance</label>
+            <select id="settingsDistanceUnit" class="form-control">
+              <option value="metric">Metric (meters, kilometers)</option>
+              <option value="imperial">Imperial (feet, miles)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="settingsWeightUnit">Weight</label>
+            <select id="settingsWeightUnit" class="form-control">
+              <option value="metric">Metric (grams, kilograms)</option>
+              <option value="imperial">Imperial (ounces, pounds)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="settingsTemperatureUnit">Temperature</label>
+            <select id="settingsTemperatureUnit" class="form-control">
+              <option value="celsius">Celsius (°C)</option>
+              <option value="fahrenheit">Fahrenheit (°F)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="card">
+          <h3>Map Settings</h3>
+          <div class="form-group">
+            <label for="settingsTileProvider">Tile Provider</label>
+            <select id="settingsTileProvider" class="form-control">
+              <option value="osm">OpenStreetMap (Standard)</option>
+              <option value="osm-topo">OpenTopoMap (Topographic)</option>
+              <option value="osm-cycle">OpenCycleMap (Terrain)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="settingsDefaultZoom">Default Zoom Level</label>
+            <input type="range" id="settingsDefaultZoom" min="1" max="18" value="10" class="form-control">
+            <span id="settingsDefaultZoomValue" class="small muted">10</span>
+          </div>
+        </div>
+
+        <!-- UI Section -->
+        <div class="card">
+          <h3>User Interface</h3>
+          <div class="form-group">
+            <label for="settingsTheme">Theme</label>
+            <select id="settingsTheme" class="form-control">
+              <option value="dark">Dark Mode</option>
+              <option value="light">Light Mode</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="settingsShowTooltips">
+              Show tooltips and hints
+            </label>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="settingsAutoSave">
+              Auto-save projects (desktop app only)
+            </label>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="settingsConfirmDelete">
+              Confirm before deleting items
+            </label>
+          </div>
+        </div>
+
+        <!-- Data Section -->
+        <div class="card">
+          <h3>Data Management</h3>
+          <div class="form-group">
+            <label for="settingsExportFormat">Default Export Format</label>
+            <select id="settingsExportFormat" class="form-control">
+              <option value="json">JSON (Standard)</option>
+              <option value="geojson">GeoJSON (Geographic)</option>
+              <option value="cot">Cursor-on-Target (CoT)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="settingsAutoCleanup">
+              Automatically cleanup old data
+            </label>
+          </div>
+          <div class="action-row" style="margin-top: 16px;">
+            <button class="btn subtle" id="settingsExportBtn">Export Settings</button>
+            <button class="btn subtle" id="settingsImportBtn">Import Settings</button>
+            <input type="file" id="settingsImportInput" accept=".json" hidden>
+          </div>
+        </div>
+
+        <!-- Advanced Section -->
+        <div class="card">
+          <h3>Advanced</h3>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="settingsDebugMode">
+              Debug mode (show detailed console logs)
+            </label>
+          </div>
+          <div class="action-row" style="margin-top: 16px;">
+            <button class="btn subtle" id="downloadErrorLog">Download Error Log</button>
+            <button class="btn ghost" id="clearErrorLog">Clear Error Log</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn ghost" id="resetSettings">Reset to Defaults</button>
+        <button class="btn primary" id="saveSettings">Save Settings</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div style="max-width: 1200px; margin: 0 auto; padding: 24px;">
@@ -837,8 +976,13 @@
   <!-- Load SheetJS library for Excel import/export -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
-  <!-- Load event bus and UI feedback first -->
+  <!-- Load jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Load event bus, error handler, settings, and UI feedback first -->
   <script src="assets/js/mission_project_events.js"></script>
+  <script src="assets/js/error_handler.js"></script>
+  <script src="assets/js/settings_manager.js"></script>
   <script src="assets/js/ui_feedback.js"></script>
   <script src="assets/js/workflow_progress.js"></script>
 
@@ -850,8 +994,11 @@
   <script src="assets/js/mission_planner.js"></script>
   <script src="assets/js/comms_validator.js"></script>
   <script src="assets/js/csv_importer.js"></script>
+  <script src="assets/js/mission_cards.js"></script>
+  <script src="assets/js/undo_redo.js"></script>
 
   <!-- GIS and Environmental Intelligence modules -->
+  <script src="assets/js/srtm_fallback.js"></script>
   <script src="assets/js/srtm_elevation.js"></script>
   <script src="assets/js/environment_almanac.js"></script>
   <script src="assets/js/map_viewer.js"></script>
@@ -859,6 +1006,7 @@
   <!-- Then load MissionProject store and main app -->
   <script src="assets/js/mission_project.js"></script>
   <script src="assets/js/desktop_session.js"></script>
+  <script src="assets/js/settings_ui.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

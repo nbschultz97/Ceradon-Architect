@@ -11,8 +11,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Nothing yet
 
 ### Web Playground
-- Fixed map viewer boot to degrade gracefully when Leaflet fails to load, avoiding a blank page on the demo.
-- Updated demo footer resource links to point at the current repository for accurate changelog and docs access.
+- Nothing yet
+
+---
+
+## [0.4.0-alpha.4] - 2026-01-16
+
+### Offline Tool + Web Playground (SYNCED)
+
+#### Added
+- **Comprehensive Error Handling System**
+  - Global error handler for uncaught errors and promise rejections
+  - Error categorization (Storage, Network, Validation, File I/O, Calculation, User Input, System)
+  - Error severity levels (Info, Warning, Error, Critical)
+  - User-friendly error messages via toast notifications
+  - Error logging with last 100 errors stored in localStorage
+  - Downloadable error logs as JSON for debugging
+  - Wrapper functions (wrapAsync, wrapSync) for automatic error handling
+
+- **Settings Panel**
+  - Comprehensive preferences management with gear icon (⚙️) in header
+  - Units & Measurements (distance, weight, temperature)
+  - Map settings (tile provider, default zoom)
+  - UI preferences (theme, tooltips, auto-save, confirm deletes)
+  - Data management (export format, auto-cleanup)
+  - Advanced section with debug mode and error log management
+  - Import/Export settings as JSON
+  - Reset to defaults option
+  - Persistent settings across sessions in localStorage
+
+- **Enhanced SRTM Elevation Fallback System**
+  - Pre-defined elevation zones for 50+ global regions
+  - Terrain classification (mountains, hills, plateau, plains, coastal, desert, tropical, tundra)
+  - Intelligent elevation estimation without requiring tile downloads
+  - Route elevation profile calculation
+  - Elevation gain/loss statistics
+  - Terrain descriptions for user feedback
+  - Coverage: CONUS, Europe, Middle East, Asia, Africa, Americas, Australia & Oceania
+
+- **Mission Cards PDF Export**
+  - Professional printable mission cards from mission phases
+  - Icon library for mission elements (platforms, phases, equipment, status, weather)
+  - PDF export via jsPDF library
+  - HTML print support with formatted layout
+  - JSON export option for integration
+  - Card data includes: phase details, duration, time windows, platform, batteries, location, weather
+
+- **Undo/Redo Foundation**
+  - Command pattern implementation
+  - History stack for last 50 actions
+  - Keyboard shortcuts (Ctrl+Z for undo, Ctrl+Y/Ctrl+Shift+Z for redo)
+  - Toast notifications for undo/redo actions
+  - Foundation ready for command wrappers
+
+#### Changed
+- SRTM elevation system now uses enhanced fallback data for better global coverage
+- Settings Manager automatically applies theme on load
+- Error Handler installs global handlers automatically
+- Fixed map viewer boot to degrade gracefully when Leaflet fails to load
+- Updated demo footer resource links to point at current repository
+
+#### Technical Improvements
+- Added jsPDF library v2.5.1 for PDF generation
+- 7 new JavaScript modules for new features
+- Error handling integrated throughout codebase
+- Settings persistence in localStorage
+- Toast notifications for all major operations
+- Modal dialog system for settings
 
 ---
 

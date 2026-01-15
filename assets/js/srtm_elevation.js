@@ -216,9 +216,15 @@ const SRTMElevation = (() => {
 
   /**
    * Estimate elevation when SRTM data not available
-   * Uses rough terrain approximations based on geography
+   * Uses SRTMFallback if available, otherwise rough approximations
    */
   const estimateElevation = (lat, lon) => {
+    // Use SRTMFallback if available (provides better estimates)
+    if (typeof SRTMFallback !== 'undefined') {
+      return SRTMFallback.getEstimatedElevation(lat, lon);
+    }
+
+    // Fallback to basic estimation
     // Coastal areas and major basins
     if (isCoastalArea(lat, lon)) {
       return 0;

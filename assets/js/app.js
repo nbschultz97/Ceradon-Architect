@@ -1,7 +1,7 @@
 // COTS Architect - Offline Mission Planning Tool
 // Routes: home, library, platform, mission, comms, map, export
 
-const APP_VERSION = 'COTS Architect v0.4.0-alpha.2';
+const APP_VERSION = 'COTS Architect v0.4.0-alpha.4';
 const SCHEMA_VERSION = 'MissionProject v2.0.0';
 
 // ============================================================================
@@ -2732,6 +2732,22 @@ function initExport() {
     export16LineBtn.addEventListener('click', export16LineReport);
   }
 
+  // Mission Cards handlers
+  const exportCardsPDFBtn = document.getElementById('exportMissionCardsPDF');
+  if (exportCardsPDFBtn) {
+    exportCardsPDFBtn.addEventListener('click', exportMissionCardsPDF);
+  }
+
+  const printCardsBtn = document.getElementById('printMissionCards');
+  if (printCardsBtn) {
+    printCardsBtn.addEventListener('click', printMissionCards);
+  }
+
+  const exportCardsJSONBtn = document.getElementById('exportMissionCardsJSON');
+  if (exportCardsJSONBtn) {
+    exportCardsJSONBtn.addEventListener('click', exportMissionCardsJSON);
+  }
+
   loadExportSummary();
   loadJSONViewer();
 }
@@ -2975,6 +2991,111 @@ function export16LineReport() {
       } else {
         alert('Failed to export 16-Line Report. Ensure mission project has required data.');
       }
+    }
+  }
+}
+
+// ============================================================================
+// MISSION CARDS
+// ============================================================================
+
+async function exportMissionCardsPDF() {
+  try {
+    if (typeof MissionCards === 'undefined') {
+      throw new Error('MissionCards module not loaded');
+    }
+
+    const project = MissionProjectStore.getCurrentProject();
+    if (!project || !project.missions || project.missions.length === 0) {
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.showToast('No mission data available. Create a mission first.', 'warning');
+      } else {
+        alert('No mission data available. Please create a mission in the Mission Planner first.');
+      }
+      return;
+    }
+
+    const cardData = MissionCards.generateCardData(project);
+    await MissionCards.exportToPDF(cardData);
+
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.showToast('Mission cards exported as PDF successfully!', 'success');
+    }
+  } catch (error) {
+    console.error('[App] Mission cards PDF export failed:', error);
+    if (typeof ErrorHandler !== 'undefined') {
+      ErrorHandler.handleError(error, {
+        category: ErrorHandler.ErrorCategory.FILE_IO,
+        customMessage: 'Could not export mission cards as PDF. ' + error.message
+      });
+    } else {
+      alert('Failed to export mission cards: ' + error.message);
+    }
+  }
+}
+
+function printMissionCards() {
+  try {
+    if (typeof MissionCards === 'undefined') {
+      throw new Error('MissionCards module not loaded');
+    }
+
+    const project = MissionProjectStore.getCurrentProject();
+    if (!project || !project.missions || project.missions.length === 0) {
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.showToast('No mission data available. Create a mission first.', 'warning');
+      } else {
+        alert('No mission data available. Please create a mission in the Mission Planner first.');
+      }
+      return;
+    }
+
+    const cardData = MissionCards.generateCardData(project);
+    MissionCards.printCards(cardData);
+  } catch (error) {
+    console.error('[App] Mission cards print failed:', error);
+    if (typeof ErrorHandler !== 'undefined') {
+      ErrorHandler.handleError(error, {
+        category: ErrorHandler.ErrorCategory.SYSTEM,
+        customMessage: 'Could not print mission cards. ' + error.message
+      });
+    } else {
+      alert('Failed to print mission cards: ' + error.message);
+    }
+  }
+}
+
+function exportMissionCardsJSON() {
+  try {
+    if (typeof MissionCards === 'undefined') {
+      throw new Error('MissionCards module not loaded');
+    }
+
+    const project = MissionProjectStore.getCurrentProject();
+    if (!project || !project.missions || project.missions.length === 0) {
+      if (typeof UIFeedback !== 'undefined') {
+        UIFeedback.showToast('No mission data available. Create a mission first.', 'warning');
+      } else {
+        alert('No mission data available. Please create a mission in the Mission Planner first.');
+      }
+      return;
+    }
+
+    const cardData = MissionCards.generateCardData(project);
+    MissionCards.exportToJSON(cardData);
+
+    if (typeof UIFeedback !== 'undefined') {
+      UIFeedback.showToast('Mission cards exported as JSON successfully!', 'success');
+    }
+  } catch (error) {
+    console.error('[App] Mission cards JSON export failed:', error);
+    if (typeof ErrorHandler !== 'undefined') {
+      ErrorHandler.handleError(error, {
+        category: ErrorHandler.ErrorCategory.FILE_IO,
+        customMessage: 'Could not export mission cards as JSON. ' + error.message
+      });
+    } else {
+      alert('Failed to export mission cards: ' + error.message);
     }
   }
 }
@@ -3616,12 +3737,30 @@ function initInventoryEditor() {
     });
   }
 
-  // Close modal with Escape key
+  // Global keyboard shortcuts
   document.addEventListener('keydown', (e) => {
+    // Close modal with Escape key
     if (e.key === 'Escape') {
       const modal = document.getElementById('partEditorModal');
       if (modal && !modal.hidden) {
         closePartEditorModal();
+      }
+    }
+
+    // Undo: Ctrl+Z or Cmd+Z
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      if (typeof UndoRedoManager !== 'undefined' && UndoRedoManager.canUndo()) {
+        UndoRedoManager.undo();
+      }
+    }
+
+    // Redo: Ctrl+Shift+Z or Ctrl+Y or Cmd+Shift+Z
+    if (((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'z') ||
+        (e.ctrlKey && e.key === 'y')) {
+      e.preventDefault();
+      if (typeof UndoRedoManager !== 'undefined' && UndoRedoManager.canRedo()) {
+        UndoRedoManager.redo();
       }
     }
   });
