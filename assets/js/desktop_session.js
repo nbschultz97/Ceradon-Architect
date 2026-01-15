@@ -4,6 +4,9 @@
     return;
   }
 
+  // Add desktop-mode class to body to hide web-only elements
+  document.body.classList.add('desktop-mode');
+
   const state = {
     lastSaved: null,
     pending: null,

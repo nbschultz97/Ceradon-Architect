@@ -16,6 +16,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0-alpha.3] - 2026-01-15
+
+### Offline Tool + Web Playground (SYNCED)
+
+#### Added
+- **Excel File Import Support**
+  - Parts Library now accepts .xlsx and .xls files in addition to .csv
+  - Integrated SheetJS library for Excel parsing
+  - Auto-detects file format and converts Excel to CSV internally
+  - Drag-and-drop supports all formats (.csv, .xlsx, .xls)
+  - Multi-category import works with Excel files
+
+- **Leaflet Basemap for Comms Validator**
+  - Replaced basic canvas grid with full OpenStreetMap basemap
+  - Interactive map with zoom, pan, and real terrain visualization
+  - Comms nodes shown as colored markers (green=GCS, blue=UAV, yellow=Relay)
+  - Node markers show detailed popup information on click
+  - RF link lines drawn between nodes with dashed styling
+  - Map auto-fits bounds to show all placed nodes
+  - Integration with SRTM elevation data for accurate node elevations
+
+- **Map Location Sharing Across Tools**
+  - Comms Validator now listens for map location events from Mission Planner
+  - When map location selected in Mission Planner, Comms Validator map auto-centers
+  - Shared localStorage for last map position across tools
+  - Event-driven architecture ensures all tools stay in sync
+
+#### Changed
+- **Comms Validator UI Improvements**
+  - Updated drop zone text to indicate Excel support
+  - Changed "Import CSV" button to "Import CSV/Excel"
+  - File input now accepts .csv, .xlsx, .xls extensions
+  - Map legend moved below map for better visibility
+  - Legend now uses flexbox layout for horizontal display
+
+#### Fixed
+- **Electron Desktop App Fixes**
+  - Fixed syntax error in app.js (orphaned code block removed)
+  - Fixed ReferenceError: updateComponentSelectionDisplay → updateSelectedComponentsDisplay
+  - Fixed "prompt() is not supported" errors in Electron
+  - Created custom electronPrompt() function with modal dialogs
+  - Made all prompt-using functions async (saveCurrentPlatform, addMissionPhase, addCommsNode)
+  - Hidden web-only demo banners in desktop app using .desktop-mode class
+  - DevTools auto-open for debugging during development
+
+#### Technical Improvements
+- Added SheetJS (xlsx) library v0.20.1 via CDN
+- CSV importer module now has Excel-specific import functions
+- Comms map uses Leaflet L.map() API instead of raw canvas
+- Map markers use L.divIcon() for custom colored node markers
+- MissionProjectEvents used for cross-tool map location synchronization
+- SRTM elevation integration for accurate node placement elevations
+
+---
+
 ## [0.4.0-alpha.2] - 2026-01-09
 
 ### Offline Tool + Web Playground (SYNCED)

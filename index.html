@@ -11,6 +11,12 @@
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""/>
   <!-- Air-gap compliant: No external CDN dependencies -->
+  <style>
+    /* Hide web-only elements when running in Electron desktop app */
+    body.desktop-mode .web-only {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
   <header class="top-nav">
@@ -33,7 +39,7 @@
 
   <div class="version-strip" aria-label="Application version and status">
     <span class="pill" id="appVersionBadge" data-app-version></span>
-    <span class="pill warning" style="background: #ff9800; color: #000;">COTS ARCHITECT ONLINE DEMO - NOT FOR PRODUCTION</span>
+    <span class="pill warning web-only" style="background: #ff9800; color: #000;">COTS ARCHITECT ONLINE DEMO - NOT FOR PRODUCTION</span>
     <span class="pill subtle" id="schemaHeaderBadge" data-schema-version></span>
   </div>
 
@@ -91,7 +97,7 @@
             <a class="btn primary" href="#/library">Start with Parts Library</a>
             <button class="btn ghost" id="loadSampleMission">Load Sample Mission</button>
           </div>
-          <div id="desktopDownloadCTA" style="margin-top: 16px; padding: 16px; background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border: 2px solid #667eea; border-radius: 8px; text-align: center;">
+          <div id="desktopDownloadCTA" class="web-only" style="margin-top: 16px; padding: 16px; background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border: 2px solid #667eea; border-radius: 8px; text-align: center;">
             <p style="margin: 0 0 12px 0; font-weight: 600; color: var(--accent);">
               💻 Looking for the Production Desktop App?
             </p>
@@ -207,18 +213,18 @@
           <h3>Import / Export</h3>
           <div id="csvDropZone" style="border: 2px dashed #667eea; border-radius: 8px; padding: 24px; text-align: center; margin-bottom: 16px; cursor: pointer; transition: all 0.3s; background: rgba(102, 126, 234, 0.05);">
             <p style="font-size: 36px; margin: 0;">📁</p>
-            <p style="margin: 8px 0;"><strong>Drag & Drop CSV File Here</strong></p>
-            <p class="small muted">or click below to browse</p>
+            <p style="margin: 8px 0;"><strong>Drag & Drop CSV or Excel File Here</strong></p>
+            <p class="small muted">Supports .csv, .xlsx, .xls formats</p>
           </div>
           <div class="action-row">
-            <button class="btn primary" id="importCSV">📥 Import CSV</button>
+            <button class="btn primary" id="importCSV">📥 Import CSV/Excel</button>
             <button class="btn ghost" id="loadSampleParts">Load Sample Catalog</button>
             <button class="btn subtle" id="exportPartsJSON">Export as JSON</button>
             <button class="btn ghost" id="downloadCSVTemplate" style="margin-left: auto;">📄 Download Template</button>
-            <input type="file" id="csvFileInput" accept=".csv" hidden>
+            <input type="file" id="csvFileInput" accept=".csv,.xlsx,.xls" hidden>
           </div>
           <p class="small muted" style="margin-top: 12px;">
-            <strong>💡 Tip:</strong> Import your entire unit inventory from ONE CSV file! Add a "category" column (airframe, motor, battery, esc, radio, etc.) and the system automatically distributes parts.
+            <strong>💡 Tip:</strong> Import your entire unit inventory from ONE file (CSV or Excel)! Add a "category" column (airframe, motor, battery, esc, radio, etc.) and the system automatically distributes parts.
             <a href="docs/MULTI_SHEET_IMPORT_GUIDE.md" target="_blank" style="color: #667eea; text-decoration: underline;">Import Guide</a>
           </p>
           <p class="small muted" id="partsLibraryStatus">No parts loaded. Import a CSV or load sample catalog.</p>
@@ -595,14 +601,12 @@
 
         <div class="card">
           <h3>Node Placement Map</h3>
-          <p class="small muted">Click on the map to place nodes (GCS, UAV, Relay). Visualize coverage and line-of-sight.</p>
-          <div id="commsMapContainer" style="height: 400px; width: 100%; margin-top: 12px; border-radius: 8px; overflow: hidden; background: #1a1f2e; position: relative;">
-            <canvas id="commsMapCanvas" style="width: 100%; height: 100%; cursor: crosshair;"></canvas>
-            <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); padding: 8px; border-radius: 4px; font-size: 11px;">
-              <div style="color: #4ade80; margin-bottom: 4px;">🟢 GCS (Ground Control Station)</div>
-              <div style="color: #60a5fa; margin-bottom: 4px;">🔵 UAV (Unmanned Aerial Vehicle)</div>
-              <div style="color: #fbbf24;">🟡 Relay (Communication Relay)</div>
-            </div>
+          <p class="small muted">Click on the map to place nodes (GCS, UAV, Relay). Map shows actual terrain basemap.</p>
+          <div id="commsMapLeaflet" style="height: 400px; width: 100%; margin-top: 12px; border-radius: 8px; overflow: hidden; z-index: 1;"></div>
+          <div style="margin-top: 12px; padding: 8px; background: var(--panel); border-radius: 4px; font-size: 11px; display: flex; gap: 16px;">
+            <div style="color: #4ade80;">🟢 GCS (Ground Control Station)</div>
+            <div style="color: #60a5fa;">🔵 UAV (Unmanned Aerial Vehicle)</div>
+            <div style="color: #fbbf24;">🟡 Relay (Communication Relay)</div>
           </div>
           <div class="action-row" style="margin-top: 12px;">
             <button class="btn subtle" id="addNodeManual">➕ Add Node Manually</button>
@@ -829,6 +833,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
+
+  <!-- Load SheetJS library for Excel import/export -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
   <!-- Load event bus and UI feedback first -->
   <script src="assets/js/mission_project_events.js"></script>

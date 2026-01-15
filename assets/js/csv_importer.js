@@ -321,9 +321,52 @@ const CSVImporter = (() => {
   };
 
   /**
-   * Import from file
+   * Import from Excel file (XLSX/XLS) using SheetJS
+   */
+  const importFromExcel = async (file, category, options = {}) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = async (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+
+          // Get first sheet
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          // Convert to CSV text
+          const csvText = XLSX.utils.sheet_to_csv(worksheet);
+
+          // Use existing CSV import logic
+          const result = await importFromCSV(csvText, category, options);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  /**
+   * Import from file (auto-detects CSV or Excel)
    */
   const importFromFile = async (file, category, options = {}) => {
+    const fileName = file.name.toLowerCase();
+
+    // Check if Excel file
+    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+      if (typeof XLSX === 'undefined') {
+        throw new Error('Excel support not loaded. Please refresh the page.');
+      }
+      return importFromExcel(file, category, options);
+    }
+
+    // Otherwise treat as CSV
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -579,9 +622,52 @@ const CSVImporter = (() => {
   };
 
   /**
-   * Import multi-category from file
+   * Import multi-category from Excel file
+   */
+  const importMultiCategoryFromExcel = async (file, options = {}) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = async (event) => {
+        try {
+          const data = new Uint8Array(event.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+
+          // Get first sheet
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+
+          // Convert to CSV text
+          const csvText = XLSX.utils.sheet_to_csv(worksheet);
+
+          // Use existing multi-category CSV import logic
+          const result = await importMultiCategoryCSV(csvText, options);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      };
+
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(file);
+    });
+  };
+
+  /**
+   * Import multi-category from file (auto-detects CSV or Excel)
    */
   const importMultiCategoryFromFile = async (file, options = {}) => {
+    const fileName = file.name.toLowerCase();
+
+    // Check if Excel file
+    if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+      if (typeof XLSX === 'undefined') {
+        throw new Error('Excel support not loaded. Please refresh the page.');
+      }
+      return importMultiCategoryFromExcel(file, options);
+    }
+
+    // Otherwise treat as CSV
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 

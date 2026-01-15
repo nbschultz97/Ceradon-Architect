@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "2.0.0",
+  "projectId": "mission-1768436150178",
+  "meta": {
+    "name": "Untitled mission",
+    "description": "",
+    "durationHours": 48,
+    "origin_tool": "hub",
+    "scenario": "",
+    "inventoryReference": "Pending catalog reference",
+    "accessCode": "",
+    "team": {
+      "size": 0,
+      "roles": []
+    }
+  },
+  "environment": [
+    {
+      "id": "env-main",
+      "name": "Baseline AO",
+      "altitudeBand": "0-1000m",
+      "temperatureBand": "-10-10C",
+      "weather": "",
+      "elevationM": 0,
+      "terrain": "mixed",
+      "origin_tool": "hub",
+      "notes": ""
+    }
+  ],
+  "constraints": [],
+  "nodes": [],
+  "platforms": [],
+  "mesh_links": [],
+  "kits": [],
+  "mission": {
+    "tasks": [],
+    "phases": [],
+    "assignments": [],
+    "mission_cards": []
+  },
+  "sustainment": {
+    "sustainmentHours": 48,
+    "batteryCounts": 0,
+    "feasibility": {},
+    "notes": "",
+    "power_plan": "",
+    "packing_lists": []
+  },
+  "meshPlan": {
+    "relayCount": 0,
+    "criticalLinks": 0,
+    "rf_bands": [],
+    "ew_profile": ""
+  },
+  "kitsSummary": {
+    "perOperatorLoads": [],
+    "perOperatorLoadKg": 18,
+    "perOperatorLimitKg": 22
+  },
+  "exports": {
+    "links": [],
+    "notes": ""
+  }
+}

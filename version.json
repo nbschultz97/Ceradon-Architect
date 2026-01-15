@@ -1,14 +1,14 @@
 {
   "offline": {
-    "version": "0.4.0-alpha.2",
+    "version": "0.4.0-alpha.3",
     "stage": "alpha",
-    "released": "2026-01-09",
+    "released": "2026-01-15",
     "description": "Offline mission planning tool for air-gapped environments - Digital Construction Foreman",
     "features": {
       "partsLibrary": {
         "status": "stable",
-        "version": "1.0.0",
-        "notes": "IndexedDB storage, CSV import, sample catalog"
+        "version": "1.0.1",
+        "notes": "IndexedDB storage, CSV/Excel import (.csv, .xlsx, .xls), sample catalog"
       },
       "platformDesigner": {
         "status": "beta",
@@ -22,8 +22,8 @@
       },
       "commsValidator": {
         "status": "beta",
-        "version": "1.0.0",
-        "notes": "RF link budgets, LOS checks, relay recommendations"
+        "version": "1.1.0",
+        "notes": "RF link budgets, LOS checks, relay recommendations, Leaflet basemap with OSM tiles"
       },
       "export": {
         "status": "beta",
@@ -54,13 +54,13 @@
     "targetRelease": "2026-Q3"
   },
   "webPlayground": {
-    "version": "0.4.0-alpha.2",
+    "version": "0.4.0-alpha.3",
     "stage": "alpha",
-    "released": "2026-01-09",
+    "released": "2026-01-15",
     "description": "Interactive web demo mirroring offline tool functionality",
     "url": "https://nbschultz97.github.io/COTS-Architect/",
     "purpose": "Public demo only; always mirrors offline version",
-    "syncedWith": "offline:0.4.0-alpha.2",
+    "syncedWith": "offline:0.4.0-alpha.3",
     "features": {
       "allModules": "functional",
       "sampleData": "included",

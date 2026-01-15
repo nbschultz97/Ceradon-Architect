@@ -1,9 +1,10 @@
 {
   "name": "cots-architect-desktop",
-  "version": "0.4.0-alpha.2",
+  "version": "0.4.0-alpha.3",
   "private": true,
   "main": "desktop/main.js",
   "scripts": {
+    "dev": "npm run desktop:dev",
     "desktop:dev": "electron .",
     "desktop:dist": "electron-builder --win --x64"
   },
